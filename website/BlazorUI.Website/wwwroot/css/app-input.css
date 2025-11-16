@@ -1,0 +1,12 @@
+/* Import Tailwind v4 configuration FIRST */
+@config "../../tailwind.config.js";
+
+/* Import Tailwind CSS */
+@import 'tailwindcss';
+
+/* Configure source paths for scanning website-specific Razor files */
+@source "../../Pages";
+@source "../../Shared";
+@source "../../Components";
+
+/* Website-specific custom styles can go here */

@@ -1,53 +1,226 @@
 # BlazorUI
 
-A comprehensive UI component library for Blazor based on [shadcn/ui](https://ui.shadcn.com/).
+A comprehensive UI component library for Blazor inspired by [shadcn/ui](https://ui.shadcn.com/).
 
 ## Overview
 
-BlazorUI brings the beautiful design system of shadcn/ui to Blazor applications. This library provides plug-and-play UI components with full shadcn/ui compatibility, featuring both styled components and headless primitives that work across all Blazor hosting models (Server, WebAssembly, and Hybrid).
+BlazorUI brings the beautiful design system of shadcn/ui to Blazor applications. This library provides **zero-config, plug-and-play UI components** with full shadcn/ui compatibility, featuring pre-built CSS, styled components, and headless primitives that work across all Blazor hosting models (Server, WebAssembly, and Hybrid).
 
-## Project Structure
-
-```
-BlazorUI/
-├── src/
-│   ├── BlazorUI.Components/   # Styled components (shadcn/ui design)
-│   ├── BlazorUI.Primitives/   # Headless UI primitives
-│   └── BlazorUI.Icons/        # Lucide icon integration
-├── demo/
-│   └── BlazorUI.Demo/         # Demo Blazor Server app
-└── .devflow/                  # DevFlow documentation
-```
-
-## Technology Stack
-
-- **.NET 8 (LTS)**
-- **Blazor** (Server, WebAssembly, Hybrid)
-- **Tailwind CSS** (standalone CLI, no Node.js required)
-- **CSS Variables** for theming
-- **Lucide Icons** (1000+ beautiful icons)
+**No Tailwind CSS setup required** - just install the NuGet package and start building!
 
 ## Getting Started
 
-### Prerequisites
+### Installation
 
-- .NET 8 SDK
-- Tailwind CSS standalone CLI (included in demo app)
-
-### Building the Solution
+Install BlazorUI packages from NuGet:
 
 ```bash
-dotnet build
+# Headless primitives for custom styling
+dotnet add package BlazorUI.Primitives
+
+# Styled components with shadcn/ui design
+dotnet add package BlazorUI.Components
+
+# Icon libraries (choose one or more)
+dotnet add package BlazorUI.Icons.Lucide      # 1,640 icons - stroke-based, consistent
+dotnet add package BlazorUI.Icons.Heroicons   # 1,288 icons - 4 variants (outline, solid, mini, micro)
+dotnet add package BlazorUI.Icons.Feather     # 286 icons - minimalist, stroke-based
 ```
 
-### Running the Demo
+### Quick Start
 
-```bash
-cd demo/BlazorUI.Demo
-dotnet watch run
+1. **Add to your `_Imports.razor`:**
+
+```razor
+@using BlazorUI.Components
 ```
 
-The demo app will be available at `https://localhost:5001`
+2. **Add PortalHost to your layout:**
+
+   For overlay components (Dialog, Sheet, Popover, etc.) to work correctly, add `<PortalHost />` to your root layout:
+
+```razor
+@inherits LayoutComponentBase
+
+<div class="min-h-screen bg-background">
+    <!-- Your layout content -->
+    @Body
+</div>
+
+<PortalHost />
+```
+
+3. **Add CSS to your `App.razor`:**
+
+   BlazorUI Components come with pre-built CSS - no Tailwind setup required!
+
+```razor
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <!-- Your theme CSS variables -->
+    <link rel="stylesheet" href="styles/theme.css" />
+    <!-- Pre-built BlazorUI styles -->
+    <link rel="stylesheet" href="_content/BlazorUI.Components/blazorui.css" />
+    <HeadOutlet @rendermode="InteractiveServer" />
+</head>
+<body>
+    <Routes @rendermode="InteractiveServer" />
+    <script src="_framework/blazor.web.js"></script>
+</body>
+</html>
+```
+
+4. **Start using components:**
+
+```razor
+<Button Variant="ButtonVariant.Default">Click me</Button>
+
+<Dialog>
+    <DialogTrigger AsChild>
+        <Button>Open Dialog</Button>
+    </DialogTrigger>
+    <DialogContent>
+        <DialogHeader>
+            <DialogTitle>Welcome to BlazorUI</DialogTitle>
+            <DialogDescription>
+                Beautiful Blazor components inspired by shadcn/ui
+            </DialogDescription>
+        </DialogHeader>
+    </DialogContent>
+</Dialog>
+```
+
+### Learn More
+
+- **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines
+
+## Theming
+
+BlazorUI is **100% compatible with shadcn/ui themes**, making it easy to customize your application's appearance.
+
+### Using Themes from shadcn/ui and tweakcn
+
+You can use any theme from:
+- **[shadcn/ui themes](https://ui.shadcn.com/themes)** - Official shadcn/ui theme gallery
+- **[tweakcn.com](https://tweakcn.com)** - Advanced theme customization tool with live preview
+
+Simply copy the CSS variables from these tools and paste them into your `wwwroot/styles/theme.css` file.
+
+### Customizing Your Theme
+
+1. **Create `wwwroot/styles/theme.css`** in your Blazor project
+
+2. **Add your theme variables** inside the `:root` (light mode) and `.dark` (dark mode) selectors:
+
+```css
+@layer base {
+  :root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.1450 0 0);
+    --primary: oklch(0.2050 0 0);
+    --primary-foreground: oklch(0.9850 0 0);
+    /* ... other variables */
+  }
+
+  .dark {
+    --background: oklch(0.1450 0 0);
+    --foreground: oklch(0.9850 0 0);
+    --primary: oklch(0.9220 0 0);
+    --primary-foreground: oklch(0.2050 0 0);
+    /* ... other variables */
+  }
+}
+```
+
+3. **Reference it in your `App.razor`** before the BlazorUI CSS:
+
+```razor
+<link rel="stylesheet" href="styles/theme.css" />
+<link rel="stylesheet" href="_content/BlazorUI.Components/blazorui.css" />
+```
+
+That's it! BlazorUI will automatically use your theme variables.
+
+### Available Theme Variables
+
+BlazorUI supports all standard shadcn/ui CSS variables:
+- Colors: `--background`, `--foreground`, `--primary`, `--secondary`, `--accent`, `--destructive`, `--muted`, etc.
+- Typography: `--font-sans`, `--font-serif`, `--font-mono`
+- Layout: `--radius` (border radius), `--shadow-*` (shadows)
+- Charts: `--chart-1` through `--chart-5`
+- Sidebar: `--sidebar`, `--sidebar-primary`, `--sidebar-accent`, etc.
+
+### Dark Mode
+
+BlazorUI automatically supports dark mode by applying the `.dark` class to the `<html>` element. All components will automatically switch to dark mode colors when this class is present.
+
+## Styling
+
+### BlazorUI.Components (Pre-styled)
+
+**No Tailwind CSS setup required!** BlazorUI Components include pre-built, production-ready CSS that ships with the NuGet package.
+
+Simply add two CSS files to your `App.razor`:
+
+```razor
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+
+    <!-- 1. Your custom theme (defines CSS variables) -->
+    <link rel="stylesheet" href="styles/theme.css" />
+
+    <!-- 2. Pre-built BlazorUI styles (included in NuGet package) -->
+    <link rel="stylesheet" href="_content/BlazorUI.Components/blazorui.css" />
+
+    <HeadOutlet @rendermode="InteractiveServer" />
+</head>
+<body>
+    <Routes @rendermode="InteractiveServer" />
+    <script src="_framework/blazor.web.js"></script>
+</body>
+</html>
+```
+
+**Important:** Load your theme CSS **before** `blazorui.css` so the CSS variables are defined when BlazorUI references them.
+
+**Note:** The pre-built CSS is already minified and optimized. You don't need to install Tailwind CSS, configure build processes, or set up any additional tooling.
+
+### BlazorUI.Primitives (Headless)
+
+Primitives are completely **headless** - they provide behavior and accessibility without any styling. You have complete freedom to style them however you want:
+
+**Option 1: Tailwind CSS** (requires your own Tailwind setup)
+```razor
+<BlazorUI.Primitives.Accordion.Accordion class="space-y-4">
+    <BlazorUI.Primitives.Accordion.AccordionItem class="border rounded-lg">
+        <!-- Your custom Tailwind classes -->
+    </BlazorUI.Primitives.Accordion.AccordionItem>
+</BlazorUI.Primitives.Accordion.Accordion>
+```
+
+**Option 2: CSS Modules / Vanilla CSS**
+```razor
+<BlazorUI.Primitives.Accordion.Accordion class="my-accordion">
+    <!-- Style with your own CSS -->
+</BlazorUI.Primitives.Accordion.Accordion>
+```
+
+**Option 3: Inline Styles**
+```razor
+<BlazorUI.Primitives.Accordion.Accordion style="margin: 1rem;">
+    <!-- Direct inline styling -->
+</BlazorUI.Primitives.Accordion.Accordion>
+```
+
+Primitives give you complete control over styling while handling all the complex behavior, accessibility, and keyboard navigation for you. Unlike `BlazorUI.Components`, primitives don't include any CSS - you bring your own styling approach.
 
 ## Components
 
@@ -86,7 +259,23 @@ BlazorUI includes **24 styled components** with full shadcn/ui design compatibil
 - **Skeleton** - Loading placeholders
 
 ### Icons
-- **Lucide Icons** - 1000+ beautiful icons with search and browse interface
+
+BlazorUI offers **three icon library packages** to suit different design preferences:
+
+- **Lucide Icons** (`BlazorUI.Icons.Lucide`) - 1,640 beautiful, consistent stroke-based icons
+  - ISC licensed
+  - 24x24 viewBox, 2px stroke width
+  - Perfect for: Modern, clean interfaces
+
+- **Heroicons** (`BlazorUI.Icons.Heroicons`) - 1,288 icons across 4 variants
+  - MIT licensed by Tailwind Labs
+  - Variants: Outline (24x24), Solid (24x24), Mini (20x20), Micro (16x16)
+  - Perfect for: Tailwind-based designs, flexible sizing needs
+
+- **Feather Icons** (`BlazorUI.Icons.Feather`) - 286 minimalist stroke-based icons
+  - MIT licensed
+  - 24x24 viewBox, 2px stroke width
+  - Perfect for: Simple, lightweight projects
 
 ## Primitives
 
@@ -113,14 +302,15 @@ All primitives are fully accessible, keyboard-navigable, and provide complete co
 ## Features
 
 - **Full shadcn/ui Compatibility** - Drop-in Blazor equivalents of shadcn/ui components
+- **Zero Configuration** - Pre-built CSS included, no Tailwind setup required
 - **Dark Mode Support** - Built-in light/dark theme switching with CSS variables
 - **Responsive Design** - Mobile-first components that adapt to all screen sizes
 - **Accessibility First** - WCAG 2.1 AA compliant with keyboard navigation and ARIA attributes
 - **Keyboard Shortcuts** - Native keyboard navigation support (e.g., Ctrl/Cmd+B for sidebar toggle)
 - **State Persistence** - Cookie-based state management for user preferences
 - **TypeScript-Inspired API** - Familiar API design for developers coming from React/shadcn/ui
-- **No JavaScript Dependencies** - Pure Blazor implementation with no Node.js required
-- **Lucide Icons Integration** - Built-in icon component with 1000+ searchable icons
+- **Pure Blazor** - No JavaScript dependencies, no Node.js required
+- **Icon Library Options** - 3 separate icon packages (Lucide, Heroicons, Feather) with 3,200+ total icons
 - **Form Validation Ready** - Works seamlessly with Blazor's form validation
 
 ## Architecture
@@ -129,6 +319,7 @@ BlazorUI uses a **two-layer architecture**:
 
 ### Styled Components Layer (`BlazorUI.Components`)
 - Pre-styled components matching shadcn/ui design system
+- **Pre-built CSS included** - no Tailwind configuration needed
 - Built on top of primitives for consistency
 - Ready to use out of the box
 - Full theme support via CSS variables
@@ -147,96 +338,24 @@ BlazorUI uses a **two-layer architecture**:
 - **Composition over inheritance** - Components designed to be composed together
 - **Progressive enhancement** - Works without JavaScript where possible
 
-For detailed architecture documentation, see `.devflow/architecture.md`
-
-## Development
-
-This project uses [DevFlow](https://github.com/mathewtaylor/devflow) for structured feature development.
-
-### Quality Standards
-
-- **Naming Conventions**
-  - PascalCase for public members
-  - camelCase for private fields (no underscore prefix)
-  - Component files: `ComponentName.razor` + `ComponentName.razor.cs`
-
-- **Documentation**
-  - XML documentation for all public APIs
-  - Inline comments for complex logic
-  - README files for each major feature
-
-- **Testing**
-  - Manual testing across all Blazor hosting models (Server, WASM, Hybrid)
-  - Cross-browser compatibility testing (Chrome, Firefox, Edge, Safari)
-  - Accessibility validation with screen readers
-  - Keyboard navigation verification
-
-- **Code Quality**
-  - Follow Blazor best practices
-  - Avoid unnecessary re-renders
-  - Proper disposal of resources
-  - Null-safety throughout
-
-## Publishing Releases
-
-BlazorUI publishes three independent NuGet packages with automated CI/CD:
-
-- **BlazorUI.Primitives** - Headless UI primitives
-- **BlazorUI.Components** - Styled components
-- **BlazorUI.Icons** - Lucide icon library
-
-### Release Process
-
-Each package can be released independently with its own version number using the provided release scripts:
-
-```bash
-# Release Primitives
-./scripts/release-primitives.sh 1.0.0-beta.4
-
-# Release Components
-./scripts/release-components.sh 1.1.0-beta.2
-
-# Release Icons
-./scripts/release-icons.sh 1.0.3
-```
-
-The scripts will:
-1. Validate the version format (semantic versioning)
-2. Check for uncommitted changes
-3. Create and push a git tag (e.g., `primitives/v1.0.0-beta.4`)
-4. Trigger automated GitHub Actions workflow
-
-### Automated Publishing
-
-When a tag is pushed, GitHub Actions will automatically:
-1. Build the project
-2. Run tests (if any)
-3. Pack the NuGet package
-4. Publish to NuGet.org
-
-Monitor the release workflow at: https://github.com/blazorui-net/ui/actions
-
-### Versioning Strategy
-
-- Each package maintains its own independent version
-- Versions are determined by git tags (e.g., `primitives/v1.0.0-beta.4`)
-- MinVer automatically calculates package versions from git tags
-- Pre-release versions use `-beta.X` suffix for beta releases
-
-### Prerequisites for Publishing
-
-To publish packages, you need:
-1. Write access to the GitHub repository
-2. NUGET_API_KEY secret configured in GitHub repository settings
-3. Git tag push permissions
-
 ## License
 
-TBD
+BlazorUI is open source software licensed under the [MIT License](LICENSE).
+
 
 ## Acknowledgments
 
-- [shadcn/ui](https://ui.shadcn.com/) - Original design system and inspiration
-- [Radix UI](https://www.radix-ui.com/) - Primitive component patterns and accessibility standards
+BlazorUI is inspired by [shadcn/ui](https://ui.shadcn.com/) and based on the design principles of [Radix UI](https://www.radix-ui.com/).
+
+While BlazorUI is a complete reimplementation for Blazor/C# and contains no code from these projects, we are grateful for their excellent work which inspired this library.
+
+- shadcn/ui: MIT License - Copyright (c) 2023 shadcn
+- Radix UI: MIT License - Copyright (c) 2022-present WorkOS
+
+BlazorUI is an independent project and is not affiliated with or endorsed by shadcn or Radix UI.
+
+
 - [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [Lucide Icons](https://lucide.dev/) - Beautiful icon library
+- [Lucide Icons](https://lucide.dev/) - Beautiful stroke-based icon library (ISC License)
+- [Heroicons](https://heroicons.com/) - Icon library by Tailwind Labs (MIT License)
+- [Feather Icons](https://feathericons.com/) - Minimalist icon library (MIT License)
