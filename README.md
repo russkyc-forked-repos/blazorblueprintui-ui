@@ -1,4 +1,4 @@
-# BlazorBlueprint
+# Blazor Blueprint
 
 [![Website](https://img.shields.io/badge/Website-blazorblueprintui.com-blue)](https://blazorblueprintui.com)
 [![NuGet](https://img.shields.io/nuget/v/BlazorBlueprint.Components)](https://www.nuget.org/packages/BlazorBlueprint.Components)
@@ -10,7 +10,7 @@ Beautiful, accessible UI components for Blazor. Inspired by [shadcn/ui](https://
 
 <p align="center">
   <a href="https://blazorblueprintui.com">
-    <img src=".github/assets/hero.png" alt="BlazorBlueprint - Beautiful Components for Blazor" />
+    <img src=".github/assets/hero.png" alt="Blazor Blueprint - Beautiful Components for Blazor" />
   </a>
 </p>
 
@@ -22,7 +22,7 @@ Beautiful, accessible UI components for Blazor. Inspired by [shadcn/ui](https://
 
 ## Overview
 
-BlazorBlueprint brings the elegant design system of shadcn/ui to Blazor applications. Build modern, responsive interfaces with **65+ styled components** and **15 headless primitives** that work across all Blazor hosting models—Server, WebAssembly, and Hybrid.
+Blazor Blueprint brings the elegant design system of shadcn/ui to Blazor applications. Build modern, responsive interfaces with **65+ styled components** and **15 headless primitives** that work across all Blazor hosting models—Server, WebAssembly, and Hybrid.
 
 ### Why Blazor Blueprint UI?
 
@@ -37,7 +37,7 @@ Blazor developers lack a modern, system-first UI library equivalent to shadcn/ui
 
 ### Installation
 
-Install BlazorBlueprint packages from NuGet:
+Install Blazor Blueprint packages from NuGet:
 
 ```bash
 # Headless primitives for custom styling
@@ -54,7 +54,7 @@ dotnet add package BlazorBlueprint.Icons.Feather     # 286 icons - minimalist, s
 
 ### Using the .NET Template
 
-The fastest way to get started is with the official BlazorBlueprint template:
+The fastest way to get started is with the official Blazor Blueprint template:
 
 ```bash
 # Install the template
@@ -64,7 +64,7 @@ dotnet new install BlazorBlueprint.Templates
 dotnet new blazorblueprint -n MyApp
 ```
 
-This creates a fully configured Blazor project with BlazorBlueprint components, theming, and best practices already set up.
+This creates a fully configured Blazor project with Blazor Blueprint components, theming, and best practices already set up.
 
 ### Quick Start
 
@@ -92,7 +92,7 @@ This creates a fully configured Blazor project with BlazorBlueprint components, 
 
 3. **Add CSS to your `App.razor`:**
 
-   BlazorBlueprint Components come with pre-built CSS - no Tailwind setup required!
+   Blazor Blueprint Components come with pre-built CSS - no Tailwind setup required!
 
 ```razor
 <!DOCTYPE html>
@@ -103,7 +103,7 @@ This creates a fully configured Blazor project with BlazorBlueprint components, 
     <base href="/" />
     <!-- Your theme CSS variables -->
     <link rel="stylesheet" href="styles/theme.css" />
-    <!-- Pre-built BlazorBlueprint styles -->
+    <!-- Pre-built Blazor Blueprint styles -->
     <link rel="stylesheet" href="_content/BlazorBlueprint.Components/blazorblueprint.css" />
     <HeadOutlet @rendermode="InteractiveServer" />
 </head>
@@ -125,7 +125,7 @@ This creates a fully configured Blazor project with BlazorBlueprint components, 
     </DialogTrigger>
     <DialogContent>
         <DialogHeader>
-            <DialogTitle>Welcome to BlazorBlueprint</DialogTitle>
+            <DialogTitle>Welcome to Blazor Blueprint</DialogTitle>
             <DialogDescription>
                 Beautiful Blazor components inspired by shadcn/ui
             </DialogDescription>
@@ -148,7 +148,7 @@ This creates a fully configured Blazor project with BlazorBlueprint components, 
 
 ## Theming
 
-BlazorBlueprint is **100% compatible with shadcn/ui themes**, making it easy to customize your application's appearance.
+Blazor Blueprint is **100% compatible with shadcn/ui themes**, making it easy to customize your application's appearance.
 
 ### Using Themes from shadcn/ui and tweakcn
 
@@ -184,18 +184,18 @@ Simply copy the CSS variables from these tools and paste them into your `wwwroot
 }
 ```
 
-3. **Reference it in your `App.razor`** before the BlazorBlueprint CSS:
+3. **Reference it in your `App.razor`** before the Blazor Blueprint CSS:
 
 ```razor
 <link rel="stylesheet" href="styles/theme.css" />
 <link rel="stylesheet" href="_content/BlazorBlueprint.Components/blazorblueprint.css" />
 ```
 
-That's it! BlazorBlueprint will automatically use your theme variables.
+That's it! Blazor Blueprint will automatically use your theme variables.
 
 ### Available Theme Variables
 
-BlazorBlueprint supports all standard shadcn/ui CSS variables:
+Blazor Blueprint supports all standard shadcn/ui CSS variables:
 - Colors: `--background`, `--foreground`, `--primary`, `--secondary`, `--accent`, `--destructive`, `--muted`, etc.
 - Typography: `--font-sans`, `--font-serif`, `--font-mono`
 - Layout: `--radius` (border radius), `--shadow-*` (shadows)
@@ -204,13 +204,13 @@ BlazorBlueprint supports all standard shadcn/ui CSS variables:
 
 ### Dark Mode
 
-BlazorBlueprint automatically supports dark mode by applying the `.dark` class to the `<html>` element. All components will automatically switch to dark mode colors when this class is present.
+Blazor Blueprint automatically supports dark mode by applying the `.dark` class to the `<html>` element. All components will automatically switch to dark mode colors when this class is present.
 
 ## Styling
 
 ### BlazorBlueprint.Components (Pre-styled)
 
-**No Tailwind CSS setup required!** BlazorBlueprint Components include pre-built, production-ready CSS that ships with the NuGet package.
+**No Tailwind CSS setup required!** Blazor Blueprint Components include pre-built, production-ready CSS that ships with the NuGet package.
 
 Simply add two CSS files to your `App.razor`:
 
@@ -225,7 +225,7 @@ Simply add two CSS files to your `App.razor`:
     <!-- 1. Your custom theme (defines CSS variables) -->
     <link rel="stylesheet" href="styles/theme.css" />
 
-    <!-- 2. Pre-built BlazorBlueprint styles (included in NuGet package) -->
+    <!-- 2. Pre-built Blazor Blueprint styles (included in NuGet package) -->
     <link rel="stylesheet" href="_content/BlazorBlueprint.Components/blazorblueprint.css" />
 
     <HeadOutlet @rendermode="InteractiveServer" />
@@ -237,7 +237,7 @@ Simply add two CSS files to your `App.razor`:
 </html>
 ```
 
-**Important:** Load your theme CSS **before** `blazorblueprint.css` so the CSS variables are defined when BlazorBlueprint references them.
+**Important:** Load your theme CSS **before** `blazorblueprint.css` so the CSS variables are defined when Blazor Blueprint references them.
 
 **Note:** The pre-built CSS is already minified and optimized. You don't need to install Tailwind CSS, configure build processes, or set up any additional tooling.
 
@@ -272,7 +272,7 @@ Primitives give you complete control over styling while handling all the complex
 
 ## Components
 
-BlazorBlueprint includes **65+ styled components** with full shadcn/ui design compatibility:
+Blazor Blueprint includes **65+ styled components** with full shadcn/ui design compatibility:
 
 ### Form Components
 - **Button** - Multiple variants (default, destructive, outline, secondary, ghost, link) with icon support
@@ -354,7 +354,7 @@ BlazorBlueprint includes **65+ styled components** with full shadcn/ui design co
 
 ### Icons
 
-BlazorBlueprint offers **three icon library packages** to suit different design preferences:
+Blazor Blueprint offers **three icon library packages** to suit different design preferences:
 
 - **Lucide Icons** (`BlazorBlueprint.Icons.Lucide`) - 1,665 beautiful, consistent stroke-based icons
   - ISC licensed
@@ -373,7 +373,7 @@ BlazorBlueprint offers **three icon library packages** to suit different design 
 
 ## Primitives
 
-BlazorBlueprint also includes **15 headless primitive components** for building custom UI:
+Blazor Blueprint also includes **15 headless primitive components** for building custom UI:
 
 - Accordion Primitive
 - Checkbox Primitive
@@ -409,7 +409,7 @@ All primitives are fully accessible, keyboard-navigable, and provide complete co
 
 ## Architecture
 
-BlazorBlueprint uses a **two-layer architecture**:
+Blazor Blueprint uses a **two-layer architecture**:
 
 ### Styled Components Layer (`BlazorBlueprint.Components`)
 - Pre-styled components matching shadcn/ui design system
@@ -496,21 +496,21 @@ The component APIs remain unchanged—only the namespaces and package names have
 
 ## License
 
-BlazorBlueprint is open source software licensed under the [Apache License 2.0](LICENSE).
+Blazor Blueprint is open source software licensed under the [Apache License 2.0](LICENSE).
 
 If you create derivative works, you must include the contents of the [NOTICE](NOTICE) file in your distribution, as required by the Apache License 2.0.
 
 
 ## Acknowledgments
 
-BlazorBlueprint is inspired by [shadcn/ui](https://ui.shadcn.com/) and based on the design principles of [Radix UI](https://www.radix-ui.com/).
+Blazor Blueprint is inspired by [shadcn/ui](https://ui.shadcn.com/) and based on the design principles of [Radix UI](https://www.radix-ui.com/).
 
-While BlazorBlueprint is a complete reimplementation for Blazor/C# and contains no code from these projects, we are grateful for their excellent work which inspired this library.
+While Blazor Blueprint is a complete reimplementation for Blazor/C# and contains no code from these projects, we are grateful for their excellent work which inspired this library.
 
 - shadcn/ui: MIT License - Copyright (c) 2023 shadcn
 - Radix UI: MIT License - Copyright (c) 2022-present WorkOS
 
-BlazorBlueprint is an independent project and is not affiliated with or endorsed by shadcn or Radix UI.
+Blazor Blueprint is an independent project and is not affiliated with or endorsed by shadcn or Radix UI.
 
 
 - [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
