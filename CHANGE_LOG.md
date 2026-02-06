@@ -10,9 +10,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 - Button component now supports `Href` and `Target` parameters, rendering as an `<a>` element for navigation links while preserving all visual styling
+- ColorPicker alpha (A) input field alongside R/G/B for precise transparency control
 
 ### Changed
 - Coding standards are now enforced at build time
+
+### Fixed
+- Resolved all build warnings and configured warnings-as-errors for stricter code quality
+- ColorPicker alpha channel now displays clean 6-char hex with percentage instead of confusing 8-char hex format
+- ColorPicker alpha precision no longer drifts on repeated interactions
+- ColorPicker demo alpha preview CSS corrected for proper transparency rendering
 
 ---
 
