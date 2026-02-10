@@ -1,4 +1,5 @@
 @namespace BlazorBlueprint.Components.Select
+@implements IDisposable
 
 @if (!string.IsNullOrWhiteSpace(GetSelectedText()))
 {
@@ -19,5 +20,30 @@ else
     [Parameter]
     public string? Placeholder { get; set; }
 
+    private bool _subscribed;
+    private readonly Action _handleStateChanged;
+
+    public SelectValue()
+    {
+        _handleStateChanged = () => InvokeAsync(StateHasChanged);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (!_subscribed && SelectContext != null)
+        {
+            SelectContext!.OnStateChanged += _handleStateChanged;
+            _subscribed = true;
+        }
+    }
+
     private string? GetSelectedText() => SelectContext?.DisplayText;
+
+    public void Dispose()
+    {
+        if (_subscribed && SelectContext != null)
+        {
+            SelectContext!.OnStateChanged -= _handleStateChanged;
+        }
+    }
 }
