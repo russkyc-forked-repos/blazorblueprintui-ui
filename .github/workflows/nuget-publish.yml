@@ -121,6 +121,14 @@ jobs:
           ./tools/tailwindcss-linux -i src/BlazorBlueprint.Components/wwwroot/css/blazorblueprint-input.css -o src/BlazorBlueprint.Components/wwwroot/blazorblueprint.css --minify
           echo "Generated blazorblueprint.css ($(wc -c < src/BlazorBlueprint.Components/wwwroot/blazorblueprint.css) bytes)"
 
+      - name: Run API surface tests
+        run: dotnet test tests/BlazorBlueprint.Tests/BlazorBlueprint.Tests.csproj --configuration Release --verbosity normal
+
+      # Restore, Build, and Pack run AFTER tests because `dotnet test` on the test
+      # project rebuilds Components via ProjectReference (without UsePackageReferences),
+      # which would overwrite the build cache with MinVer-generated prerelease versions
+      # for Primitives and Icons.Lucide.  Building last ensures the cache is correct
+      # for the --no-build pack step.
       - name: Restore dependencies
         run: |
           # For components package, use NuGet package references instead of project references
@@ -140,9 +148,6 @@ jobs:
           fi
           echo "Checking MinVer calculated version..."
           dotnet msbuild ${{ steps.package-info.outputs.project_path }} -getProperty:Version -p:Configuration=Release
-
-      - name: Run API surface tests
-        run: dotnet test tests/BlazorBlueprint.Tests/BlazorBlueprint.Tests.csproj --configuration Release --verbosity normal
 
       - name: Pack
         run: |
