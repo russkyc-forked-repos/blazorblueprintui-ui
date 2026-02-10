@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `Strategy` and `ZIndex` parameters on `PopoverContent` — allows dropdowns to use `fixed` positioning and custom z-index to escape stacking contexts (e.g., inside Dialogs)
 - Dialog demo expanded with Select, Combobox, and MultiSelect controls to demonstrate nested portal behavior
 - DataTable demo added "Dialog with Combobox in Cell Template" section as a nested portal regression test
+- API surface snapshot tests for Components and Primitives assemblies using Verify — detects unintentional public API changes
+- `run-tests.sh` script for running API surface tests locally
+- API surface tests integrated into NuGet publish CI workflow
 
 ### Changed
 - Combobox selected item checkmark moved from left side to right side of the item text
@@ -21,6 +24,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Combobox and MultiSelect dropdowns now render correctly above Dialog overlays using `fixed` positioning with elevated z-index
 - `DialogPortal` not refreshing content on re-render — event handlers inside dialog content would update state but the UI wouldn't re-render until an unrelated browser event occurred (#118)
 - `SheetPortal` using `UpdatePortalContent` instead of `RefreshPortal`, which unnecessarily replaced the RenderFragment delegate on every parameter update
+- Disabled Verify auto-launching diff tool on test failure
+- Resolved analyzer errors in test project
+- Removed obsolete `[UsesVerify]` attribute from test classes
 - Infinite render loop in `PortalHost` when opening dropdown controls (Select, Combobox, MultiSelect) inside a Dialog — replaced `_pendingRerender` flag with structural change detection to break the loop that froze WASM apps
 
 ---
