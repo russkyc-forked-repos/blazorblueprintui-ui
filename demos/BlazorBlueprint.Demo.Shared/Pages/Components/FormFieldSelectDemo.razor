@@ -1,0 +1,324 @@
+@page "/components/form-field-select"
+@using BlazorBlueprint.Components.FormFieldSelect
+@using BlazorBlueprint.Components.Avatar
+@using BlazorBlueprint.Components.Button
+@using BlazorBlueprint.Components.Field
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>FormFieldSelect Component - Blazor Blueprint</PageTitle>
+
+<div class="space-y-8 max-w-4xl">
+    <div>
+        <div class="space-y-3">
+            <h1 class="text-4xl font-bold tracking-tight">FormFieldSelect</h1>
+            <p class="text-xl text-muted-foreground">
+                A form field wrapper for Select with built-in label, helper text, error messages, and a simplified API.
+            </p>
+        </div>
+    </div>
+
+    <!-- When to use -->
+    <div class="rounded-lg border bg-card p-6 space-y-4">
+        <h2 class="text-lg font-semibold">When to use FormFieldSelect</h2>
+        <p class="text-sm text-muted-foreground">
+            Use <code class="text-xs bg-muted px-1 py-0.5 rounded">FormFieldSelect&lt;TValue&gt;</code> when you want a complete,
+            ready-to-use select dropdown with label, helper text, and automatic error display. It composes
+            <a href="/components/select" class="text-primary underline underline-offset-4 hover:text-primary/80">Select</a>
+            with the <a href="/components/field" class="text-primary underline underline-offset-4 hover:text-primary/80">Field</a> component system
+            and auto-generates the trigger, value display, and content wrapper so you only provide SelectItem children.
+        </p>
+        <div class="rounded-md border border-dashed p-4 space-y-1.5">
+            <p class="text-sm font-medium">Example scenario</p>
+            <p class="text-sm text-muted-foreground">
+                You're building an address form with a Country dropdown.
+                It needs a label, placeholder, and validation error when nothing is selected.
+                Instead of composing Select + SelectTrigger + SelectValue + SelectContent + Field chrome,
+                you drop in a single <code class="text-xs bg-muted px-1 py-0.5 rounded">FormFieldSelect</code> tag
+                with SelectItem children and get all of that automatically.
+            </p>
+        </div>
+        <div class="bg-muted rounded-md p-4 space-y-2">
+            <pre class="text-sm font-mono whitespace-pre-wrap">&lt;FormFieldSelect TValue="string" @("@")bind-Value="country" Label="Country" Placeholder="Select a country..."&gt;
+    &lt;SelectItem Value="@("us")" Text="United States"&gt;United States&lt;/SelectItem&gt;
+&lt;/FormFieldSelect&gt;</pre>
+        </div>
+    </div>
+
+    <!-- Which form component? -->
+    <div class="rounded-lg border border-dashed bg-muted/30 p-6 space-y-3">
+        <h2 class="text-lg font-semibold">Which form component?</h2>
+        <div class="space-y-2 text-sm text-muted-foreground">
+            <p><strong>Text input</strong> (string, int, date, etc.)? &rarr; <a href="/components/form-field-input" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldInput&lt;T&gt;</a></p>
+            <p><strong>Checkbox</strong>? &rarr; <a href="/components/form-field-checkbox" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldCheckbox</a></p>
+            <p><strong>Switch</strong>? &rarr; <a href="/components/form-field-switch" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldSwitch</a></p>
+            <p><strong>Radio group</strong>? &rarr; <a href="/components/form-field-radio-group" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldRadioGroup</a></p>
+            <p><strong>Select dropdown</strong>? &rarr; <strong>FormFieldSelect</strong> (this page)</p>
+            <p><strong>Searchable select</strong>? &rarr; <a href="/components/form-field-combobox" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldCombobox</a></p>
+            <p><strong>Multi-select</strong>? &rarr; <a href="/components/form-field-multi-select" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldMultiSelect</a></p>
+        </div>
+    </div>
+
+    <!-- Basic Example -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">Basic Usage</h2>
+            <p class="text-sm text-muted-foreground">
+                A select with a label and placeholder. Just provide SelectItem children &mdash;
+                the trigger, value display, and content wrapper are generated automatically.
+            </p>
+        </div>
+        <div class="max-w-md">
+            <FormFieldSelect TValue="string"
+                             @bind-Value="_fruit"
+                             Label="Favorite fruit"
+                             Placeholder="Select a fruit..."
+                             HelperText="Pick one from the list.">
+                <SelectItem Value="@("apple")" Text="Apple">Apple</SelectItem>
+                <SelectItem Value="@("banana")" Text="Banana">Banana</SelectItem>
+                <SelectItem Value="@("cherry")" Text="Cherry">Cherry</SelectItem>
+                <SelectItem Value="@("grape")" Text="Grape">Grape</SelectItem>
+            </FormFieldSelect>
+        </div>
+        <div class="rounded-lg border p-4 bg-muted/50">
+            <p class="text-sm font-medium mb-1">Selected:</p>
+            <p class="text-sm font-mono">@(string.IsNullOrEmpty(_fruit) ? "(none)" : _fruit)</p>
+        </div>
+    </div>
+
+    <!-- With Flag Icons -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">With Flag Icons</h2>
+            <p class="text-sm text-muted-foreground">
+                Use rich content inside SelectItem to display flag emojis alongside country names.
+                The <code class="text-xs bg-muted px-1 py-0.5 rounded">Text</code> parameter controls what shows in the trigger after selection.
+            </p>
+        </div>
+        <div class="max-w-md">
+            <FormFieldSelect TValue="string"
+                             @bind-Value="_country"
+                             Label="Country"
+                             Placeholder="Select a country...">
+                <SelectItem Value="@("us")" Text="United States">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">&#x1F1FA;&#x1F1F8;</span>
+                        <span>United States</span>
+                    </div>
+                </SelectItem>
+                <SelectItem Value="@("ca")" Text="Canada">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">&#x1F1E8;&#x1F1E6;</span>
+                        <span>Canada</span>
+                    </div>
+                </SelectItem>
+                <SelectItem Value="@("gb")" Text="United Kingdom">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">&#x1F1EC;&#x1F1E7;</span>
+                        <span>United Kingdom</span>
+                    </div>
+                </SelectItem>
+                <SelectItem Value="@("de")" Text="Germany">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">&#x1F1E9;&#x1F1EA;</span>
+                        <span>Germany</span>
+                    </div>
+                </SelectItem>
+                <SelectItem Value="@("fr")" Text="France">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">&#x1F1EB;&#x1F1F7;</span>
+                        <span>France</span>
+                    </div>
+                </SelectItem>
+            </FormFieldSelect>
+        </div>
+        <div class="rounded-lg border p-4 bg-muted/50">
+            <p class="text-sm font-medium mb-1">Selected:</p>
+            <p class="text-sm font-mono">@(string.IsNullOrEmpty(_country) ? "(none)" : _country)</p>
+        </div>
+    </div>
+
+    <!-- With Avatars -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">With Avatars</h2>
+            <p class="text-sm text-muted-foreground">
+                Combine Avatar components with SelectItem to create a user or team member picker.
+            </p>
+        </div>
+        <div class="max-w-md">
+            <FormFieldSelect TValue="string"
+                             @bind-Value="_assignee"
+                             Label="Assign to"
+                             Placeholder="Select a team member...">
+                <SelectItem Value="@("alice")" Text="Alice Martin">
+                    <div class="flex items-center gap-2">
+                        <Avatar Size="AvatarSize.Small" Class="h-6 w-6 text-[10px]">
+                            <AvatarFallback>AM</AvatarFallback>
+                        </Avatar>
+                        <div class="flex flex-col">
+                            <span class="text-sm">Alice Martin</span>
+                            <span class="text-xs text-muted-foreground">Engineering</span>
+                        </div>
+                    </div>
+                </SelectItem>
+                <SelectItem Value="@("bob")" Text="Bob Chen">
+                    <div class="flex items-center gap-2">
+                        <Avatar Size="AvatarSize.Small" Class="h-6 w-6 text-[10px]">
+                            <AvatarFallback>BC</AvatarFallback>
+                        </Avatar>
+                        <div class="flex flex-col">
+                            <span class="text-sm">Bob Chen</span>
+                            <span class="text-xs text-muted-foreground">Design</span>
+                        </div>
+                    </div>
+                </SelectItem>
+                <SelectItem Value="@("carol")" Text="Carol Davis">
+                    <div class="flex items-center gap-2">
+                        <Avatar Size="AvatarSize.Small" Class="h-6 w-6 text-[10px]">
+                            <AvatarFallback>CD</AvatarFallback>
+                        </Avatar>
+                        <div class="flex flex-col">
+                            <span class="text-sm">Carol Davis</span>
+                            <span class="text-xs text-muted-foreground">Product</span>
+                        </div>
+                    </div>
+                </SelectItem>
+                <SelectItem Value="@("dan")" Text="Dan Wilson">
+                    <div class="flex items-center gap-2">
+                        <Avatar Size="AvatarSize.Small" Class="h-6 w-6 text-[10px]">
+                            <AvatarFallback>DW</AvatarFallback>
+                        </Avatar>
+                        <div class="flex flex-col">
+                            <span class="text-sm">Dan Wilson</span>
+                            <span class="text-xs text-muted-foreground">Engineering</span>
+                        </div>
+                    </div>
+                </SelectItem>
+            </FormFieldSelect>
+        </div>
+        <div class="rounded-lg border p-4 bg-muted/50">
+            <p class="text-sm font-medium mb-1">Assigned to:</p>
+            <p class="text-sm font-mono">@(string.IsNullOrEmpty(_assignee) ? "(none)" : _assignee)</p>
+        </div>
+    </div>
+
+    <!-- DisplayTextSelector -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">DisplayTextSelector</h2>
+            <p class="text-sm text-muted-foreground">
+                Use <code class="text-xs bg-muted px-1 py-0.5 rounded">DisplayTextSelector</code> to
+                control the display text when using non-string value types.
+            </p>
+        </div>
+        <div class="max-w-md">
+            <FormFieldSelect TValue="int"
+                             @bind-Value="_priorityLevel"
+                             Label="Priority"
+                             Placeholder="Select priority..."
+                             DisplayTextSelector="GetPriorityText">
+                <SelectItem Value="1" Text="Low">Low</SelectItem>
+                <SelectItem Value="2" Text="Medium">Medium</SelectItem>
+                <SelectItem Value="3" Text="High">High</SelectItem>
+            </FormFieldSelect>
+        </div>
+        <div class="rounded-lg border p-4 bg-muted/50">
+            <p class="text-sm font-medium mb-1">Selected value:</p>
+            <p class="text-sm font-mono">@_priorityLevel</p>
+        </div>
+    </div>
+
+    <!-- Disabled -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">Disabled</h2>
+            <p class="text-sm text-muted-foreground">
+                A disabled select form field.
+            </p>
+        </div>
+        <div class="max-w-md">
+            <FormFieldSelect TValue="string"
+                             Value="@("usd")"
+                             Label="Currency"
+                             Placeholder="Select..."
+                             HelperText="Locked to your region."
+                             DisplayTextSelector="GetCurrencyText"
+                             Disabled="true">
+                <SelectItem Value="@("usd")" Text="USD ($)">USD ($)</SelectItem>
+                <SelectItem Value="@("eur")" Text="EUR">EUR</SelectItem>
+            </FormFieldSelect>
+        </div>
+    </div>
+
+    <!-- EditForm Integration -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">EditForm Integration</h2>
+            <p class="text-sm text-muted-foreground">
+                Validation errors display automatically inside an EditForm.
+                Try submitting without selecting a country.
+            </p>
+        </div>
+        <div class="max-w-md">
+            <EditForm Model="_formModel" OnValidSubmit="HandleFormSubmit">
+                <DataAnnotationsValidator />
+                <div class="space-y-4">
+                    <FormFieldSelect TValue="string"
+                                     @bind-Value="_formModel.Country"
+                                     Label="Country"
+                                     Placeholder="Select a country...">
+                        <SelectItem Value="@("us")" Text="United States">United States</SelectItem>
+                        <SelectItem Value="@("ca")" Text="Canada">Canada</SelectItem>
+                        <SelectItem Value="@("gb")" Text="United Kingdom">United Kingdom</SelectItem>
+                        <SelectItem Value="@("de")" Text="Germany">Germany</SelectItem>
+                        <SelectItem Value="@("fr")" Text="France">France</SelectItem>
+                    </FormFieldSelect>
+                    <Button Type="ButtonType.Submit">Submit</Button>
+                </div>
+            </EditForm>
+            @if (_formSubmitted)
+            {
+                <div class="mt-4 rounded-lg border border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-800 p-4">
+                    <p class="text-sm font-medium text-green-800 dark:text-green-200">
+                        Submitted: @_formModel.Country
+                    </p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string? _fruit;
+    private string? _country;
+    private string? _assignee;
+    private int _priorityLevel;
+    private bool _formSubmitted;
+    private SelectFormModel _formModel = new();
+
+    private static string GetPriorityText(int value) => value switch
+    {
+        1 => "Low",
+        2 => "Medium",
+        3 => "High",
+        _ => value.ToString()
+    };
+
+    private static string GetCurrencyText(string value) => value switch
+    {
+        "usd" => "USD ($)",
+        "eur" => "EUR",
+        _ => value
+    };
+
+    private void HandleFormSubmit()
+    {
+        _formSubmitted = true;
+    }
+
+    private class SelectFormModel
+    {
+        [Required(ErrorMessage = "Please select a country.")]
+        public string? Country { get; set; }
+    }
+}

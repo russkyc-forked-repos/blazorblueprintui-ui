@@ -8,7 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## 2026-02-09
 
+### Added
+- Control-specific `FormField` wrapper components: `FormFieldCheckbox`, `FormFieldSwitch`, `FormFieldRadioGroup`, `FormFieldSelect`, `FormFieldCombobox`, and `FormFieldMultiSelect` — pre-configured FormField wrappers that simplify EditForm integration for non-text controls
+- `FormFieldBase` base class providing shared EditForm/EditContext integration, validation, label, description, and error message rendering
+- `FormFieldInput` component for typed text input with built-in form field layout (label, description, validation messages)
+- Flag icon and avatar examples in `FormFieldSelect` demo
+- Demo pages for each FormField wrapper in the Components sidebar section
+- EditForm integration for `InputField` components with cascading `EditContext` support
+
 ### Fixed
+- Build errors related to FormField component integration
+- Added `string` type to `GetFriendlyTypeName` in FormField for proper type display
 - DateRangePicker popover layout responsive on mobile devices (single-month view with horizontal preset scrolling)
 - DateRangePicker day name headers now rotate correctly based on `FirstDayOfWeek` parameter
 - DateRangePicker no longer highlights disabled dates within a selected range

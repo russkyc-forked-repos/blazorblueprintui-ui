@@ -1,0 +1,182 @@
+@page "/components/form-field-radio-group"
+@using BlazorBlueprint.Components.FormFieldRadioGroup
+@using BlazorBlueprint.Components.Button
+@using BlazorBlueprint.Components.Field
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>FormFieldRadioGroup Component - Blazor Blueprint</PageTitle>
+
+<div class="space-y-8 max-w-4xl">
+    <div>
+        <div class="space-y-3">
+            <h1 class="text-4xl font-bold tracking-tight">FormFieldRadioGroup</h1>
+            <p class="text-xl text-muted-foreground">
+                A form field wrapper for RadioGroup with built-in label, helper text, and error messages.
+            </p>
+        </div>
+    </div>
+
+    <!-- When to use -->
+    <div class="rounded-lg border bg-card p-6 space-y-4">
+        <h2 class="text-lg font-semibold">When to use FormFieldRadioGroup</h2>
+        <p class="text-sm text-muted-foreground">
+            Use <code class="text-xs bg-muted px-1 py-0.5 rounded">FormFieldRadioGroup&lt;TValue&gt;</code> when you want a complete,
+            ready-to-use radio group with label, helper text, and automatic error display. It composes
+            <a href="/components/radio-group" class="text-primary underline underline-offset-4 hover:text-primary/80">RadioGroup</a>
+            with the <a href="/components/field" class="text-primary underline underline-offset-4 hover:text-primary/80">Field</a> component system
+            so you don't have to wire them up manually.
+        </p>
+        <div class="rounded-md border border-dashed p-4 space-y-1.5">
+            <p class="text-sm font-medium">Example scenario</p>
+            <p class="text-sm text-muted-foreground">
+                You're building a survey form where users choose a plan tier (Free, Pro, Enterprise).
+                The field needs a label, helper text, and validation that a selection was made.
+                Instead of wiring up Field + FieldLabel + RadioGroup + FieldDescription + FieldError,
+                you drop in a single <code class="text-xs bg-muted px-1 py-0.5 rounded">FormFieldRadioGroup</code> tag
+                and provide RadioGroupItem children.
+            </p>
+        </div>
+        <div class="bg-muted rounded-md p-4 space-y-2">
+            <pre class="text-sm font-mono whitespace-pre-wrap">&lt;FormFieldRadioGroup TValue="string" @("@")bind-Value="plan" Label="Plan" HelperText="Choose your subscription tier"&gt;
+    &lt;RadioGroupItem Value="@("free")" Label="Free" /&gt;
+    &lt;RadioGroupItem Value="@("pro")" Label="Pro" /&gt;
+&lt;/FormFieldRadioGroup&gt;</pre>
+        </div>
+    </div>
+
+    <!-- Which form component? -->
+    <div class="rounded-lg border border-dashed bg-muted/30 p-6 space-y-3">
+        <h2 class="text-lg font-semibold">Which form component?</h2>
+        <div class="space-y-2 text-sm text-muted-foreground">
+            <p><strong>Text input</strong> (string, int, date, etc.)? &rarr; <a href="/components/form-field-input" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldInput&lt;T&gt;</a></p>
+            <p><strong>Checkbox</strong>? &rarr; <a href="/components/form-field-checkbox" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldCheckbox</a></p>
+            <p><strong>Switch</strong>? &rarr; <a href="/components/form-field-switch" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldSwitch</a></p>
+            <p><strong>Radio group</strong>? &rarr; <strong>FormFieldRadioGroup</strong> (this page)</p>
+            <p><strong>Select dropdown</strong>? &rarr; <a href="/components/form-field-select" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldSelect</a></p>
+            <p><strong>Searchable select</strong>? &rarr; <a href="/components/form-field-combobox" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldCombobox</a></p>
+            <p><strong>Multi-select</strong>? &rarr; <a href="/components/form-field-multi-select" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldMultiSelect</a></p>
+        </div>
+    </div>
+
+    <!-- Basic Example -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">Basic Usage</h2>
+            <p class="text-sm text-muted-foreground">
+                A radio group with a label and helper text. Provide RadioGroupItem children as content.
+            </p>
+        </div>
+        <div class="max-w-md">
+            <FormFieldRadioGroup TValue="string"
+                                 @bind-Value="_spacing"
+                                 Label="Spacing"
+                                 HelperText="Choose the density of your layout.">
+                <div class="flex items-center gap-3">
+                    <RadioGroupItem Value="@("default")" Id="rff-r1" />
+                    <label for="rff-r1">Default</label>
+                </div>
+                <div class="flex items-center gap-3">
+                    <RadioGroupItem Value="@("comfortable")" Id="rff-r2" />
+                    <label for="rff-r2">Comfortable</label>
+                </div>
+                <div class="flex items-center gap-3">
+                    <RadioGroupItem Value="@("compact")" Id="rff-r3" />
+                    <label for="rff-r3">Compact</label>
+                </div>
+            </FormFieldRadioGroup>
+        </div>
+        <div class="rounded-lg border p-4 bg-muted/50">
+            <p class="text-sm font-medium mb-1">Selected:</p>
+            <p class="text-sm font-mono">@(string.IsNullOrEmpty(_spacing) ? "(none)" : _spacing)</p>
+        </div>
+    </div>
+
+    <!-- Disabled -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">Disabled</h2>
+            <p class="text-sm text-muted-foreground">
+                A disabled radio group form field.
+            </p>
+        </div>
+        <div class="max-w-md">
+            <FormFieldRadioGroup TValue="string"
+                                 Value="@("medium")"
+                                 Label="Font size"
+                                 HelperText="Locked by your administrator."
+                                 Disabled="true">
+                <div class="flex items-center gap-3">
+                    <RadioGroupItem Value="@("small")" Id="rff-d1" />
+                    <label for="rff-d1">Small</label>
+                </div>
+                <div class="flex items-center gap-3">
+                    <RadioGroupItem Value="@("medium")" Id="rff-d2" />
+                    <label for="rff-d2">Medium</label>
+                </div>
+                <div class="flex items-center gap-3">
+                    <RadioGroupItem Value="@("large")" Id="rff-d3" />
+                    <label for="rff-d3">Large</label>
+                </div>
+            </FormFieldRadioGroup>
+        </div>
+    </div>
+
+    <!-- EditForm Integration -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">EditForm Integration</h2>
+            <p class="text-sm text-muted-foreground">
+                Validation errors display automatically inside an EditForm. Try submitting without selecting an option.
+            </p>
+        </div>
+        <div class="max-w-md">
+            <EditForm Model="_formModel" OnValidSubmit="HandleFormSubmit">
+                <DataAnnotationsValidator />
+                <div class="space-y-4">
+                    <FormFieldRadioGroup TValue="string"
+                                         @bind-Value="_formModel.ContactMethod"
+                                         Label="Preferred contact method">
+                        <div class="flex items-center gap-3">
+                            <RadioGroupItem Value="@("email")" Id="rff-f1" />
+                            <label for="rff-f1">Email</label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <RadioGroupItem Value="@("sms")" Id="rff-f2" />
+                            <label for="rff-f2">SMS</label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <RadioGroupItem Value="@("phone")" Id="rff-f3" />
+                            <label for="rff-f3">Phone</label>
+                        </div>
+                    </FormFieldRadioGroup>
+                    <Button Type="ButtonType.Submit">Submit</Button>
+                </div>
+            </EditForm>
+            @if (_formSubmitted)
+            {
+                <div class="mt-4 rounded-lg border border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-800 p-4">
+                    <p class="text-sm font-medium text-green-800 dark:text-green-200">
+                        Submitted: @_formModel.ContactMethod
+                    </p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string _spacing = "default";
+    private bool _formSubmitted;
+    private RadioGroupFormModel _formModel = new();
+
+    private void HandleFormSubmit()
+    {
+        _formSubmitted = true;
+    }
+
+    private class RadioGroupFormModel
+    {
+        [Required(ErrorMessage = "Please select a contact method.")]
+        public string ContactMethod { get; set; } = "";
+    }
+}

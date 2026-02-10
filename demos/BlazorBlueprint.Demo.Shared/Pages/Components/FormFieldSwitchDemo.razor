@@ -1,0 +1,175 @@
+@page "/components/form-field-switch"
+@using BlazorBlueprint.Components.FormFieldSwitch
+@using BlazorBlueprint.Components.Switch
+@using BlazorBlueprint.Components.Button
+@using BlazorBlueprint.Components.Field
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>FormFieldSwitch Component - Blazor Blueprint</PageTitle>
+
+<div class="space-y-8 max-w-4xl">
+    <div>
+        <div class="space-y-3">
+            <h1 class="text-4xl font-bold tracking-tight">FormFieldSwitch</h1>
+            <p class="text-xl text-muted-foreground">
+                A form field wrapper for Switch with built-in label, helper text, and error messages.
+            </p>
+        </div>
+    </div>
+
+    <!-- When to use -->
+    <div class="rounded-lg border bg-card p-6 space-y-4">
+        <h2 class="text-lg font-semibold">When to use FormFieldSwitch</h2>
+        <p class="text-sm text-muted-foreground">
+            Use <code class="text-xs bg-muted px-1 py-0.5 rounded">FormFieldSwitch</code> when you want a complete,
+            ready-to-use toggle switch with label, helper text, and automatic error display. It composes
+            <a href="/components/switch" class="text-primary underline underline-offset-4 hover:text-primary/80">Switch</a>
+            with the <a href="/components/field" class="text-primary underline underline-offset-4 hover:text-primary/80">Field</a> component system
+            so you don't have to wire them up manually.
+        </p>
+        <div class="rounded-md border border-dashed p-4 space-y-1.5">
+            <p class="text-sm font-medium">Example scenario</p>
+            <p class="text-sm text-muted-foreground">
+                You're building a notification preferences page with toggles for email, push, and SMS notifications.
+                Each needs a label and helper text describing what it controls.
+                Instead of wiring up Field + FieldLabel + Switch + FieldDescription for each one,
+                you drop in a single <code class="text-xs bg-muted px-1 py-0.5 rounded">FormFieldSwitch</code> tag
+                and get all of that automatically.
+            </p>
+        </div>
+        <div class="bg-muted rounded-md p-4 space-y-2">
+            <pre class="text-sm font-mono whitespace-pre-wrap">&lt;FormFieldSwitch @("@")bind-Checked="emailNotifications" Label="Email notifications" HelperText="Receive updates via email" /&gt;</pre>
+        </div>
+    </div>
+
+    <!-- Which form component? -->
+    <div class="rounded-lg border border-dashed bg-muted/30 p-6 space-y-3">
+        <h2 class="text-lg font-semibold">Which form component?</h2>
+        <div class="space-y-2 text-sm text-muted-foreground">
+            <p><strong>Text input</strong> (string, int, date, etc.)? &rarr; <a href="/components/form-field-input" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldInput&lt;T&gt;</a></p>
+            <p><strong>Checkbox</strong>? &rarr; <a href="/components/form-field-checkbox" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldCheckbox</a></p>
+            <p><strong>Switch</strong>? &rarr; <strong>FormFieldSwitch</strong> (this page)</p>
+            <p><strong>Radio group</strong>? &rarr; <a href="/components/form-field-radio-group" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldRadioGroup</a></p>
+            <p><strong>Select dropdown</strong>? &rarr; <a href="/components/form-field-select" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldSelect</a></p>
+            <p><strong>Searchable select</strong>? &rarr; <a href="/components/form-field-combobox" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldCombobox</a></p>
+            <p><strong>Multi-select</strong>? &rarr; <a href="/components/form-field-multi-select" class="text-primary underline underline-offset-4 hover:text-primary/80">FormFieldMultiSelect</a></p>
+        </div>
+    </div>
+
+    <!-- Basic Example -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">Basic Usage</h2>
+            <p class="text-sm text-muted-foreground">
+                A switch with an auto-associated label and helper text.
+            </p>
+        </div>
+        <div class="max-w-md">
+            <FormFieldSwitch @bind-Checked="_darkMode"
+                             Label="Dark mode"
+                             HelperText="Toggle the application theme." />
+        </div>
+        <div class="rounded-lg border p-4 bg-muted/50">
+            <p class="text-sm font-medium mb-1">Checked:</p>
+            <p class="text-sm font-mono">@_darkMode</p>
+        </div>
+    </div>
+
+    <!-- Horizontal Layout -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">Horizontal Layout</h2>
+            <p class="text-sm text-muted-foreground">
+                The label sits beside the switch in horizontal orientation.
+            </p>
+        </div>
+        <div class="max-w-md">
+            <FormFieldSwitch @bind-Checked="_notifications"
+                             Label="Enable notifications"
+                             HelperText="Receive push notifications."
+                             Orientation="FieldOrientation.Horizontal" />
+        </div>
+    </div>
+
+    <!-- Size Variants -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">Size Variants</h2>
+            <p class="text-sm text-muted-foreground">
+                Pass the <code class="text-xs bg-muted px-1 py-0.5 rounded">Size</code> parameter to control the switch size.
+            </p>
+        </div>
+        <div class="max-w-md space-y-4">
+            <FormFieldSwitch @bind-Checked="_small" Label="Small" Size="SwitchSize.Small" />
+            <FormFieldSwitch @bind-Checked="_medium" Label="Medium (default)" Size="SwitchSize.Medium" />
+            <FormFieldSwitch @bind-Checked="_large" Label="Large" Size="SwitchSize.Large" />
+        </div>
+    </div>
+
+    <!-- Disabled -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">Disabled</h2>
+            <p class="text-sm text-muted-foreground">
+                A disabled switch form field.
+            </p>
+        </div>
+        <div class="max-w-md">
+            <FormFieldSwitch Checked="true"
+                             Label="Airplane mode"
+                             HelperText="Managed by your administrator."
+                             Disabled="true" />
+        </div>
+    </div>
+
+    <!-- EditForm Integration -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">EditForm Integration</h2>
+            <p class="text-sm text-muted-foreground">
+                Validation errors display automatically inside an EditForm.
+            </p>
+        </div>
+        <div class="max-w-md">
+            <EditForm Model="_formModel" OnValidSubmit="HandleFormSubmit">
+                <DataAnnotationsValidator />
+                <div class="space-y-4">
+                    <FormFieldSwitch @bind-Checked="_formModel.AcceptMarketing"
+                                     Label="Accept marketing emails" />
+                    <FormFieldSwitch @bind-Checked="_formModel.AcceptPrivacy"
+                                     Label="Accept privacy policy" />
+                    <Button Type="ButtonType.Submit">Submit</Button>
+                </div>
+            </EditForm>
+            @if (_formSubmitted)
+            {
+                <div class="mt-4 rounded-lg border border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-800 p-4">
+                    <p class="text-sm font-medium text-green-800 dark:text-green-200">Form submitted successfully!</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool _darkMode;
+    private bool _notifications;
+    private bool _small;
+    private bool _medium;
+    private bool _large;
+    private bool _formSubmitted;
+    private SwitchFormModel _formModel = new();
+
+    private void HandleFormSubmit()
+    {
+        _formSubmitted = true;
+    }
+
+    private class SwitchFormModel
+    {
+        public bool AcceptMarketing { get; set; }
+
+        [Range(typeof(bool), "true", "true", ErrorMessage = "You must accept the privacy policy.")]
+        public bool AcceptPrivacy { get; set; }
+    }
+}
