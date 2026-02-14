@@ -127,14 +127,38 @@ module.exports = {
           to: { opacity: "0" },
         },
         
-        // Popover/Dropdown/Select/Combobox/ContextMenu animations - fade only
-        "content-fade-in": {
-          from: { opacity: "0" },
-          to: { opacity: "1" },
+        // Popover/Dropdown/Combobox animations - small slide with fade
+        "content-slide-in-from-top": {
+          from: { opacity: "0", transform: "translateY(-0.5rem)" },
+          to: { opacity: "1", transform: "translateY(0)" },
         },
-        "content-fade-out": {
-          from: { opacity: "1" },
-          to: { opacity: "0" },
+        "content-slide-out-to-top": {
+          from: { opacity: "1", transform: "translateY(0)" },
+          to: { opacity: "0", transform: "translateY(-0.5rem)" },
+        },
+        "content-slide-in-from-bottom": {
+          from: { opacity: "0", transform: "translateY(0.5rem)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "content-slide-out-to-bottom": {
+          from: { opacity: "1", transform: "translateY(0)" },
+          to: { opacity: "0", transform: "translateY(0.5rem)" },
+        },
+        "content-slide-in-from-left": {
+          from: { opacity: "0", transform: "translateX(-0.5rem)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        "content-slide-out-to-left": {
+          from: { opacity: "1", transform: "translateX(0)" },
+          to: { opacity: "0", transform: "translateX(-0.5rem)" },
+        },
+        "content-slide-in-from-right": {
+          from: { opacity: "0", transform: "translateX(0.5rem)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        "content-slide-out-to-right": {
+          from: { opacity: "1", transform: "translateX(0)" },
+          to: { opacity: "0", transform: "translateX(0.5rem)" },
         },
         
         // Sheet/Drawer animations - slide from edges (100%)
@@ -185,6 +209,16 @@ module.exports = {
         // Overlays - fade only (backgrounds/backdrops)
         "overlay-fade-in": "overlay-fade-in 0.2s ease-out",
         "overlay-fade-out": "overlay-fade-out 0.2s ease-out",
+        
+        // Popover/Dropdown/Combobox - small slide with fade
+        "content-slide-in-from-top": "content-slide-in-from-top 0.2s ease-out",
+        "content-slide-out-to-top": "content-slide-out-to-top 0.2s ease-out",
+        "content-slide-in-from-bottom": "content-slide-in-from-bottom 0.2s ease-out",
+        "content-slide-out-to-bottom": "content-slide-out-to-bottom 0.2s ease-out",
+        "content-slide-in-from-left": "content-slide-in-from-left 0.2s ease-out",
+        "content-slide-out-to-left": "content-slide-out-to-left 0.2s ease-out",
+        "content-slide-in-from-right": "content-slide-in-from-right 0.2s ease-out",
+        "content-slide-out-to-right": "content-slide-out-to-right 0.2s ease-out",
         
         // Sheet/Drawer - slide from edges (100%)
         "slide-in-from-top": "slide-in-from-top 0.2s ease-out",
