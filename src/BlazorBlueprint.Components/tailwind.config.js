@@ -137,7 +137,7 @@ module.exports = {
           to: { opacity: "0" },
         },
         
-        // Sheet/Drawer animations - slide only
+        // Sheet/Drawer animations - slide from edges (100%)
         "slide-in-from-top": {
           from: { transform: "translateY(-100%)" },
           to: { transform: "translateY(0)" },
@@ -170,6 +170,16 @@ module.exports = {
           from: { transform: "translateX(0)" },
           to: { transform: "translateX(100%)" },
         },
+        
+        // Select/Combobox/DropdownMenu animations - slide with fade (small offset)
+        "content-slide-in": {
+          from: { opacity: "0", transform: "translateY(-0.5rem)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "content-slide-out": {
+          from: { opacity: "1", transform: "translateY(0)" },
+          to: { opacity: "0", transform: "translateY(-0.5rem)" },
+        },
       },
       animation: {
         // Accordion/Collapsible
@@ -178,7 +188,7 @@ module.exports = {
         "collapsible-down": "collapsible-down 0.2s ease-out",
         "collapsible-up": "collapsible-up 0.2s ease-out",
         
-        // Dialog - zoom with fade (modal in center)
+        // Dialog/AlertDialog - zoom with fade (modal in center)
         "dialog-zoom-in": "dialog-zoom-in 0.2s ease-out",
         "dialog-zoom-out": "dialog-zoom-out 0.2s ease-out",
         
@@ -186,11 +196,11 @@ module.exports = {
         "overlay-fade-in": "overlay-fade-in 0.2s ease-out",
         "overlay-fade-out": "overlay-fade-out 0.2s ease-out",
         
-        // Content popovers - fade only (dropdowns, selects, menus)
-        "content-fade-in": "content-fade-in 0.2s ease-out",
-        "content-fade-out": "content-fade-out 0.2s ease-out",
+        // Content popovers - slide with fade (dropdowns, selects, menus)
+        "content-slide-in": "content-slide-in 0.2s ease-out",
+        "content-slide-out": "content-slide-out 0.2s ease-out",
         
-        // Sheet/Drawer - slide from edges
+        // Sheet/Drawer - slide from edges (100%)
         "slide-in-from-top": "slide-in-from-top 0.2s ease-out",
         "slide-in-from-bottom": "slide-in-from-bottom 0.2s ease-out",
         "slide-in-from-left": "slide-in-from-left 0.2s ease-out",
