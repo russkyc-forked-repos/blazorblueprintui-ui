@@ -86,11 +86,11 @@
     
     /// <summary>
     /// Whether to force mount the content even when the select is closed.
-    /// When true (default), content remains mounted enabling CSS exit animations.
-    /// When false, content unmounts immediately (no animation, lower memory).
+    /// When true, content remains mounted (useful for CSS animations).
+    /// When false (default), content unmounts immediately (lower memory, no animation).
     /// </summary>
     [Parameter]
-    public bool ForceMount { get; set; } = true;
+    public bool ForceMount { get; set; } = false;
 
     protected override void OnInitialized()
     {
