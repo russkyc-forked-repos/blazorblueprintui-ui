@@ -194,6 +194,28 @@ module.exports = {
           from: { transform: "translateX(0)" },
           to: { transform: "translateX(100%)" },
         },
+        
+        // Toast animations - slide with fade (direction-aware)
+        "toast-slide-in-from-top": {
+          from: { opacity: "0", transform: "translateY(-100%)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "toast-slide-out-to-top": {
+          from: { opacity: "1", transform: "translateY(0)" },
+          to: { opacity: "0", transform: "translateY(-100%)" },
+        },
+        "toast-slide-in-from-bottom": {
+          from: { opacity: "0", transform: "translateY(100%)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "toast-slide-out-to-bottom": {
+          from: { opacity: "1", transform: "translateY(0)" },
+          to: { opacity: "0", transform: "translateY(100%)" },
+        },
+        "toast-slide-out-to-right": {
+          from: { opacity: "1", transform: "translateX(0)" },
+          to: { opacity: "0", transform: "translateX(100%)" },
+        },
       },
       animation: {
         // Accordion/Collapsible
@@ -229,6 +251,13 @@ module.exports = {
         "slide-out-to-bottom": "slide-out-to-bottom 0.2s ease-out",
         "slide-out-to-left": "slide-out-to-left 0.2s ease-out",
         "slide-out-to-right": "slide-out-to-right 0.2s ease-out",
+        
+        // Toast - slide with fade (direction-aware)
+        "toast-slide-in-from-top": "toast-slide-in-from-top 0.35s ease-out",
+        "toast-slide-out-to-top": "toast-slide-out-to-top 0.2s ease-in",
+        "toast-slide-in-from-bottom": "toast-slide-in-from-bottom 0.35s ease-out",
+        "toast-slide-out-to-bottom": "toast-slide-out-to-bottom 0.2s ease-in",
+        "toast-slide-out-to-right": "toast-slide-out-to-right 0.2s ease-in",
       },
     },
   },

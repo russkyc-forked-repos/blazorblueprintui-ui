@@ -9,7 +9,7 @@
 *@
 
 <div class="@ContainerCssClass">
-    @foreach (var toast in ToastService.Toasts)
+    @foreach (var toast in ToastsWithPosition)
     {
         <Toast Data="@toast" Class="@toast.Class" OnDismiss="@(() => HandleDismiss(toast.Id))" />
     }
@@ -36,6 +36,26 @@
     /// </summary>
     [Parameter]
     public string? Class { get; set; }
+
+    /// <summary>
+    /// Gets the toasts with position information for direction-aware animations.
+    /// </summary>
+    private IEnumerable<ToastData> ToastsWithPosition
+    {
+        get
+        {
+            var effectivePosition = EffectivePosition;
+            return ToastService.Toasts.Select(t =>
+            {
+                // Set position if not already set
+                if (!t.Position.HasValue)
+                {
+                    t.Position = effectivePosition;
+                }
+                return t;
+            });
+        }
+    }
 
     protected override void OnInitialized()
     {
