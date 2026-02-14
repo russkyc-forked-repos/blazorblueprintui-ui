@@ -183,7 +183,7 @@
     private void HandlePlacementChanged(string placement)
     {
         // Extract just the side part (e.g., "top" from "top-start")
-        _actualPlacement = placement.Split('-')[0];
+        _actualPlacement = string.IsNullOrEmpty(placement) ? "bottom" : placement.Split('-')[0];
         StateHasChanged();
     }
 
