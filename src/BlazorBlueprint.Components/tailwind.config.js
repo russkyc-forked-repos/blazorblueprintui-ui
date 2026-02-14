@@ -170,16 +170,6 @@ module.exports = {
           from: { transform: "translateX(0)" },
           to: { transform: "translateX(100%)" },
         },
-        
-        // Select/Combobox/DropdownMenu animations - slide with fade (small offset)
-        "content-slide-in": {
-          from: { opacity: "0", transform: "translateY(-0.5rem)" },
-          to: { opacity: "1", transform: "translateY(0)" },
-        },
-        "content-slide-out": {
-          from: { opacity: "1", transform: "translateY(0)" },
-          to: { opacity: "0", transform: "translateY(-0.5rem)" },
-        },
       },
       animation: {
         // Accordion/Collapsible
@@ -195,10 +185,6 @@ module.exports = {
         // Overlays - fade only (backgrounds/backdrops)
         "overlay-fade-in": "overlay-fade-in 0.2s ease-out",
         "overlay-fade-out": "overlay-fade-out 0.2s ease-out",
-        
-        // Content popovers - slide with fade (dropdowns, selects, menus)
-        "content-slide-in": "content-slide-in 0.2s ease-out",
-        "content-slide-out": "content-slide-out 0.2s ease-out",
         
         // Sheet/Drawer - slide from edges (100%)
         "slide-in-from-top": "slide-in-from-top 0.2s ease-out",
