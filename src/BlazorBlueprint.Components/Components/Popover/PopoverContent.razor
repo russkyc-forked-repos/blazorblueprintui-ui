@@ -83,7 +83,7 @@
     private string CssClass => ClassNames.cn(
         "z-50", WidthClass, "rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
-        "data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
+        "data-[state=open]:animate-content-fade-in data-[state=closed]:animate-content-fade-out",
         Class
     );
 }

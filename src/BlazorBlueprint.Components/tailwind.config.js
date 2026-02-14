@@ -89,6 +89,7 @@ module.exports = {
         "sidebar-icon": "var(--sidebar-width-icon)",
       },
       keyframes: {
+        // Accordion/Collapsible animations - height-based
         "accordion-down": {
           from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height, auto)" },
@@ -105,31 +106,38 @@ module.exports = {
           from: { height: "var(--radix-collapsible-content-height, auto)" },
           to: { height: "0" },
         },
-        // Dialog animations
-        "enter": {
+        
+        // Dialog animations - zoom with fade
+        "dialog-zoom-in": {
           from: { opacity: "0", transform: "scale(0.95)" },
           to: { opacity: "1", transform: "scale(1)" },
         },
-        "exit": {
+        "dialog-zoom-out": {
           from: { opacity: "1", transform: "scale(1)" },
           to: { opacity: "0", transform: "scale(0.95)" },
         },
-        "fade-in": {
+        
+        // Overlay animations - fade only
+        "overlay-fade-in": {
           from: { opacity: "0" },
           to: { opacity: "1" },
         },
-        "fade-out": {
+        "overlay-fade-out": {
           from: { opacity: "1" },
           to: { opacity: "0" },
         },
-        "zoom-in": {
-          from: { opacity: "0", transform: "scale(0.95)" },
-          to: { opacity: "1", transform: "scale(1)" },
+        
+        // Popover/Dropdown/Select/Combobox/ContextMenu animations - fade only
+        "content-fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
         },
-        "zoom-out": {
-          from: { opacity: "1", transform: "scale(1)" },
-          to: { opacity: "0", transform: "scale(0.95)" },
+        "content-fade-out": {
+          from: { opacity: "1" },
+          to: { opacity: "0" },
         },
+        
+        // Sheet/Drawer animations - slide only
         "slide-in-from-top": {
           from: { transform: "translateY(-100%)" },
           to: { transform: "translateY(0)" },
@@ -164,17 +172,25 @@ module.exports = {
         },
       },
       animation: {
+        // Accordion/Collapsible
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "collapsible-down": "collapsible-down 0.2s ease-out",
         "collapsible-up": "collapsible-up 0.2s ease-out",
-        // Dialog animations
-        "in": "enter 0.2s ease-out",
-        "out": "exit 0.2s ease-out",
-        "fade-in": "fade-in 0.2s ease-out",
-        "fade-out": "fade-out 0.2s ease-out",
-        "zoom-in": "zoom-in 0.2s ease-out",
-        "zoom-out": "zoom-out 0.2s ease-out",
+        
+        // Dialog - zoom with fade (modal in center)
+        "dialog-zoom-in": "dialog-zoom-in 0.2s ease-out",
+        "dialog-zoom-out": "dialog-zoom-out 0.2s ease-out",
+        
+        // Overlays - fade only (backgrounds/backdrops)
+        "overlay-fade-in": "overlay-fade-in 0.2s ease-out",
+        "overlay-fade-out": "overlay-fade-out 0.2s ease-out",
+        
+        // Content popovers - fade only (dropdowns, selects, menus)
+        "content-fade-in": "content-fade-in 0.2s ease-out",
+        "content-fade-out": "content-fade-out 0.2s ease-out",
+        
+        // Sheet/Drawer - slide from edges
         "slide-in-from-top": "slide-in-from-top 0.2s ease-out",
         "slide-in-from-bottom": "slide-in-from-bottom 0.2s ease-out",
         "slide-in-from-left": "slide-in-from-left 0.2s ease-out",
