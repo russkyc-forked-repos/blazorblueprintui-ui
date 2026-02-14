@@ -88,6 +88,13 @@ module.exports = {
         "sidebar-mobile": "var(--sidebar-width-mobile)",
         "sidebar-icon": "var(--sidebar-width-icon)",
       },
+      animationDuration: {
+        200: '200ms',
+        300: '300ms',
+      },
+      animationTimingFunction: {
+        DEFAULT: 'ease-out',
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -105,14 +112,215 @@ module.exports = {
           from: { height: "var(--radix-collapsible-content-height, auto)" },
           to: { height: "0" },
         },
+        "fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        "fade-out": {
+          from: { opacity: "1" },
+          to: { opacity: "0" },
+        },
+        "zoom-in": {
+          from: { opacity: "0", transform: "scale(0.95)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
+        "zoom-out": {
+          from: { opacity: "1", transform: "scale(1)" },
+          to: { opacity: "0", transform: "scale(0.95)" },
+        },
+        "slide-in-from-top": {
+          from: { transform: "translateY(-100%)" },
+          to: { transform: "translateY(0)" },
+        },
+        "slide-in-from-bottom": {
+          from: { transform: "translateY(100%)" },
+          to: { transform: "translateY(0)" },
+        },
+        "slide-in-from-left": {
+          from: { transform: "translateX(-100%)" },
+          to: { transform: "translateX(0)" },
+        },
+        "slide-in-from-right": {
+          from: { transform: "translateX(100%)" },
+          to: { transform: "translateX(0)" },
+        },
+        "slide-out-to-top": {
+          from: { transform: "translateY(0)" },
+          to: { transform: "translateY(-100%)" },
+        },
+        "slide-out-to-bottom": {
+          from: { transform: "translateY(0)" },
+          to: { transform: "translateY(100%)" },
+        },
+        "slide-out-to-left": {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-100%)" },
+        },
+        "slide-out-to-right": {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(100%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "collapsible-down": "collapsible-down 0.2s ease-out",
         "collapsible-up": "collapsible-up 0.2s ease-out",
+        "in": "fade-in 0.2s ease-out",
+        "out": "fade-out 0.2s ease-out",
+        "fade-in": "fade-in 0.2s ease-out",
+        "fade-out": "fade-out 0.2s ease-out",
+        "zoom-in": "zoom-in 0.2s ease-out",
+        "zoom-out": "zoom-out 0.2s ease-out",
+        "slide-in-from-top": "slide-in-from-top 0.2s ease-out",
+        "slide-in-from-bottom": "slide-in-from-bottom 0.2s ease-out",
+        "slide-in-from-left": "slide-in-from-left 0.2s ease-out",
+        "slide-in-from-right": "slide-in-from-right 0.2s ease-out",
+        "slide-out-to-top": "slide-out-to-top 0.2s ease-out",
+        "slide-out-to-bottom": "slide-out-to-bottom 0.2s ease-out",
+        "slide-out-to-left": "slide-out-to-left 0.2s ease-out",
+        "slide-out-to-right": "slide-out-to-right 0.2s ease-out",
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function({ addUtilities, matchUtilities }) {
+      // Add animate-in and animate-out utilities
+      addUtilities({
+        '@keyframes enter': {
+          from: { opacity: '0', transform: 'scale(0.95)' }
+        },
+        '@keyframes exit': {
+          to: { opacity: '0', transform: 'scale(0.95)' }
+        },
+        '.animate-in': {
+          animationName: 'enter',
+          animationDuration: '200ms',
+          animationTimingFunction: 'ease-out',
+        },
+        '.animate-out': {
+          animationName: 'exit',
+          animationDuration: '200ms',
+          animationTimingFunction: 'ease-out',
+        },
+      });
+
+      // Add fade utilities
+      matchUtilities(
+        {
+          'fade-in': (value) => ({
+            animationName: 'fade-in',
+            animationDuration: '200ms',
+            animationTimingFunction: 'ease-out',
+            '@keyframes fade-in': {
+              from: { opacity: value },
+            },
+          }),
+          'fade-out': (value) => ({
+            animationName: 'fade-out',
+            animationDuration: '200ms',
+            animationTimingFunction: 'ease-out',
+            '@keyframes fade-out': {
+              to: { opacity: value },
+            },
+          }),
+        },
+        { values: { 0: '0', 50: '0.5', 100: '1' } }
+      );
+
+      // Add zoom utilities
+      matchUtilities(
+        {
+          'zoom-in': (value) => ({
+            animationName: 'zoom-in',
+            animationDuration: '200ms',
+            animationTimingFunction: 'ease-out',
+            '@keyframes zoom-in': {
+              from: { opacity: '0', transform: `scale(${value})` },
+            },
+          }),
+          'zoom-out': (value) => ({
+            animationName: 'zoom-out',
+            animationDuration: '200ms',
+            animationTimingFunction: 'ease-out',
+            '@keyframes zoom-out': {
+              to: { opacity: '0', transform: `scale(${value})` },
+            },
+          }),
+        },
+        { values: { 0: '0', 50: '0.5', 75: '0.75', 90: '0.9', 95: '0.95', 100: '1', 105: '1.05', 110: '1.1', 125: '1.25', 150: '1.5' } }
+      );
+
+      // Add slide utilities
+      matchUtilities(
+        {
+          'slide-in-from-top': (value) => ({
+            animationName: 'slide-in-from-top',
+            animationDuration: '200ms',
+            animationTimingFunction: 'ease-out',
+            '@keyframes slide-in-from-top': {
+              from: { transform: `translateY(-${value})` },
+            },
+          }),
+          'slide-in-from-bottom': (value) => ({
+            animationName: 'slide-in-from-bottom',
+            animationDuration: '200ms',
+            animationTimingFunction: 'ease-out',
+            '@keyframes slide-in-from-bottom': {
+              from: { transform: `translateY(${value})` },
+            },
+          }),
+          'slide-in-from-left': (value) => ({
+            animationName: 'slide-in-from-left',
+            animationDuration: '200ms',
+            animationTimingFunction: 'ease-out',
+            '@keyframes slide-in-from-left': {
+              from: { transform: `translateX(-${value})` },
+            },
+          }),
+          'slide-in-from-right': (value) => ({
+            animationName: 'slide-in-from-right',
+            animationDuration: '200ms',
+            animationTimingFunction: 'ease-out',
+            '@keyframes slide-in-from-right': {
+              from: { transform: `translateX(${value})` },
+            },
+          }),
+          'slide-out-to-top': (value) => ({
+            animationName: 'slide-out-to-top',
+            animationDuration: '200ms',
+            animationTimingFunction: 'ease-out',
+            '@keyframes slide-out-to-top': {
+              to: { transform: `translateY(-${value})` },
+            },
+          }),
+          'slide-out-to-bottom': (value) => ({
+            animationName: 'slide-out-to-bottom',
+            animationDuration: '200ms',
+            animationTimingFunction: 'ease-out',
+            '@keyframes slide-out-to-bottom': {
+              to: { transform: `translateY(${value})` },
+            },
+          }),
+          'slide-out-to-left': (value) => ({
+            animationName: 'slide-out-to-left',
+            animationDuration: '200ms',
+            animationTimingFunction: 'ease-out',
+            '@keyframes slide-out-to-left': {
+              to: { transform: `translateX(-${value})` },
+            },
+          }),
+          'slide-out-to-right': (value) => ({
+            animationName: 'slide-out-to-right',
+            animationDuration: '200ms',
+            animationTimingFunction: 'ease-out',
+            '@keyframes slide-out-to-right': {
+              to: { transform: `translateX(${value})` },
+            },
+          }),
+        },
+        { values: { 0: '0', '1/2': '50%', full: '100%', '48%': '48%' } }
+      );
+    },
+  ],
 }
