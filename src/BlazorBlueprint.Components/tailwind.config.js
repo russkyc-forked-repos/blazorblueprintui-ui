@@ -88,13 +88,6 @@ module.exports = {
         "sidebar-mobile": "var(--sidebar-width-mobile)",
         "sidebar-icon": "var(--sidebar-width-icon)",
       },
-      animationDuration: {
-        200: '200ms',
-        300: '300ms',
-      },
-      animationTimingFunction: {
-        DEFAULT: 'ease-out',
-      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
