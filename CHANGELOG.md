@@ -31,6 +31,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - `BbDropdownMenuContent`, `BbContextMenuContent`, and `BbMenubarContent` keyboard navigation moved from C# `@onkeydown` to JavaScript — arrow keys, Home, End, Enter, and Space are handled entirely in JS with zero C# interop, eliminating unnecessary round-trips and re-renders during menu navigation. Only Escape key and Menubar ArrowLeft/ArrowRight trigger C# callbacks.
 
+### Fixed
+
+- `autoUpdate` callback in `positioning.js` now guards against stale DOM elements — FloatingUI's `autoUpdate` listeners (scroll, resize, intersection) could fire after Blazor removes elements from the DOM but before cleanup runs, causing non-fatal "Reference element is not ready" errors. The callback now silently bails out via `isElementReady` check.
+
 ### Internal
 
 - Created `InputValidationBehavior` internal composition class — centralizes EditContext validation logic (`IsInvalid`, `EffectiveAriaInvalid`, `EffectiveName`, `NotifyFieldChanged`, `Update`) shared by all input components. Refactored 8 components to use it: `BbInput`, `BbTextarea`, `BbCurrencyInput`, `BbNumericInput<TValue>`, `BbMaskedInput`, `BbInputGroupInput`, `BbInputGroupTextarea`, `BbInputField<TValue>`. No public API changes.

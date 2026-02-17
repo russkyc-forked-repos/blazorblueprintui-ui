@@ -24,6 +24,8 @@
     <MinVerTagPrefix>primitives/v</MinVerTagPrefix>
     <MinVerDefaultPreReleaseIdentifiers>beta.0</MinVerDefaultPreReleaseIdentifiers>
 
+    <PackageReleaseNotes Condition="Exists('$(MSBuildThisFileDirectory)RELEASE_NOTES.md')">$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)RELEASE_NOTES.md'))</PackageReleaseNotes>
+
     <!-- Suppress CA1716: 'Select' namespace matches a keyword but is a domain term -->
     <NoWarn>$(NoWarn);CA1716</NoWarn>
   </PropertyGroup>
