@@ -1,4 +1,5 @@
 @namespace BlazorBlueprint.Primitives.Accordion
+@implements IDisposable
 
 @* AccordionTrigger primitive - clickable trigger button for accordion item *@
 <h3 id="@Item.HeaderId">
@@ -11,6 +12,7 @@
             disabled="@Item.Disabled"
             @onclick="HandleClick"
             @onkeydown="HandleKeyDown"
+            @ref="_elementRef"
             @attributes="AdditionalAttributes">
         @ChildContent
     </button>
@@ -18,6 +20,13 @@
 
 @code {
     private string _ariaExpanded => Item.IsOpen ? "true" : "false";
+    private ElementReference _elementRef;
+
+    /// <summary>
+    /// Cascading parameter to receive the parent accordion component for keyboard navigation.
+    /// </summary>
+    [CascadingParameter]
+    public BbAccordion? Accordion { get; set; }
 
     /// <summary>
     /// Cascading parameter to receive the parent accordion item.
@@ -43,12 +52,24 @@
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
+    /// <summary>
+    /// Gets whether this trigger's item is disabled.
+    /// </summary>
+    internal bool Disabled => Item.Disabled;
+
+    /// <summary>
+    /// Gets the value identifying this trigger's accordion item.
+    /// </summary>
+    internal string Value => Item.Value;
+
     protected override void OnInitialized()
     {
         if (Item == null)
         {
             throw new InvalidOperationException("AccordionTrigger must be used within an AccordionItem component.");
         }
+
+        Accordion?.RegisterTrigger(this);
     }
 
     private void HandleClick()
@@ -63,10 +84,31 @@
     {
         if (Item.Disabled) return;
 
-        // Space and Enter activate the trigger
-        if (e.Key == " " || e.Key == "Enter")
+        // Arrow keys, Home, End for navigation between triggers
+        if (Accordion != null && (e.Key == "ArrowDown" || e.Key == "ArrowUp" ||
+                                   e.Key == "Home" || e.Key == "End"))
         {
-            Item.Toggle();
+            Accordion.HandleKeyNavigation(Item.Value, e.Key);
         }
+    }
+
+    /// <summary>
+    /// Focuses this trigger element.
+    /// </summary>
+    internal async Task FocusAsync()
+    {
+        try
+        {
+            await _elementRef.FocusAsync();
+        }
+        catch
+        {
+            // Ignore focus errors (element may not be rendered yet)
+        }
+    }
+
+    public void Dispose()
+    {
+        Accordion?.UnregisterTrigger(this);
     }
 }

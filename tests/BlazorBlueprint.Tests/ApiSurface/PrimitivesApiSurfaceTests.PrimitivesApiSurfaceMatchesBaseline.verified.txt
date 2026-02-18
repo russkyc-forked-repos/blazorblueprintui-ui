@@ -29,6 +29,7 @@
   - AdditionalAttributes : Dictionary<String, Object> [CaptureUnmatchedValues]
   - ChildContent : RenderFragment
   - Class : String
+  - Accordion : BbAccordion [CascadingParameter]
   - Item : BbAccordionItem [CascadingParameter]
 
 ### BbCheckbox (BlazorBlueprint.Primitives.Checkbox)

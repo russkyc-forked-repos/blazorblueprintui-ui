@@ -1,16 +1,24 @@
 @namespace BlazorBlueprint.Primitives.Accordion
-@implements IDisposable
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
 
 @* Accordion primitive root component - headless, unstyled behavior only *@
-<div @attributes="AdditionalAttributes">
+<div @ref="_elementRef" @attributes="AdditionalAttributes">
     <CascadingValue Value="@_context" IsFixed="false">
-        @ChildContent
+        <CascadingValue Value="this" IsFixed="true">
+            @ChildContent
+        </CascadingValue>
     </CascadingValue>
 </div>
 
 @code {
     private AccordionContext _context = new();
     private UseControllableState<HashSet<string>> _state = null!;
+    private List<BbAccordionTrigger> _triggers = new();
+    private ElementReference _elementRef;
+    private IJSObjectReference? _keyboardNavModule;
+    private IJSObjectReference? _keyboardNavCleanup;
+    private bool _disposed;
 
     /// <summary>
     /// The child content to render within the accordion context.
@@ -99,6 +107,119 @@
         _context.State.Collapsible = Collapsible;
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _keyboardNavModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
+                    "import", "./_content/BlazorBlueprint.Primitives/js/primitives/keyboard-nav.js");
+
+                _keyboardNavCleanup = await _keyboardNavModule.InvokeAsync<IJSObjectReference>(
+                    "setupKeyboardNav", _elementRef);
+            }
+            catch (JSDisconnectedException)
+            {
+                // Circuit disconnected, ignore
+            }
+        }
+    }
+
+    /// <summary>
+    /// Registers an accordion trigger for keyboard navigation.
+    /// </summary>
+    internal void RegisterTrigger(BbAccordionTrigger trigger)
+    {
+        if (!_triggers.Contains(trigger))
+        {
+            _triggers.Add(trigger);
+        }
+    }
+
+    /// <summary>
+    /// Unregisters an accordion trigger.
+    /// </summary>
+    internal void UnregisterTrigger(BbAccordionTrigger trigger)
+    {
+        _triggers.Remove(trigger);
+    }
+
+    /// <summary>
+    /// Handles keyboard navigation between accordion triggers.
+    /// </summary>
+    internal void HandleKeyNavigation(string currentValue, string key)
+    {
+        if (_triggers.Count == 0) return;
+
+        var currentIndex = _triggers.FindIndex(t => t.Value == currentValue);
+        if (currentIndex == -1) return;
+
+        var nextIndex = key switch
+        {
+            "ArrowDown" => GetNextIndex(currentIndex),
+            "ArrowUp" => GetPreviousIndex(currentIndex),
+            "Home" => GetFirstEnabledIndex(),
+            "End" => GetLastEnabledIndex(),
+            _ => -1
+        };
+
+        if (nextIndex != -1 && nextIndex != currentIndex)
+        {
+            _ = _triggers[nextIndex].FocusAsync();
+        }
+    }
+
+    private int GetNextIndex(int currentIndex)
+    {
+        for (int i = currentIndex + 1; i < _triggers.Count; i++)
+        {
+            if (!_triggers[i].Disabled)
+            {
+                return i;
+            }
+        }
+        // Wrap to first enabled
+        return GetFirstEnabledIndex();
+    }
+
+    private int GetPreviousIndex(int currentIndex)
+    {
+        for (int i = currentIndex - 1; i >= 0; i--)
+        {
+            if (!_triggers[i].Disabled)
+            {
+                return i;
+            }
+        }
+        // Wrap to last enabled
+        return GetLastEnabledIndex();
+    }
+
+    private int GetFirstEnabledIndex()
+    {
+        for (int i = 0; i < _triggers.Count; i++)
+        {
+            if (!_triggers[i].Disabled)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int GetLastEnabledIndex()
+    {
+        for (int i = _triggers.Count - 1; i >= 0; i--)
+        {
+            if (!_triggers[i].Disabled)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     private void HandleContextStateChanged()
     {
         // When context state changes (e.g., from AccordionTrigger),
@@ -119,8 +240,32 @@
         }
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
         _context.OnStateChanged -= HandleContextStateChanged;
+
+        try
+        {
+            if (_keyboardNavCleanup is not null)
+            {
+                await _keyboardNavCleanup.InvokeVoidAsync("dispose");
+                await _keyboardNavCleanup.DisposeAsync();
+            }
+
+            if (_keyboardNavModule is not null)
+            {
+                await _keyboardNavModule.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // Circuit disconnected, ignore
+        }
     }
 }
