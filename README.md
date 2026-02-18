@@ -368,7 +368,7 @@ If you create derivative works, you must include the contents of the [NOTICE](NO
 
 ## Acknowledgments
 
-Blazor Blueprint is inspired by [shadcn/ui](https://ui.shadcn.com/) and the design principles of [Radix UI](https://www.radix-ui.com/). It is a complete reimplementation for Blazor/C# and contains no code from these projects.
+Blazor Blueprint is inspired by [shadcn/ui](https://ui.shadcn.com/) and the design principles of [Radix UI](https://www.radix-ui.com/). Additional enhancement ideas from [jimmyps](https://github.com/jimmyps) fork. Blazor Blueprint is a complete reimplementation for Blazor/C# and contains no code from these projects.
 
 - [shadcn/ui](https://ui.shadcn.com/) — MIT License, Copyright (c) 2023 shadcn
 - [Radix UI](https://www.radix-ui.com/) — MIT License, Copyright (c) 2022-present WorkOS

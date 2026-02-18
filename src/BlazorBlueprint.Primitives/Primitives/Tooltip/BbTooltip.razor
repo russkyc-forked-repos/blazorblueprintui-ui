@@ -1,11 +1,11 @@
 @namespace BlazorBlueprint.Primitives.Tooltip
+@using Microsoft.Extensions.Logging
 @implements IDisposable
+@inject ILogger<BbTooltip> Logger
 
 @* Tooltip Primitive - Headless root component *@
 <CascadingValue Value="@_context" IsFixed="false">
-    <div class="@Class" @attributes="AdditionalAttributes">
-        @ChildContent
-    </div>
+    @ChildContent
 </CascadingValue>
 
 @code {
@@ -14,15 +14,20 @@
     private System.Timers.Timer? _showTimer;
     private System.Timers.Timer? _hideTimer;
     private bool _disposed;
+    private bool _deprecationWarningLogged;
 
     /// <summary>
-    /// Additional attributes to apply to the root element.
+    /// Deprecated: This parameter no longer has any effect. The wrapper div has been removed
+    /// to allow correct styling in composite layouts (e.g. ButtonGroup).
+    /// This parameter will be removed in a future major version.
     /// </summary>
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
     /// <summary>
-    /// Additional CSS classes to apply to the root element.
+    /// Deprecated: This parameter no longer has any effect. The wrapper div has been removed
+    /// to allow correct styling in composite layouts (e.g. ButtonGroup).
+    /// This parameter will be removed in a future major version.
     /// </summary>
     [Parameter]
     public string? Class { get; set; }
@@ -97,6 +102,15 @@
 
     protected override void OnParametersSet()
     {
+        // Warn if deprecated properties are used (log once per component instance)
+        if (!_deprecationWarningLogged && (Class is not null || AdditionalAttributes is { Count: > 0 }))
+        {
+            Logger.LogWarning("BbTooltip: The 'Class' and 'AdditionalAttributes' parameters are deprecated and no longer have any effect. " +
+                "The wrapper div has been removed to support correct styling in composite layouts (e.g. ButtonGroup). " +
+                "These parameters will be removed in a future major version.");
+            _deprecationWarningLogged = true;
+        }
+
         // Update controlled value if it changed
         if (_state.IsControlled && Open.HasValue)
         {
