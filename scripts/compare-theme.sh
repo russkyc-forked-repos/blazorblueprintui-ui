@@ -378,7 +378,7 @@ if grep -q '@theme inline' "$THEME_FILE"; then
   if grep -q 'color-alert' "$THEME_FILE"; then
     REPORT+="- Alert color mappings: Present in theme\n"
   else
-    REPORT+="- Alert color mappings: Provided by library via \`tailwind.config.js\` (no action needed)\n"
+    REPORT+="- Alert color mappings: Provided by library via CSS-first \`@theme inline\` configuration (no action needed)\n"
   fi
 else
   REPORT+="The theme does **not** include a \`@theme inline\` block.\n"

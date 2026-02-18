@@ -1,5 +1,4 @@
 /* BlazorBlueprint Components - Pre-built Tailwind CSS */
-@config "../../tailwind.config.js";
 @import 'tailwindcss';
 
 /* Configure source paths for scanning Razor files */
@@ -46,9 +45,61 @@
   }
 }
 
-/* Tracking variants relative to --tracking-normal from the user's theme.
-   Ensures tracking-tight, tracking-wider, etc. respect the theme's base tracking. */
+/* Tailwind v4 CSS-first theme configuration.
+   Uses @theme inline so var() references resolve at the utility call site. */
 @theme inline {
+  /* Colors */
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-alert-success: var(--alert-success);
+  --color-alert-success-foreground: var(--alert-success-foreground);
+  --color-alert-success-bg: var(--alert-success-bg);
+  --color-alert-info: var(--alert-info);
+  --color-alert-info-foreground: var(--alert-info-foreground);
+  --color-alert-info-bg: var(--alert-info-bg);
+  --color-alert-warning: var(--alert-warning);
+  --color-alert-warning-foreground: var(--alert-warning-foreground);
+  --color-alert-warning-bg: var(--alert-warning-bg);
+  --color-alert-danger: var(--alert-danger);
+  --color-alert-danger-foreground: var(--alert-danger-foreground);
+  --color-alert-danger-bg: var(--alert-danger-bg);
+
+  /* Fonts */
+  --font-sans: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  --font-serif: var(--font-serif, ui-serif, Georgia, serif);
+  --font-mono: var(--font-mono, ui-monospace, monospace);
+
+  /* Border Radius */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* Tracking (letter-spacing) — relative to --tracking-normal from the user's theme */
   --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
   --tracking-tight: calc(var(--tracking-normal) - 0.025em);
   --tracking-normal: var(--tracking-normal);

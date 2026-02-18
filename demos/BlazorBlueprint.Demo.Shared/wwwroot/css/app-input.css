@@ -1,6 +1,3 @@
-/* Import Tailwind v4 configuration FIRST */
-@config "../../tailwind.config.js";
-
 /* Import Tailwind CSS */
 @import 'tailwindcss';
 
