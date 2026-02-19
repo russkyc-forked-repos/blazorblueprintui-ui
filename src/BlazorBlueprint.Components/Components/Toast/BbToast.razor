@@ -5,14 +5,17 @@
     Individual Toast component - displays a single toast notification.
 *@
 
-<div class="@CssClass" role="alert"
+<div class="@CssClass"
+     role="alert"
+     data-state="open"
+     data-position="@PositionAttribute"
      @onmouseenter="HandleMouseEnter"
      @onmouseleave="HandleMouseLeave">
 
     @if (ShouldShowIcon)
     {
         <div class="shrink-0">
-            <LucideIcon Name="@IconName" Class="@IconCssClass" />
+            <LucideIcon Name="@IconName" Class="@IconCssClass"/>
         </div>
     }
 
@@ -41,13 +44,14 @@
         <button type="button"
                 class="@CloseCssClass"
                 @onclick="HandleClose">
-            <LucideIcon Name="x" Class="h-4 w-4" />
+            <LucideIcon Name="x" Class="h-4 w-4"/>
             <span class="sr-only">Close</span>
         </button>
     }
 </div>
 
 @code {
+
     /// <summary>
     /// The toast data to display.
     /// </summary>
@@ -105,6 +109,13 @@
         }
     }
 
+    private bool IsTopPosition => Data.Position.HasValue &&
+                                  (Data.Position.Value == ToastPosition.TopLeft ||
+                                   Data.Position.Value == ToastPosition.TopCenter ||
+                                   Data.Position.Value == ToastPosition.TopRight);
+
+    private string PositionAttribute => IsTopPosition ? "top" : "bottom";
+
     private bool ShouldShowIcon => Data.ShowIcon && Data.Variant != ToastVariant.Default;
 
     private string IconName => Data.Variant switch
@@ -123,12 +134,19 @@
     /// </summary>
     private string CssClass => ClassNames.cn(
         "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border shadow-lg transition-all",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-80",
-        "data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full",
-        "data-[state=open]:sm:slide-in-from-bottom-full",
+// Position-aware animations from Toast
+        "data-[state=open]:animate-in data-[state=closed]:animate-out",
+        IsTopPosition
+            ? "data-[state=open]:animate-toast-slide-in-from-top"
+            : "data-[state=open]:animate-toast-slide-in-from-bottom",
+        "data-[state=closed]:fade-out-80",
+// Padding logic
         IsCompact
             ? Data.ShowClose ? "p-3 pr-6" : "p-3"
-            : Data.ShowClose ? "p-6 pr-8" : "p-6",
+            : Data.ShowClose
+                ? "p-6 pr-8"
+                : "p-6",
+// Variants
         Data.Variant switch
         {
             ToastVariant.Default => "border bg-background text-foreground",
@@ -181,4 +199,5 @@
             ? "text-red-300 hover:text-red-50 focus:ring-red-400 focus:ring-offset-red-600"
             : "text-foreground/50 hover:text-foreground focus:ring-ring"
     );
+
 }

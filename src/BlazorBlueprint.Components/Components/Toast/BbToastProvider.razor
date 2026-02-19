@@ -40,30 +40,10 @@
     private readonly HashSet<string> pausedToasts = new();
     private readonly object timerLock = new();
 
-    /// <summary>
-    /// The position of the toast container on the screen.
-    /// </summary>
-    [Parameter]
-    public ToastPosition Position { get; set; } = ToastPosition.BottomRight;
-
-    /// <summary>
-    /// Maximum number of toasts to display at once.
-    /// Older toasts are removed when limit is reached.
-    /// </summary>
-    [Parameter]
-    public int MaxToasts { get; set; } = 5;
-
-    /// <summary>
-    /// Whether to pause auto-dismiss when the mouse hovers over a toast.
-    /// </summary>
-    [Parameter]
-    public bool PauseOnHover { get; set; } = true;
-
-    /// <summary>
-    /// Additional CSS classes to apply to the container.
-    /// </summary>
-    [Parameter]
-    public string? Class { get; set; }
+    [Parameter] public ToastPosition Position { get; set; } = ToastPosition.BottomRight;
+    [Parameter] public int MaxToasts { get; set; } = 5;
+    [Parameter] public bool PauseOnHover { get; set; } = true;
+    [Parameter] public string? Class { get; set; }
 
     protected override void OnInitialized()
     {
@@ -75,6 +55,14 @@
     {
         lock (timerLock)
         {
+            // --- ANIMATION SYNC LOGIC ---
+            // Ensure every toast has a position so BbToast knows which direction to slide
+            var defaultPosition = EffectivePosition;
+            foreach (var toast in ToastService.Toasts.Where(t => !t.Position.HasValue))
+            {
+                toast.Position = defaultPosition;
+            }
+
             // Initialize elapsed tracking for new toasts
             foreach (var toast in ToastService.Toasts)
             {
@@ -97,35 +85,18 @@
         InvokeAsync(StateHasChanged);
     }
 
-    private void HandleDismiss(string id)
-    {
-        ToastService.Dismiss(id);
-    }
+    private void HandleDismiss(string id) => ToastService.Dismiss(id);
 
     private void HandlePause(string id)
     {
-        if (!PauseOnHover)
-        {
-            return;
-        }
-
-        lock (timerLock)
-        {
-            pausedToasts.Add(id);
-        }
+        if (!PauseOnHover) return;
+        lock (timerLock) { pausedToasts.Add(id); }
     }
 
     private void HandleResume(string id)
     {
-        if (!PauseOnHover)
-        {
-            return;
-        }
-
-        lock (timerLock)
-        {
-            pausedToasts.Remove(id);
-        }
+        if (!PauseOnHover) return;
+        lock (timerLock) { pausedToasts.Remove(id); }
     }
 
     private void StartAutoCloseTimer()
@@ -134,20 +105,13 @@
         autoCloseTimer.Elapsed += (sender, args) =>
         {
             var toastsToRemove = new List<string>();
-
             lock (timerLock)
             {
                 foreach (var toast in ToastService.Toasts)
                 {
-                    if (toast.Duration <= 0)
-                    {
-                        continue;
-                    }
+                    if (toast.Duration <= 0) continue;
 
-                    if (!elapsedMs.ContainsKey(toast.Id))
-                    {
-                        elapsedMs[toast.Id] = 0;
-                    }
+                    if (!elapsedMs.ContainsKey(toast.Id)) elapsedMs[toast.Id] = 0;
 
                     if (!pausedToasts.Contains(toast.Id))
                     {
@@ -161,10 +125,7 @@
                 }
             }
 
-            foreach (var id in toastsToRemove)
-            {
-                ToastService.Dismiss(id);
-            }
+            foreach (var id in toastsToRemove) { ToastService.Dismiss(id); }
         };
         autoCloseTimer.Start();
     }
@@ -173,8 +134,9 @@
 
     private IEnumerable<ToastPosition> GetCustomPositions()
     {
+        // Only return positions that are NOT the EffectivePosition to avoid duplicate containers
         return ToastService.Toasts
-            .Where(t => t.Position.HasValue)
+            .Where(t => t.Position.HasValue && t.Position.Value != EffectivePosition)
             .Select(t => t.Position!.Value)
             .Distinct();
     }
@@ -186,11 +148,14 @@
             return ToastService.Toasts.Where(t => t.Position == position);
         }
 
-        return ToastService.Toasts.Where(t => !t.Position.HasValue);
+        // Toasts assigned to the main container
+        return ToastService.Toasts.Where(t => !t.Position.HasValue || t.Position == EffectivePosition);
     }
 
     private string GetContainerCssClass(ToastPosition position) => ClassNames.cn(
-        "fixed z-[100] flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:flex-col md:max-w-[420px]",
+        "fixed z-[100] flex max-h-screen w-full flex-col gap-2 p-4 md:max-w-[420px]",
+        // Toggle flex direction based on top/bottom position for natural stacking
+        (position.ToString().StartsWith("Top") ? "flex-col" : "flex-col-reverse"),
         position switch
         {
             ToastPosition.TopRight => "top-0 right-0",
@@ -209,7 +174,6 @@
         ToastService.OnChange -= HandleToastsChanged;
         autoCloseTimer?.Stop();
         autoCloseTimer?.Dispose();
-        GC.SuppressFinalize(this);
         return ValueTask.CompletedTask;
     }
 }
