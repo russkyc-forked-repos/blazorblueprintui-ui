@@ -366,26 +366,40 @@
 
         await CleanupAsync();
 
-        try
+        if (_clickOutsideModule != null)
         {
-            if (_clickOutsideModule != null)
+            try
             {
                 await _clickOutsideModule.DisposeAsync();
             }
+            catch (JSDisconnectedException)
+            {
+                // Expected during circuit disconnect
+            }
+        }
 
-            if (_menuKeyboardModule != null)
+        if (_menuKeyboardModule != null)
+        {
+            try
             {
                 await _menuKeyboardModule.DisposeAsync();
             }
+            catch (JSDisconnectedException)
+            {
+                // Expected during circuit disconnect
+            }
+        }
 
-            if (_matchWidthModule != null)
+        if (_matchWidthModule != null)
+        {
+            try
             {
                 await _matchWidthModule.DisposeAsync();
             }
-        }
-        catch (JSDisconnectedException)
-        {
-            // Expected during circuit disconnect
+            catch (JSDisconnectedException)
+            {
+                // Expected during circuit disconnect
+            }
         }
 
         _dotNetRef?.Dispose();

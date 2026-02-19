@@ -156,9 +156,20 @@
             try
             {
                 await _jsModule.InvokeVoidAsync("disposeResizable", _groupId);
+            }
+            catch
+            {
+                // Cleanup may already be disposed
+            }
+
+            try
+            {
                 await _jsModule.DisposeAsync();
             }
-            catch { }
+            catch (JSDisconnectedException)
+            {
+                // Expected during circuit disconnect
+            }
         }
         _dotNetRef?.Dispose();
     }

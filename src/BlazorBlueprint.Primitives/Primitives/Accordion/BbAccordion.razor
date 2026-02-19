@@ -250,22 +250,29 @@
         _disposed = true;
         _context.OnStateChanged -= HandleContextStateChanged;
 
-        try
+        if (_keyboardNavCleanup is not null)
         {
-            if (_keyboardNavCleanup is not null)
+            try
             {
                 await _keyboardNavCleanup.InvokeVoidAsync("dispose");
                 await _keyboardNavCleanup.DisposeAsync();
             }
+            catch (JSDisconnectedException)
+            {
+                // Circuit disconnected, ignore
+            }
+        }
 
-            if (_keyboardNavModule is not null)
+        if (_keyboardNavModule is not null)
+        {
+            try
             {
                 await _keyboardNavModule.DisposeAsync();
             }
-        }
-        catch (JSDisconnectedException)
-        {
-            // Circuit disconnected, ignore
+            catch (JSDisconnectedException)
+            {
+                // Circuit disconnected, ignore
+            }
         }
     }
 }

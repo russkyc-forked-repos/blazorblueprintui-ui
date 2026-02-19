@@ -109,21 +109,28 @@
 
         await CleanupKeyboardAsync();
 
-        try
+        if (_portalModule != null)
         {
-            if (_portalModule != null)
+            try
             {
                 await _portalModule.DisposeAsync();
             }
+            catch (JSDisconnectedException)
+            {
+                // Expected during circuit disconnect
+            }
+        }
 
-            if (_menuKeyboardModule != null)
+        if (_menuKeyboardModule != null)
+        {
+            try
             {
                 await _menuKeyboardModule.DisposeAsync();
             }
-        }
-        catch (JSDisconnectedException)
-        {
-            // Expected during circuit disconnect
+            catch (JSDisconnectedException)
+            {
+                // Expected during circuit disconnect
+            }
         }
 
         _dotNetRef?.Dispose();

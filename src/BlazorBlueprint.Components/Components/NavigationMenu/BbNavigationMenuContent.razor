@@ -202,14 +202,24 @@
                 await _keyboardCleanup.InvokeVoidAsync("dispose");
                 await _keyboardCleanup.DisposeAsync();
             }
-            catch { }
+            catch
+            {
+                // Cleanup may already be disposed
+            }
         }
-
-        _dotNetRef?.Dispose();
 
         if (_navModule != null)
         {
-            await _navModule.DisposeAsync();
+            try
+            {
+                await _navModule.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // Expected during circuit disconnect
+            }
         }
+
+        _dotNetRef?.Dispose();
     }
 }

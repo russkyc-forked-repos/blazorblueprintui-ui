@@ -597,7 +597,14 @@ public partial class BbMultiSelect<TValue> : ComponentBase, IAsyncDisposable
 
         if (_multiSelectModule != null)
         {
-            await _multiSelectModule.DisposeAsync();
+            try
+            {
+                await _multiSelectModule.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // Expected during circuit disconnect
+            }
             _multiSelectModule = null;
         }
 
