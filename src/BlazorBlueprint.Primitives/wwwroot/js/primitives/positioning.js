@@ -228,6 +228,12 @@ export async function autoUpdate(reference, floating, options = {}) {
         const lib = await loadFloatingUI();
 
     const update = async () => {
+        // Guard against stale elements — autoUpdate listeners (scroll, resize,
+        // intersection) can fire after Blazor removes elements from the DOM
+        // but before the cleanup function is called. Silently bail out.
+        if (!isElementReady(reference) || !isElementReady(floating)) {
+            return;
+        }
         const position = await computePosition(reference, floating, options);
         applyPosition(floating, position);
     };

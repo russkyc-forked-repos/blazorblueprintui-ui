@@ -31,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blazor-ApexCharts" Version="4.0.0" />
     <PackageReference Include="HtmlSanitizer" Version="9.0.892" />
     <PackageReference Include="Markdig" Version="0.37.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.14" />
@@ -49,7 +48,7 @@
 
   <ItemGroup Condition="'$(UsePackageReferences)' == 'true'">
     <PackageReference Include="BlazorBlueprint.Icons.Lucide" Version="2.0.0" />
-    <PackageReference Include="BlazorBlueprint.Primitives" Version="2.3.2" />
+    <PackageReference Include="BlazorBlueprint.Primitives" Version="3.0.1" />
   </ItemGroup>
 
   <ItemGroup>
