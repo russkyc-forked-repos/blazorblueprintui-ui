@@ -3,6 +3,7 @@
 
 @* Styled SelectContent wrapper around SelectContent primitive *@
 <BlazorBlueprint.Primitives.Select.BbSelectContent TValue="TValue"
+                                               ForceMount="true"
                                                class="@CssClass">
     <div class="p-1">
         @ChildContent
@@ -37,6 +38,14 @@
         "bg-popover text-popover-foreground shadow-md",
         // Hide scrollbar but keep scroll functionality
         "[&::-webkit-scrollbar]:hidden",
+        // Animation classes for open/closed states with direction awareness (top/bottom only)
+        "data-[state=open]:animate-in data-[state=closed]:animate-out",
+        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        // Direction-aware slide animations (top/bottom only)
+        "data-[state=open]:data-[side=top]:animate-content-slide-in-from-bottom",
+        "data-[state=open]:data-[side=bottom]:animate-content-slide-in-from-top",
+        "data-[state=closed]:data-[side=top]:animate-content-slide-out-to-bottom",
+        "data-[state=closed]:data-[side=bottom]:animate-content-slide-out-to-top",
         Class
     );
 }
