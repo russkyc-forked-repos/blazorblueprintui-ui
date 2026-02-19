@@ -1,0 +1,51 @@
+@namespace BlazorBlueprint.Primitives.Sheet
+
+@*
+    SheetTitle provides the title element for the sheet.
+    Used for accessibility (aria-labelledby).
+*@
+
+@HeadingFragment
+
+@code {
+    [CascadingParameter]
+    private SheetContext Context { get; set; } = null!;
+
+    /// <summary>
+    /// The title text or content.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Additional attributes to apply to the title element.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    /// <summary>
+    /// The HTML element tag to use for the title.
+    /// Default is "h2".
+    /// </summary>
+    [Parameter]
+    public string As { get; set; } = "h2";
+
+    private RenderFragment HeadingFragment => builder =>
+    {
+        builder.OpenElement(0, As);
+        builder.AddAttribute(1, "id", Context.TitleId);
+        builder.AddMultipleAttributes(2, AdditionalAttributes);
+        builder.AddContent(3, ChildContent);
+        builder.CloseElement();
+    };
+
+    protected override void OnInitialized()
+    {
+        if (Context == null)
+        {
+            throw new InvalidOperationException(
+                "SheetTitle must be used within a Sheet component. " +
+                "Ensure SheetTitle is a child of a Sheet component.");
+        }
+    }
+}

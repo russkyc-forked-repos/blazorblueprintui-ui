@@ -43,6 +43,12 @@ NUL
 .env.local
 .env.*.local
 
+# Local test apps
+tests/BlazorBlueprint.IssueTester/
+
+# Local LLM docs
+.llms
+
 # Development Tools
 .playwright-mcp
 .devflow
@@ -50,7 +56,3 @@ NUL
 DEV-TASKS.md
 .instructions
 .reviews
-
-# Tailwind CSS build binaries
-tools/tailwindcss-linux
-tools/tailwindcss.exe
