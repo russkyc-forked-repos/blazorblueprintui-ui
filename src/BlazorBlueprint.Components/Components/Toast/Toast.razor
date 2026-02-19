@@ -1,5 +1,4 @@
 @namespace BlazorBlueprint.Components.Toast
-@using BlazorBlueprint.Components.Utilities
 @using BlazorBlueprint.Icons.Lucide.Components
 
 @*
@@ -68,9 +67,9 @@
         await OnDismiss.InvokeAsync();
     }
 
-    private bool IsTopPosition => Data.Position.HasValue && 
-        (Data.Position.Value == ToastPosition.TopLeft || 
-         Data.Position.Value == ToastPosition.TopCenter || 
+    private bool IsTopPosition => Data.Position.HasValue &&
+        (Data.Position.Value == ToastPosition.TopLeft ||
+         Data.Position.Value == ToastPosition.TopCenter ||
          Data.Position.Value == ToastPosition.TopRight);
 
     private string PositionAttribute => IsTopPosition ? "top" : "bottom";
@@ -82,7 +81,7 @@
         "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         // Direction-aware slide animations for entrance only
-        IsTopPosition 
+        IsTopPosition
             ? "data-[state=open]:animate-toast-slide-in-from-top"
             : "data-[state=open]:animate-toast-slide-in-from-bottom",
         // Fade out only (no slide)

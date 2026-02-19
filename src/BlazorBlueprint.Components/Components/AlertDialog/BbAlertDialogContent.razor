@@ -6,9 +6,9 @@
 *@
 
 <BlazorBlueprint.Primitives.Dialog.BbDialogPortal>
-    <BlazorBlueprint.Primitives.Dialog.BbDialogOverlay class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:animate-overlay-fade-in data-[state=closed]:animate-overlay-fade-out" />
-
-    <BlazorBlueprint.Primitives.Dialog.DialogContent
+    <BlazorBlueprint.Primitives.Dialog.BbDialogOverlay
+        class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:animate-overlay-fade-in data-[state=closed]:animate-overlay-fade-out"/>
+    <BlazorBlueprint.Primitives.Dialog.BbDialogContent
         class="@GetClassNames()"
         CloseOnEscape="false"
         TrapFocus="true"
@@ -16,10 +16,11 @@
         role="alertdialog"
         @attributes="AdditionalAttributes">
         @ChildContent
-    </BlazorBlueprint.Primitives.Dialog.DialogContent>
+    </BlazorBlueprint.Primitives.Dialog.BbDialogContent>
 </BlazorBlueprint.Primitives.Dialog.BbDialogPortal>
 
 @code {
+
     /// <summary>
     /// The content to render inside the alert dialog.
     /// </summary>
@@ -49,4 +50,5 @@
         "sm:rounded-lg",
         Class
     );
+
 }

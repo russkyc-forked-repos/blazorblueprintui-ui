@@ -12,8 +12,8 @@
     Maintains Select-specific behavior: keyboard navigation, item focus, ARIA attributes.
 *@
 
-<BbFloatingPortal IsOpen="@(_shouldRender && _context.IsOpen)"
-                  AnchorElement="@_context.State.TriggerElement"
+<BbFloatingPortal IsOpen="@(_shouldRender && _context is not null && _context.IsOpen)"
+                  AnchorElement="@_context?.State.TriggerElement"
                   PortalId="@_portalId"
                   Side="@Side"
                   Align="@Align"

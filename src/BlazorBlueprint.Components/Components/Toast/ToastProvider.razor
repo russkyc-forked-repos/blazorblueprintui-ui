@@ -1,5 +1,4 @@
 @namespace BlazorBlueprint.Components.Toast
-@using BlazorBlueprint.Components.Utilities
 @implements IDisposable
 @inject ToastService ToastService
 
@@ -51,7 +50,7 @@
         {
             toast.Position = effectivePosition;
         }
-        
+
         InvokeAsync(StateHasChanged);
     }
 
