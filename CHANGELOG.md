@@ -37,6 +37,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 
 - Dialog and AlertDialog animations simplified to fade+zoom only — removed slide animation that caused visual inconsistency with centered overlays.
+- Corrected misnamed `Separator` component tag in `InputOTPDemo.razor` demo page (#148).
+
+### Internal
+
+- Added Tailwind CSS build target for Linux in `BlazorBlueprint.Demo.Shared` project, enabling cross-platform demo builds (#149).
 
 ---
 
