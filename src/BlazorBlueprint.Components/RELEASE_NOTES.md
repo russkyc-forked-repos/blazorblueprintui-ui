@@ -1,32 +1,10 @@
-## What's New in v3.0.0
-
-### Breaking Changes
-- All Razor components now use the `Bb` prefix (e.g., `Button` -> `BbButton`, `Dialog` -> `BbDialog`)
-- Namespaces flattened to `BlazorBlueprint.Components` and `BlazorBlueprint.Primitives`
-- Combobox and MultiSelect API redesigned: `TItem` replaced with `TValue`, simplified value binding
-- Trigger and Close components default `AsChild` to `true`
-- ApexCharts replaced with Apache ECharts using a new declarative composition API
-- Portal system upgraded to two-layer architecture with category-scoped rendering
+## What's New in v3.2.0
 
 ### New Features
-- 7 new components added
-- 30+ new usability parameters across existing components
-- Toast semantic variants, compact size, auto icons, pause-on-hover, and per-toast positioning
-- Auto-generated `id` attributes for all input components (accessibility)
-- `DialogService` with programmatic `Confirm()` method
-- `ScrollArea` `FillContainer` parameter and `SidebarInset` scroll reset on navigation
-- `ActiveClass` parameter on Select, Combobox, MultiSelect, and DropdownMenu triggers
-- `ForceMount` parameter on `FloatingPortal` for persistent portal content
-- Custom `bb-theme-changed` event for theme change detection
-- Switch `ThumbClass`, `ThumbCheckedClass`, `ThumbUncheckedClass`, and `ThumbContent` parameters
-
-### Performance
-- Menu keyboard navigation moved from C# to JavaScript
-- Dialog, Sheet, and Drawer escape key handling moved to JavaScript
-- Input components migrated to JavaScript-first event architecture
-- Centralized input validation logic into shared `InputValidationBehavior`
-- Select display text state change optimization to prevent unnecessary re-renders
-
-### Bug Fixes
-- Fixed `FloatingPortal` content staying visible one render behind on close
-- Removed default focus ring from all input components
+- **Composite Chart** (`BbChart`): Mix any combination of bar, line, area, and scatter series in a single chart
+- **Scatter Chart** (`BbScatterChart` + `BbScatter`): Scatter plots and bubble charts with configurable symbol sizes via `SymbolSize` and data-driven sizing via `SymbolSizeKey`
+- **Candlestick Chart** (`BbCandlestickChart` + `BbCandlestick`): Financial OHLC charts with configurable `BullColor` and `BearColor`
+- **Heatmap Chart** (`BbHeatmapChart` + `BbHeatmap`): Color-coded grid visualizations with `BbVisualMap` for gradient mapping
+- **Gauge Chart** (`BbGaugeChart` + `BbGauge`): Speedometer-style gauges with progress arcs, pointers, and customizable value display
+- **Funnel Chart** (`BbFunnelChart` + `BbFunnel`): Pipeline visualizations with sort order, alignment, and gap controls
+- `DataKey` and `Scale` parameters on `BbYAxis` for category axis data binding and auto-fitted value ranges

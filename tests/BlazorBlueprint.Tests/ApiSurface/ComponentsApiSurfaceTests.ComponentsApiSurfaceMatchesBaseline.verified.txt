@@ -259,6 +259,32 @@
   - ShowMonthYearDropdowns : Boolean
   - ShowOutsideDays : Boolean
 
+### BbCandlestick (BlazorBlueprint.Components)
+  - BarWidth : String
+  - BearColor : String
+  - BullColor : String
+  - ChildContent : RenderFragment
+  - CloseKey : String
+  - Color : String
+  - DataKey : String
+  - HighKey : String
+  - LowKey : String
+  - Name : String
+  - OpenKey : String
+  - StackGroup : String
+  - Stacked : Boolean
+
+### BbCandlestickChart (BlazorBlueprint.Components)
+  - AdditionalAttributes : Dictionary<String, Object> [CaptureUnmatchedValues]
+  - ChildContent : RenderFragment
+  - Class : String
+  - Config : ChartConfig
+  - Data : Object
+  - EnableAnimations : Boolean
+  - Height : String
+  - Title : String
+  - Width : String
+
 ### BbCard (BlazorBlueprint.Components)
   - ChildContent : RenderFragment
   - Class : String
@@ -319,6 +345,17 @@
   - Title : String
   - Value : String
   - ParentSeries : SeriesBase [CascadingParameter]
+
+### BbChart (BlazorBlueprint.Components)
+  - AdditionalAttributes : Dictionary<String, Object> [CaptureUnmatchedValues]
+  - ChildContent : RenderFragment
+  - Class : String
+  - Config : ChartConfig
+  - Data : Object
+  - EnableAnimations : Boolean
+  - Height : String
+  - Title : String
+  - Width : String
 
 ### BbChartContainer (BlazorBlueprint.Components)
   - AdditionalAttributes : Dictionary<String, Object> [CaptureUnmatchedValues]
@@ -563,6 +600,83 @@
   - CascadedEditContext : EditContext [CascadingParameter]
   - FieldIsInvalid : Boolean? [CascadingParameter]
 
+### BbDataGridColumnVisibility`1 (BlazorBlueprint.Components)
+  - AsChild : Boolean
+  - TriggerClass : String
+  - TriggerContent : RenderFragment
+  - ParentGrid : BbDataGrid<TData> [CascadingParameter]
+
+### BbDataGridPropertyColumn`2 (BlazorBlueprint.Components)
+  - CellClass : String
+  - CellTemplate : RenderFragment<TData>
+  - Format : String
+  - HeaderClass : String
+  - Hideable : Boolean
+  - Id : String
+  - NoWrap : Boolean
+  - Pinned : ColumnPinning
+  - Property : Expression<Func<TData, TProp>> [EditorRequired]
+  - Reorderable : Boolean
+  - Resizable : Boolean
+  - Sortable : Boolean
+  - Title : String
+  - Visible : Boolean
+  - Width : String
+  - ParentGrid : BbDataGrid<TData> [CascadingParameter]
+
+### BbDataGridSelectColumn`1 (BlazorBlueprint.Components)
+  - Pinned : ColumnPinning
+  - Width : String
+  - ParentGrid : BbDataGrid<TData> [CascadingParameter]
+
+### BbDataGridTemplateColumn`1 (BlazorBlueprint.Components)
+  - CellClass : String
+  - ChildContent : RenderFragment<TData>
+  - HeaderClass : String
+  - HeaderTemplate : RenderFragment
+  - Hideable : Boolean
+  - Id : String
+  - NoWrap : Boolean
+  - Pinned : ColumnPinning
+  - Reorderable : Boolean
+  - Resizable : Boolean
+  - SortBy : Expression<Func<TData, Object>>
+  - Sortable : Boolean
+  - Title : String [EditorRequired]
+  - Visible : Boolean
+  - Width : String
+  - ParentGrid : BbDataGrid<TData> [CascadingParameter]
+
+### BbDataGrid`1 (BlazorBlueprint.Components)
+  - AdditionalAttributes : Dictionary<String, Object> [CaptureUnmatchedValues]
+  - AriaLabel : String
+  - Class : String
+  - Columns : RenderFragment
+  - EmptyTemplate : RenderFragment
+  - EnableKeyboardNavigation : Boolean
+  - InitialPageSize : Int32
+  - IsLoading : Boolean
+  - ItemSize : Single
+  - Items : IEnumerable<TData>
+  - ItemsProvider : DataGridItemsProvider<TData>
+  - LoadingTemplate : RenderFragment
+  - MinColumnWidth : Int32
+  - OnColumnReorder : EventCallback<ValueTuple<String, Int32>>
+  - OnColumnResize : EventCallback<ValueTuple<String, String>>
+  - OnSort : EventCallback<IReadOnlyList<SortDefinition>>
+  - PageSizes : Int32[]
+  - Reorderable : Boolean
+  - Resizable : Boolean
+  - RowClass : Func<TData, String>
+  - SelectedItemsChanged : EventCallback<IReadOnlyCollection<TData>>
+  - SelectionMode : DataTableSelectionMode
+  - ShowPagination : Boolean
+  - State : DataGridState<TData>
+  - StateChanged : EventCallback<DataGridState<TData>>
+  - StickyHeader : Boolean
+  - Toolbar : RenderFragment
+  - Virtualize : Boolean
+
 ### BbDataTableColumn`2 (BlazorBlueprint.Components)
   - CellClass : String
   - CellTemplate : RenderFragment<TData>
@@ -593,6 +707,8 @@
   - Data : IEnumerable<TData> [EditorRequired]
   - EmptyTemplate : RenderFragment
   - EnableKeyboardNavigation : Boolean
+  - Filter : FilterDefinition
+  - FilterFields : IEnumerable<FilterField>
   - InitialPageSize : Int32
   - IsLoading : Boolean
   - LoadingTemplate : RenderFragment
@@ -698,6 +814,7 @@
   - ChildContent : RenderFragment
   - Class : String
   - CloseOnEscape : Boolean
+  - CloseOnOverlayClick : Boolean
   - Container : String
   - LockScroll : Boolean
   - OnEscapeKeyDown : EventCallback<KeyboardEventArgs>
@@ -935,6 +1052,31 @@
   - ChildContent : RenderFragment
   - ParentSeries : SeriesBase [CascadingParameter]
 
+### BbFilterBuilder (BlazorBlueprint.Components)
+  - Class : String
+  - Compact : Boolean
+  - DefaultOperator : LogicalOperator
+  - Fields : IEnumerable<FilterField>
+  - Filter : FilterDefinition
+  - FilterChanged : EventCallback<FilterDefinition>
+  - MaxConditions : Int32?
+  - MaxDepth : Int32
+  - OnFilterChanged : EventCallback<FilterDefinition>
+  - ShowApplyButton : Boolean
+
+### BbFilterCondition (BlazorBlueprint.Components)
+  - Condition : FilterCondition
+  - OnChanged : EventCallback
+  - OnRemove : EventCallback
+  - Context : FilterBuilderContext [CascadingParameter]
+
+### BbFilterGroup (BlazorBlueprint.Components)
+  - Depth : Int32
+  - Group : FilterDefinition
+  - IsRoot : Boolean
+  - OnRemove : EventCallback
+  - Context : FilterBuilderContext [CascadingParameter]
+
 ### BbFormFieldCheckbox (BlazorBlueprint.Components)
   - AriaLabel : String
   - Checked : Boolean
@@ -1066,6 +1208,96 @@
   - Orientation : FieldOrientation
   - Size : SwitchSize
 
+### BbFormWizard (BlazorBlueprint.Components)
+  - AdditionalAttributes : Dictionary<String, Object> [CaptureUnmatchedValues]
+  - AllowSkipAhead : Boolean
+  - BackLabel : String
+  - ChildContent : RenderFragment
+  - Class : String
+  - CompleteLabel : String
+  - ContentClass : String
+  - CurrentStep : Int32
+  - CurrentStepChanged : EventCallback<Int32>
+  - IndicatorClass : String
+  - Layout : WizardLayout
+  - NavigationClass : String
+  - NavigationTemplate : RenderFragment
+  - NextLabel : String
+  - OnComplete : EventCallback
+  - OnStepChanged : EventCallback<Int32>
+  - RetainStepState : Boolean
+  - ShowNavigation : Boolean
+  - EditContext : EditContext [CascadingParameter]
+
+### BbFunnel (BlazorBlueprint.Components)
+  - Align : FunnelAlign
+  - ChildContent : RenderFragment
+  - Color : String
+  - DataKey : String
+  - Gap : Int32
+  - LabelColor : String
+  - LabelFontSize : Int32?
+  - LabelFormatter : String
+  - LabelPosition : LabelPosition
+  - MaxSize : String
+  - MinSize : String
+  - Name : String
+  - NameKey : String
+  - ShowLabels : Boolean
+  - Sort : FunnelSort
+  - StackGroup : String
+  - Stacked : Boolean
+
+### BbFunnelChart (BlazorBlueprint.Components)
+  - AdditionalAttributes : Dictionary<String, Object> [CaptureUnmatchedValues]
+  - ChildContent : RenderFragment
+  - Class : String
+  - Config : ChartConfig
+  - Data : Object
+  - EnableAnimations : Boolean
+  - Height : String
+  - Title : String
+  - Width : String
+
+### BbGauge (BlazorBlueprint.Components)
+  - AxisLineWidth : Int32
+  - ChildContent : RenderFragment
+  - Color : String
+  - DataKey : String
+  - DetailColor : String
+  - DetailFontSize : Int32
+  - DetailFormatter : String
+  - EndAngle : Int32
+  - Max : Double
+  - Min : Double
+  - Name : String
+  - PointerLength : String
+  - PointerWidth : Int32
+  - ProgressColor : String
+  - ProgressRoundCap : Boolean
+  - ProgressWidth : Int32
+  - ShowAxisLine : Boolean
+  - ShowDetail : Boolean
+  - ShowPointer : Boolean
+  - ShowProgress : Boolean
+  - ShowTitle : Boolean
+  - SplitNumber : Int32
+  - StackGroup : String
+  - Stacked : Boolean
+  - StartAngle : Int32
+  - TitleFontSize : Int32
+
+### BbGaugeChart (BlazorBlueprint.Components)
+  - AdditionalAttributes : Dictionary<String, Object> [CaptureUnmatchedValues]
+  - ChildContent : RenderFragment
+  - Class : String
+  - Config : ChartConfig
+  - Data : Object
+  - EnableAnimations : Boolean
+  - Height : String
+  - Title : String
+  - Width : String
+
 ### BbGradientStop (BlazorBlueprint.Components)
   - Color : String
   - Offset : Double
@@ -1079,6 +1311,32 @@
   - Right : String
   - Top : String
   - ParentChart : BbChartBase [CascadingParameter]
+
+### BbHeatmap (BlazorBlueprint.Components)
+  - ChildContent : RenderFragment
+  - Color : String
+  - DataKey : String
+  - LabelColor : String
+  - LabelFontSize : Int32?
+  - LabelFormatter : String
+  - Name : String
+  - ShowLabel : Boolean
+  - StackGroup : String
+  - Stacked : Boolean
+  - ValueKey : String
+  - XKey : String
+  - YKey : String
+
+### BbHeatmapChart (BlazorBlueprint.Components)
+  - AdditionalAttributes : Dictionary<String, Object> [CaptureUnmatchedValues]
+  - ChildContent : RenderFragment
+  - Class : String
+  - Config : ChartConfig
+  - Data : Object
+  - EnableAnimations : Boolean
+  - Height : String
+  - Title : String
+  - Width : String
 
 ### BbHoverCard (BlazorBlueprint.Components)
   - ChildContent : RenderFragment
@@ -1220,7 +1478,9 @@
   - GroupSize : Int32
   - Id : String
   - InputClass : String
+  - InputMode : InputOTPInputMode
   - Length : Int32
+  - Mask : Boolean
   - Name : String
   - OnComplete : EventCallback<String>
   - Separator : RenderFragment
@@ -1846,6 +2106,30 @@
   - Value : String
   - ValueChanged : EventCallback<String>
 
+### BbScatter (BlazorBlueprint.Components)
+  - ChildContent : RenderFragment
+  - Color : String
+  - DataKey : String
+  - LabelFormatter : String
+  - LabelPosition : LabelPosition
+  - Name : String
+  - ShowLabel : Boolean
+  - StackGroup : String
+  - Stacked : Boolean
+  - SymbolSize : Int32
+  - SymbolSizeKey : String
+
+### BbScatterChart (BlazorBlueprint.Components)
+  - AdditionalAttributes : Dictionary<String, Object> [CaptureUnmatchedValues]
+  - ChildContent : RenderFragment
+  - Class : String
+  - Config : ChartConfig
+  - Data : Object
+  - EnableAnimations : Boolean
+  - Height : String
+  - Title : String
+  - Width : String
+
 ### BbScrollArea (BlazorBlueprint.Components)
   - ChildContent : RenderFragment
   - Class : String
@@ -1933,6 +2217,7 @@
   - ChildContent : RenderFragment
   - Class : String
   - CloseOnEscape : Boolean
+  - CloseOnOverlayClick : Boolean
   - Container : String
   - LockScroll : Boolean
   - OnEscapeKeyDown : EventCallback<KeyboardEventArgs>
@@ -2426,6 +2711,64 @@
   - OnMouseEnter : EventCallback<MouseEventArgs>
   - OnMouseLeave : EventCallback<MouseEventArgs>
 
+### BbTreeItem (BlazorBlueprint.Components)
+  - ActionsTemplate : RenderFragment
+  - Badge : String
+  - Checkable : Boolean?
+  - ChildContent : RenderFragment
+  - Class : String
+  - Disabled : Boolean
+  - Icon : String
+  - IsDraggable : Boolean?
+  - IsLeaf : Boolean?
+  - Label : String
+  - LabelTemplate : RenderFragment
+  - Value : String [EditorRequired]
+  - ParentPrimitiveItem : BbTreeItem [CascadingParameter]
+  - TreeContext : TreeViewContext [CascadingParameter]
+
+### BbTreeView`1 (BlazorBlueprint.Components)
+  - AllowDrag : Func<TItem, Boolean>
+  - AllowDrop : Func<TItem, TItem, Boolean>
+  - AriaLabel : String
+  - CheckStrictly : Boolean
+  - Checkable : Boolean
+  - CheckedValues : HashSet<String>
+  - CheckedValuesChanged : EventCallback<HashSet<String>>
+  - ChildContent : RenderFragment
+  - ChildrenProperty : Func<TItem, IEnumerable<TItem>>
+  - Class : String
+  - DefaultExpandAll : Boolean
+  - DefaultExpandDepth : Int32?
+  - Draggable : Boolean
+  - ExpandOnClick : Boolean
+  - ExpandedValues : HashSet<String>
+  - ExpandedValuesChanged : EventCallback<HashSet<String>>
+  - HasChildrenField : Func<TItem, Boolean>
+  - IconField : Func<TItem, String>
+  - Items : IEnumerable<TItem>
+  - OnCheckedChanged : EventCallback<HashSet<String>>
+  - OnLoadChildren : Func<TItem, Task<IEnumerable<TItem>>>
+  - OnNodeClick : EventCallback<TItem>
+  - OnNodeCollapse : EventCallback<TItem>
+  - OnNodeDrop : EventCallback<TreeDropEventArgs<TItem>>
+  - OnNodeExpand : EventCallback<TItem>
+  - OnSearch : EventCallback<String>
+  - ParentField : Func<TItem, String>
+  - SearchPlaceholder : String
+  - SearchText : String
+  - SearchTextChanged : EventCallback<String>
+  - SelectedValue : String
+  - SelectedValueChanged : EventCallback<String>
+  - SelectedValues : HashSet<String>
+  - SelectedValuesChanged : EventCallback<HashSet<String>>
+  - SelectionMode : TreeSelectionMode
+  - ShowIcons : Boolean
+  - ShowLines : Boolean
+  - ShowSearch : Boolean
+  - TextField : Func<TItem, String>
+  - ValueField : Func<TItem, String>
+
 ### BbTypographyBlockquote (BlazorBlueprint.Components)
   - ChildContent : RenderFragment
   - Class : String
@@ -2470,6 +2813,27 @@
   - ChildContent : RenderFragment
   - Class : String
 
+### BbVisualMap (BlazorBlueprint.Components)
+  - Calculable : Boolean
+  - Colors : String[]
+  - Max : Double
+  - Min : Double
+  - Orient : String
+  - Show : Boolean
+  - ParentChart : BbChartBase [CascadingParameter]
+
+### BbWizardStep (BlazorBlueprint.Components)
+  - ChildContent : RenderFragment
+  - Class : String
+  - Description : String
+  - Disabled : Boolean
+  - FieldNames : String[]
+  - Icon : String
+  - IsOptional : Boolean
+  - Title : String [EditorRequired]
+  - Validator : Func<Boolean>
+  - Wizard : BbFormWizard [CascadingParameter]
+
 ### BbXAxis (BlazorBlueprint.Components)
   - BoundaryGap : Boolean?
   - DataKey : String
@@ -2490,6 +2854,7 @@
   - ParentChart : BbChartBase [CascadingParameter]
 
 ### BbYAxis (BlazorBlueprint.Components)
+  - DataKey : String
   - GridColor : String
   - GridType : LineStyleType
   - LabelColor : String
@@ -2498,12 +2863,33 @@
   - Max : Object
   - Min : Object
   - Name : String
+  - Scale : Boolean?
   - Show : Boolean
   - ShowAxisLine : Boolean
   - ShowGrid : Boolean
   - ShowTicks : Boolean
   - Type : AxisType
   - ParentChart : BbChartBase [CascadingParameter]
+
+### TreeItemNode`1 (BlazorBlueprint.Components)
+  - AllowDrag : Func<TItem, Boolean>
+  - Checkable : Boolean
+  - ChildrenAccessor : Func<TItem, IEnumerable<TItem>> [EditorRequired]
+  - Draggable : Boolean
+  - ErrorNodes : HashSet<String>
+  - HasChildrenAccessor : Func<TItem, Boolean> [EditorRequired]
+  - IconField : Func<TItem, String>
+  - IsFilteredOut : Func<TItem, Boolean> [EditorRequired]
+  - IsMatchHighlighted : Boolean
+  - Item : TItem [EditorRequired]
+  - LoadingNodes : HashSet<String>
+  - OnRetryLoad : EventCallback<String>
+  - SearchText : String
+  - ShowIcons : Boolean
+  - TextField : Func<TItem, String> [EditorRequired]
+  - ValueField : Func<TItem, String> [EditorRequired]
+  - ParentPrimitiveItem : BbTreeItem [CascadingParameter]
+  - TreeContext : TreeViewContext [CascadingParameter]
 
 ## Enums
 
@@ -2611,6 +2997,21 @@
   - List = 0
   - Grid = 1
 
+### DatePreset (BlazorBlueprint.Components)
+  - Today = 0
+  - Yesterday = 1
+  - Tomorrow = 2
+  - ThisWeek = 3
+  - LastWeek = 4
+  - NextWeek = 5
+  - ThisMonth = 6
+  - LastMonth = 7
+  - NextMonth = 8
+  - ThisQuarter = 9
+  - LastQuarter = 10
+  - ThisYear = 11
+  - LastYear = 12
+
 ### DateRangePreset (BlazorBlueprint.Components)
   - Today = 0
   - Yesterday = 1
@@ -2653,6 +3054,47 @@
   - InvalidType = 1
   - TooManyFiles = 2
 
+### FilterFieldType (BlazorBlueprint.Components)
+  - Text = 0
+  - Number = 1
+  - Date = 2
+  - DateTime = 3
+  - Boolean = 4
+  - Enum = 5
+
+### FilterOperator (BlazorBlueprint.Components)
+  - Equals = 0
+  - NotEquals = 1
+  - IsEmpty = 2
+  - IsNotEmpty = 3
+  - Contains = 4
+  - NotContains = 5
+  - StartsWith = 6
+  - EndsWith = 7
+  - GreaterThan = 8
+  - LessThan = 9
+  - GreaterOrEqual = 10
+  - LessOrEqual = 11
+  - Between = 12
+  - InLast = 13
+  - InNext = 14
+  - In = 15
+  - NotIn = 16
+  - IsTrue = 17
+  - IsFalse = 18
+  - DateIs = 19
+  - DateIsNot = 20
+
+### FunnelAlign (BlazorBlueprint.Components)
+  - Center = 0
+  - Left = 1
+  - Right = 2
+
+### FunnelSort (BlazorBlueprint.Components)
+  - Descending = 0
+  - Ascending = 1
+  - None = 2
+
 ### GradientDirection (BlazorBlueprint.Components)
   - Vertical = 0
   - Horizontal = 1
@@ -2660,6 +3102,11 @@
 ### IconPosition (BlazorBlueprint.Components)
   - Start = 0
   - End = 1
+
+### InLastPeriod (BlazorBlueprint.Components)
+  - Days = 0
+  - Weeks = 1
+  - Months = 2
 
 ### InputFieldErrorKind (BlazorBlueprint.Components)
   - Parse = 0
@@ -2671,6 +3118,11 @@
   - InlineEnd = 1
   - BlockStart = 2
   - BlockEnd = 3
+
+### InputOTPInputMode (BlazorBlueprint.Components)
+  - Numbers = 0
+  - Letters = 1
+  - LettersAndNumbers = 2
 
 ### InputOTPSize (BlazorBlueprint.Components)
   - Small = 0
@@ -2733,6 +3185,10 @@
   - Solid = 0
   - Dashed = 1
   - Dotted = 2
+
+### LogicalOperator (BlazorBlueprint.Components)
+  - And = 0
+  - Or = 1
 
 ### MaskPreset (BlazorBlueprint.Components)
   - Custom = 0
@@ -2950,6 +3406,17 @@
   - Immediate = 0
   - OnChange = 1
   - Debounced = 2
+
+### WizardLayout (BlazorBlueprint.Components)
+  - Horizontal = 0
+  - Vertical = 1
+
+### WizardStepState (BlazorBlueprint.Components)
+  - Pending = 0
+  - Active = 1
+  - Completed = 2
+  - Invalid = 3
+  - Skipped = 4
 
 ## Interfaces
 

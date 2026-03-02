@@ -6,6 +6,118 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## 2026-03-02
+
+### Fixed
+
+- **BbSelect**: Performance — set `ForceMount=false` on portal so items only exist in the DOM when the dropdown is open; set `IsFixed=true` on cascading context to eliminate redundant notifications; added `ShouldRender` gate and cached attributes/CSS constants on `BbSelectItem`.
+- **BbSelect**: Checkmark overlapping text in narrow dropdowns — replaced absolute-positioned checkmark with flex layout so text truncates gracefully.
+- **BbCalendar**: Year picker now respects `MinDate`/`MaxDate` as year range bounds.
+- **BbDateRangePicker**: Performance — added `ShouldRender`, cached week/day-name collections and pre-computed CSS constants, guarded `OnParametersSet` against redundant syncs.
+- **BbTreeView**: Optimized `TreeViewContext` with parent-to-children index reducing `GetPosInSet`/`GetSetSize`/`HasChildren` from O(N²) to O(N) lookups.
+- **BbTreeView**: Fixed roving tabindex — focused node now tracked in context so keyboard navigation and re-renders preserve correct focus.
+- **BbTreeView**: `OnCheckedChanged` callback was declared but never fired — now routed through `CheckedValuesChanged` handler.
+- **BbTreeView**: Interactive elements (buttons, links, inputs) inside `ActionsTemplate` are no longer intercepted by tree keyboard/click handlers.
+- **BbTreeView**: Stale `.bb-tree-drop-target` CSS classes during drag-and-drop are now cleared at the start of each indicator update.
+
+---
+
+## 2026-03-01
+
+### Added
+
+- **BbFilterBuilder** — Visual query builder for constructing data filter expressions with AND/OR logic, nested groups, and type-aware value inputs.
+  - `Text`, `Number`, `Date`, `DateTime`, `Boolean`, and `Enum` field types with automatic operator selection and value input rendering (text input, numeric input, date picker, date range picker, multi-select, etc.).
+  - Filter evaluation via `ToFunc<T>()` for client-side LINQ-to-Objects, `ToExpression<T>()` for server-side EF Core/IQueryable queries, and `ToJson()`/`FromJson()` for serialization.
+  - Configurable `MaxDepth`, `MaxConditions`, `ShowApplyButton` with debounced auto-apply, and `Compact` layout mode.
+  - Demo page with 7 interactive examples and View Code blocks.
+- **BbFormWizard** — Multi-step form wizard component with `BbWizardStep` composition for defining steps.
+  - Horizontal and vertical step indicator layouts with visual step states (pending, active, completed, invalid).
+  - Per-step validation via `FieldNames` (EditContext integration) or custom `Validator` callbacks.
+  - `RetainStepState` parameter (default `true`) — when `false`, navigating backward clears forward step state and resets model data via reflection.
+  - Optional/skippable steps with a built-in Skip button for steps marked `IsOptional`.
+  - Disabled step support — disabled steps are skipped during navigation.
+  - Controlled (`@bind-CurrentStep`) and uncontrolled usage modes.
+  - Custom navigation via `NavigationTemplate`, or customizable button labels (`BackLabel`, `NextLabel`, `CompleteLabel`).
+  - `OnComplete` and `OnStepChanged` event callbacks.
+  - Demo page with 8 interactive examples and View Code blocks.
+- **BbDataGrid** — Enterprise-grade DataGrid component (headless primitives + styled layer) with full feature set.
+  - `BbDataGridPropertyColumn`, `BbDataGridTemplateColumn`, `BbDataGridSelectColumn` for declarative column definitions.
+  - Multi-column sorting with 3-state cycle (ascending → descending → none) and IQueryable LINQ expression composition.
+  - Pagination with configurable page sizes and page navigation.
+  - Row selection (None, Single, Multiple) with select-all/clear-all dropdown.
+  - Row virtualization via `Virtualize` parameter for large datasets.
+  - Async data loading via `ItemsProvider` delegate.
+  - Column resize (drag handles), reorder (drag-and-drop), and visibility toggle (`BbDataGridColumnVisibility`).
+  - Declarative column pinning (`ColumnPinning.Left`/`Right`) with CSS `position: sticky`.
+  - `HeaderTemplate` on `TemplateColumn` for custom header rendering.
+  - `CellClass`, `HeaderClass`, `RowClass` parameters for per-column and per-row conditional styling.
+  - `NoWrap` column property for text truncation with ellipsis on overflow.
+  - State persistence via `DataGridState<T>.Save()`/`Restore()`/`Reset()` with version tracking.
+  - `@bind-State` two-way binding for controlled state management.
+  - Full keyboard navigation and ARIA attributes.
+  - Demo page with 16 interactive examples.
+- **BbTreeView** — Hierarchical data display component (`BbTreeView` + `BbTreeItem`) with keyboard navigation and ARIA attributes.
+  - Three data binding modes: declarative markup, nested objects via `ChildrenProperty`, and flat data with `ParentField`.
+  - Primitives layer: headless tree with context-based state management, expand/collapse, single/multi selection, and keyboard navigation via JS interop.
+  - Components layer: styled tree with Tailwind CSS, Lucide icons, badges, search/filter with auto-expand, lazy loading with caching, tri-state checkboxes with parent/child cascade, and drag-and-drop reordering.
+  - `ExpandOnClick` parameter — toggles expand/collapse when clicking a parent node, not just the chevron.
+  - ARIA roles (`tree`/`treeitem`), `aria-expanded`, `aria-selected`, `aria-checked` attributes.
+  - Demo page with 12+ interactive examples covering all features.
+- **BbInputOTP** — Added `Mask` parameter to hide entered values with asterisks (`*`), and `InputOTPInputMode` enum (`Numbers`, `Letters`, `LettersAndNumbers`) via the `InputMode` parameter to control accepted character types.
+
+### Changed
+
+- **BbDataView** — Refined `ListTemplate`/`GridTemplate` split, 3-state sort cycle, `ToolbarActions` slot, `GridClass`/`ListClass` customization. Removed `BbDataViewHeader` and `BbDataViewFooter` in favor of direct composition.
+
+### Fixed
+
+- **BbDataGrid**: Pinned column hover bleed-through fixed with opaque `bg-muted` background.
+- **BbDataGrid**: Pinned columns now receive selection background highlight.
+- **BbDataGrid**: `ShouldRender` now tracks `IsLoading` parameter changes.
+
+---
+
+## 2026-02-28
+
+### Added
+
+- **6 new ECharts chart types** with full declarative composition API:
+  - `BbChart` (Composite) — mix any series types (line, bar, area, etc.) in a single chart.
+  - `BbScatterChart` + `BbScatter` — scatter/bubble plots with optional variable symbol sizes via `SymbolSizeKey`.
+  - `BbCandlestickChart` + `BbCandlestick` — financial OHLC candlestick charts with configurable `BullColor`/`BearColor`.
+  - `BbHeatmapChart` + `BbHeatmap` + `BbVisualMap` — color-coded grid visualizations with gradient mapping.
+  - `BbGaugeChart` + `BbGauge` — speedometer-style gauges with progress arcs, pointers, and value display.
+  - `BbFunnelChart` + `BbFunnel` — funnel/pipeline visualizations with sort, alignment, and gap controls.
+- `DataKey` and `Scale` parameters on `BbYAxis` — enables category axis data binding and auto-fitted value ranges.
+
+### Fixed
+
+- `BbDropdownMenu`, `BbMenubar`, and `BbNavigationMenuLink`: keyboard navigation now correctly highlights individual items instead of the parent container when using `Href` links. Removed the overly broad `[role="menu"] div:has(> a:focus)` CSS rule and added a `focusMenuItem` helper in `menu-keyboard.js` with a tabindex fallback for reliable anchor focus (#162).
+- `BbDialogContent` and `BbSheetContent`: clicking the backdrop overlay could not be disabled — added `CloseOnOverlayClick` parameter (default: `true`) to surface control that was already present on the underlying `BbDialogOverlay`/`BbSheetOverlay` primitives but never wired up (#165).
+- `BbAlertDialogContent`: clicking the backdrop overlay incorrectly closed the dialog despite `role="alertdialog"` semantics requiring explicit acknowledgement via an action button. `CloseOnClick="false"` is now hardcoded on the overlay (#165).
+- `BbSheet`: the `Modal` parameter was declared and documented but never stored in `SheetContext`, so setting `Modal="false"` had no effect — the sheet always closed on overlay click and Escape key press. `Modal` is now synced into context and respected by both `BbSheetOverlay` (overlay click) and `BbSheetContent` (Escape key).
+
+---
+
+## 2026-02-26
+
+### Added
+
+- New **`BbDataView`** component — flexible data presentation with list/grid layout toggle, column definitions via `BbDataViewColumn`, custom templates via `BbDataViewListTemplate` and `BbDataViewGridTemplate`, built-in filtering and sorting, pagination, infinite scroll, a `ToolbarActions` slot for custom toolbar content, and a `ScrollHeight` parameter for fixed-height viewports (#161).
+- `SearchQuery` and `SearchQueryChanged` parameters on `BbCombobox` — exposes the current search string as a two-way bindable parameter, enabling external async filtering so consumers can reload options from an API on each keystroke (#159).
+- Paste support on `BbInputOTP` — clipboard paste now fills OTP slots via JS interop (`input-otp.js`) using a `[JSInvokable]` `OnPasteJs` handler (#156).
+
+---
+
+## 2026-02-22
+
+### Internal
+
+- Added `CONTRIBUTING.md` with contributor guidelines.
+
+---
+
 ## 2026-02-20
 
 ### Added
