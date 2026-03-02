@@ -76,11 +76,7 @@ public partial class BbHeatmap : SeriesBase
             Name = GetResolvedName(),
             Emphasis = new EChartsEmphasisOption
             {
-                ItemStyle = new EChartsItemStyleOption
-                {
-                    BorderColor = "var(--foreground)",
-                    BorderWidth = 1
-                }
+                Disabled = true
             }
         };
 
