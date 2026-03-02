@@ -116,10 +116,6 @@ public partial class BbBar : SeriesBase
             Type = "bar",
             Name = GetResolvedName(),
             BarWidth = BarWidth,
-            Emphasis = new EChartsEmphasisOption
-            {
-                Focus = "series"
-            }
         };
 
         if (needsPerItemData)

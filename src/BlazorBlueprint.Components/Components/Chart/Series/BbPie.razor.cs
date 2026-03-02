@@ -145,9 +145,7 @@ public partial class BbPie : SeriesBase
             },
             Emphasis = new EChartsEmphasisOption
             {
-                Focus = "self",
-                Scale = ActiveIndex.HasValue ? true : null,
-                ScaleSize = ActiveIndex.HasValue ? 5 : null
+                Scale = false
             }
         };
 

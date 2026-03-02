@@ -89,10 +89,6 @@ public partial class BbArea : SeriesBase
             ItemStyle = resolvedColor != null
                 ? new EChartsItemStyleOption { Color = resolvedColor }
                 : null,
-            Emphasis = new EChartsEmphasisOption
-            {
-                Focus = "series"
-            }
         };
 
         if (Stacked)

@@ -73,10 +73,6 @@ public partial class BbRadar : SeriesBase
             ItemStyle = resolvedColor != null
                 ? new EChartsItemStyleOption { Color = resolvedColor }
                 : null,
-            Emphasis = new EChartsEmphasisOption
-            {
-                Focus = "self"
-            }
         };
 
         if (FillOpacity > 0)

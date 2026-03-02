@@ -55,7 +55,7 @@ export async function initialize(chartId, option) {
 
   const echarts = await loadECharts();
 
-  const chart = echarts.init(element, null, { renderer: 'canvas' });
+  const chart = echarts.init(element, null, { renderer: 'svg' });
 
   // Resolve CSS variables and set options
   const resolvedOption = resolveThemeColors(option, element);
