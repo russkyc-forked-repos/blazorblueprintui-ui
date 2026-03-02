@@ -77,13 +77,27 @@ function resolveValue(value, el) {
  * ECharts' internal zrender color parser understands hex, rgb/rgba, hsl/hsla, and
  * named colours, but NOT CSS Level 4 formats such as oklch().
  *
- * Chrome 111+ preserves oklch throughout all browser color APIs (canvas fillStyle
- * getter, getComputedStyle, etc.) rather than normalising to rgb(), so we cannot
- * rely on any browser API for the conversion.  Instead we use a self-contained
- * mathematical oklch→sRGB converter that is accurate and browser-agnostic.
+ * ## Why pure math is used — and why it works in ALL browsers
+ *
+ * CSS custom properties (e.g. `--chart-1: oklch(81% .1 252)`) are returned
+ * verbatim by `getComputedStyle(el).getPropertyValue('--name')` in every browser
+ * (Chrome, Firefox, Safari, Edge, Brave, Opera…).  The browser never normalises
+ * or resolves a custom-property token value — it simply stores and returns the
+ * raw text.  Therefore the string we receive is always the original oklch()
+ * expression regardless of the browser, and we need to convert it ourselves.
+ *
+ * The `oklchToRgb` function below is self-contained JavaScript math (Oklab
+ * reference matrices).  It uses no browser API, so it produces identical results
+ * in Chrome, Firefox, Safari, and all Chromium forks.
+ *
+ * Additional note: Chrome 111+ also stopped normalising oklch when it appears as
+ * a *resolved* non-custom value (e.g. reading back `element.style.color`).
+ * Firefox and Safari still normalise those to rgb().  Neither behaviour affects
+ * us because we only read from custom properties.
  *
  * Other CSS Level 4 expressions (e.g. color-mix()) that do not use oklch are
- * attempted via a DOM fallback; if that also returns oklch we recurse.
+ * attempted via a DOM fallback; if that also returns oklch (Chrome behaviour),
+ * the result is passed to the math converter.
  *
  * @param {string} colorValue - Any CSS colour string
  * @returns {string} - ECharts-compatible colour string
@@ -127,9 +141,14 @@ function convertToUsableColor(colorValue) {
 
 /**
  * Convert an oklch() colour string to an rgb() string using self-contained math.
- * Implements the official Oklab/OKLCH → sRGB conversion.
+ * Implements the official Oklab/OKLCH → sRGB conversion matrices.
+ *
+ * This function is entirely browser-agnostic — it performs pure arithmetic with
+ * no browser API calls, so it produces identical results in Chrome, Firefox,
+ * Safari, Edge, Brave, and any other JavaScript environment.
  *
  * Handles both "oklch(L C H)" (L as 0–1) and "oklch(L% C H)" (L as 0–100%).
+ * Accepts both space-separated and comma-separated component syntax.
  * Optionally ignores a trailing "/ alpha" component.
  *
  * @param {string} oklchStr - e.g. "oklch(0.42 0.18 266)" or "oklch(42% .18 266)"
