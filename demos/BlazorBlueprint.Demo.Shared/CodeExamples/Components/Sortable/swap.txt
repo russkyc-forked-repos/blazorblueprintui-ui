@@ -1,0 +1,29 @@
+@* Swap="true" swaps items instead of inserting. Use SourceIndex + TargetIndex. *@
+<BbSortable T="MyItem"
+            Items="_items"
+            ZoneIdentifier="swap-list"
+            Swap="true"
+            OnItemDropped="HandleSwap">
+    <ItemTemplate Context="item">
+        <div class="flex items-center gap-3 p-3 rounded-lg border bg-card">
+            <span class="text-sm font-medium">@item.Title</span>
+        </div>
+    </ItemTemplate>
+</BbSortable>
+
+@code {
+    private record MyItem(string Title);
+    private List<MyItem> _items = [new("Alpha"), new("Beta"), new("Gamma"), new("Delta")];
+
+    private void HandleSwap(DropItemInfo<MyItem> info)
+    {
+        if (info.Item is null) return;
+        // SourceIndex is the original position; TargetIndex is the swap partner
+        var srcIdx = info.SourceIndex;
+        var dstIdx = info.TargetIndex;
+        if (srcIdx >= 0 && dstIdx >= 0 && dstIdx < _items.Count)
+        {
+            (_items[srcIdx], _items[dstIdx]) = (_items[dstIdx], _items[srcIdx]);
+        }
+    }
+}

@@ -21,7 +21,8 @@
             <h2 class="text-2xl font-semibold">Basic</h2>
             <p class="text-sm text-muted-foreground">
                 Drag files from the list into the archive zone. The zone shows built-in
-                drag-state feedback automatically when no <code class="text-xs bg-muted px-1 py-0.5 rounded">ChildContent</code> is provided.
+                drag-state feedback automatically when no
+                <code class="text-xs bg-muted px-1 py-0.5 rounded">ChildContent</code> is provided.
             </p>
         </div>
 
@@ -104,7 +105,7 @@
                                 Class="min-h-[160px]"
                                 OnItemDropped="HandleTaskDrop"
                                 DragOverClass="!border-destructive !bg-destructive/10">
-                        <div class="flex flex-col items-center gap-2 text-muted-foreground pointer-events-none select-none">
+                        <div class="flex flex-col items-center gap-2 text-muted-foreground select-none">
                             <span class="text-3xl" aria-hidden="true">🗑️</span>
                             <p class="text-sm font-medium">Drop to delete</p>
                         </div>
@@ -116,18 +117,78 @@
         <CodeBlock Source="Components/DropZone/basic.txt" />
     </div>
 
-    @* ── 3. Restricted drop (CanDrop) ────────────────────────────────────── *@
+    @* ── 3. DragItemTemplate preview ─────────────────────────────────────── *@
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">Drag Preview</h2>
+            <p class="text-sm text-muted-foreground">
+                Use <code class="text-xs bg-muted px-1 py-0.5 rounded">DragItemTemplate</code> on the drop zone
+                to show a preview of the item being dragged while hovering.
+            </p>
+        </div>
+
+        <BbDropContainer T="FileItem" ItemDropped="HandlePreviewDrop">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <h3 class="text-sm font-semibold text-muted-foreground">Files</h3>
+                    <BbSortable T="FileItem"
+                                Items="_previewFiles"
+                                ZoneIdentifier="preview-src"
+                                AriaLabel="Preview source files"
+                                OnItemDropped="HandlePreviewDrop">
+                        <ItemTemplate Context="file">
+                            <div class="flex items-center gap-2 p-3 rounded-lg border bg-card text-sm cursor-grab select-none">
+                                <span aria-hidden="true">📄</span>
+                                <span>@file.Name</span>
+                            </div>
+                        </ItemTemplate>
+                    </BbSortable>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-sm font-semibold text-muted-foreground">Inbox (with preview)</h3>
+                    <BbDropZone T="FileItem"
+                                ZoneIdentifier="preview-dst"
+                                AriaLabel="Inbox"
+                                Class="min-h-[160px]"
+                                OnItemDropped="HandlePreviewDrop">
+                        <DragItemTemplate Context="file">
+                            <div class="flex items-center gap-2 p-3 rounded-lg border-2 border-primary bg-primary/5 text-sm">
+                                <span aria-hidden="true">📥</span>
+                                <span class="font-medium">@file.Name</span>
+                            </div>
+                        </DragItemTemplate>
+                    </BbDropZone>
+                    @if (_previewInbox.Count > 0)
+                    {
+                        <div class="space-y-1">
+                            @foreach (var f in _previewInbox)
+                            {
+                                <div class="flex items-center gap-2 px-2 py-1 rounded text-xs text-muted-foreground">
+                                    <span>📥</span> @f.Name
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </BbDropContainer>
+
+        <CodeBlock Source="Components/DropZone/basic.txt" />
+    </div>
+
+    @* ── 4. Restricted drop (CanDrop) ────────────────────────────────────── *@
     <div class="space-y-4">
         <div class="space-y-2">
             <h2 class="text-2xl font-semibold">Restricted Drop</h2>
             <p class="text-sm text-muted-foreground">
                 Use <code class="text-xs bg-muted px-1 py-0.5 rounded">CanDrop</code> to accept only
-                matching items. Dragging a non-PDF shows a destructive border.
+                matching items. Use <code class="text-xs bg-muted px-1 py-0.5 rounded">AllowDrop="false"</code>
+                to disable drops entirely.
             </p>
         </div>
 
         <BbDropContainer T="DocItem" ItemDropped="HandleDocDrop">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-3 gap-4">
                 <div class="space-y-2">
                     <h3 class="text-sm font-semibold text-muted-foreground">Documents</h3>
                     <BbSortable T="DocItem"
@@ -149,13 +210,21 @@
                     </BbSortable>
                 </div>
                 <div class="space-y-2">
-                    <h3 class="text-sm font-semibold text-muted-foreground">PDF Archive (PDFs only)</h3>
+                    <h3 class="text-sm font-semibold text-muted-foreground">PDF Only</h3>
                     <BbDropZone T="DocItem"
                                 ZoneIdentifier="pdf-archive"
                                 CanDrop="@(doc => doc.Type == "PDF")"
                                 AriaLabel="PDF archive — accepts PDF files only"
                                 Class="min-h-[160px]"
                                 OnItemDropped="HandleDocDrop" />
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-sm font-semibold text-muted-foreground">Drops Disabled</h3>
+                    <BbDropZone T="DocItem"
+                                ZoneIdentifier="disabled-zone"
+                                AllowDrop="false"
+                                AriaLabel="Disabled drop zone"
+                                Class="min-h-[160px]" />
                 </div>
             </div>
         </BbDropContainer>
@@ -169,10 +238,6 @@
             <AccessibilityItem>
                 The drop zone element has <code class="text-xs bg-muted px-1 py-0.5 rounded">role="region"</code>
                 and a descriptive <code class="text-xs bg-muted px-1 py-0.5 rounded">aria-label</code>.
-            </AccessibilityItem>
-            <AccessibilityItem>
-                Visual drag-state feedback is reflected in the accessible label so screen readers
-                can understand the zone's current status.
             </AccessibilityItem>
         </AriaAttributes>
         <KeyboardNavigation>
@@ -196,8 +261,18 @@
             <ApiParameter Name="ChildContent" Type="RenderFragment?">
                 Custom content. When omitted the built-in drag-state indicator is shown.
             </ApiParameter>
+            <ApiParameter Name="DragItemTemplate" Type="RenderFragment&lt;T&gt;?">
+                Preview template shown while a valid item is hovering (only when no ChildContent).
+            </ApiParameter>
             <ApiParameter Name="CanDrop" Type="Func&lt;T, bool&gt;?">
                 Overrides the container-level validation for this zone only.
+            </ApiParameter>
+            <ApiParameter Name="AllowDrop" Type="bool" Default="true">
+                When <code class="text-xs bg-muted px-1 py-0.5 rounded">false</code>, no items can be dropped
+                regardless of <code class="text-xs bg-muted px-1 py-0.5 rounded">CanDrop</code>.
+            </ApiParameter>
+            <ApiParameter Name="HandleClass" Type="string?" Default="null">
+                CSS class of the drag-handle element inside ChildContent items.
             </ApiParameter>
             <ApiParameter Name="OnItemDropped" Type="EventCallback&lt;DropItemInfo&lt;T&gt;&gt;">
                 Fired when an item is successfully dropped.
@@ -234,7 +309,6 @@
         }
         else if (info.TargetZone == "files")
         {
-            // reorder within the list
             _files.Remove(info.Item);
             _files.Insert(Math.Clamp(info.TargetIndex, 0, _files.Count), info.Item);
         }
@@ -261,6 +335,25 @@
         {
             _tasks.Remove(info.Item);
             _tasks.Insert(Math.Clamp(info.TargetIndex, 0, _tasks.Count), info.Item);
+        }
+    }
+
+    // ── Preview inbox ─────────────────────────────────────────────────────
+    private List<FileItem> _previewFiles  = [new("memo.pdf"), new("photo.png"), new("data.xlsx")];
+    private List<FileItem> _previewInbox  = [];
+
+    private void HandlePreviewDrop(DropItemInfo<FileItem> info)
+    {
+        if (info.Item is null) return;
+        if (info.TargetZone == "preview-dst")
+        {
+            _previewFiles.Remove(info.Item);
+            _previewInbox.Add(info.Item);
+        }
+        else if (info.TargetZone == "preview-src")
+        {
+            _previewFiles.Remove(info.Item);
+            _previewFiles.Insert(Math.Clamp(info.TargetIndex, 0, _previewFiles.Count), info.Item);
         }
     }
 

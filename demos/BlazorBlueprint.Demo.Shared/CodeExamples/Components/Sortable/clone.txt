@@ -1,0 +1,38 @@
+@* Clone="true" duplicates items on cross-zone drag. Check info.IsClone to skip source removal. *@
+<BbDropContainer T="MyItem" Clone="true" ItemDropped="HandleDrop">
+    <div class="grid grid-cols-2 gap-4">
+        <BbSortable T="MyItem" Items="_source" ZoneIdentifier="src" OnItemDropped="HandleDrop">
+            <ItemTemplate Context="item">
+                <div class="p-3 rounded-lg border bg-card text-sm">@item.Title</div>
+            </ItemTemplate>
+        </BbSortable>
+        <BbSortable T="MyItem" Items="_target" ZoneIdentifier="dst" OnItemDropped="HandleDrop">
+            <ItemTemplate Context="item">
+                <div class="p-3 rounded-lg border bg-card text-sm">@item.Title</div>
+            </ItemTemplate>
+        </BbSortable>
+    </div>
+</BbDropContainer>
+
+@code {
+    private record MyItem(string Title);
+    private List<MyItem> _source = [new("Template A"), new("Template B")];
+    private List<MyItem> _target = [];
+
+    private void HandleDrop(DropItemInfo<MyItem> info)
+    {
+        if (info.Item is null) return;
+
+        if (info.TargetZone == "dst")
+        {
+            // Clone: add copy to target, do NOT remove from source
+            _target.Insert(Math.Clamp(info.TargetIndex, 0, _target.Count), info.Item);
+        }
+        else if (info.TargetZone == "src" && !info.IsClone)
+        {
+            // Same-zone reorder within source
+            _source.Remove(info.Item);
+            _source.Insert(Math.Clamp(info.TargetIndex, 0, _source.Count), info.Item);
+        }
+    }
+}

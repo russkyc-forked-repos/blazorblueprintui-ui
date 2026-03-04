@@ -59,6 +59,16 @@ public partial class BbDropContainer<T> : ComponentBase where T : notnull
     public Func<T, bool>? ItemDisabled { get; set; }
 
     /// <summary>
+    /// Gets or sets whether dragging an item to another zone clones it instead of moving it.
+    /// When <c>true</c> the source zone keeps the original item and a copy is inserted in the target zone.
+    /// The <see cref="DropItemInfo{T}.IsClone"/> property on the callback argument will be <c>true</c>
+    /// so your handler can add to the target without removing from the source.
+    /// Defaults to <c>false</c>.
+    /// </summary>
+    [Parameter]
+    public bool Clone { get; set; }
+
+    /// <summary>
     /// Gets or sets the callback invoked when an item is successfully dropped into any zone or sortable.
     /// </summary>
     [Parameter]
@@ -124,7 +134,7 @@ public partial class BbDropContainer<T> : ComponentBase where T : notnull
     /// <summary>
     /// Commits the current drag transaction to the specified target zone at the given index.
     /// </summary>
-    internal async Task CommitTransactionAsync(string targetZone, int targetIndex)
+    internal async Task CommitTransactionAsync(string targetZone, int targetIndex, bool isClone = false)
     {
         if (_draggedItem is null)
         {
@@ -133,13 +143,15 @@ public partial class BbDropContainer<T> : ComponentBase where T : notnull
 
         var item = _draggedItem;
         var sourceZone = _sourceZone;
+        var sourceIndex = _sourceIndex;
+        var cloneFlag = Clone || isClone;
 #pragma warning disable CS8601
         _draggedItem = default;
 #pragma warning restore CS8601
         _sourceZone = string.Empty;
         TransactionEnded?.Invoke(this, EventArgs.Empty);
         Announce("Dropped.");
-        await ItemDropped.InvokeAsync(new DropItemInfo<T>(item, sourceZone, targetZone, targetIndex));
+        await ItemDropped.InvokeAsync(new DropItemInfo<T>(item, sourceZone, targetZone, targetIndex, sourceIndex, cloneFlag));
     }
 
     /// <summary>Cancels the current drag transaction without committing.</summary>

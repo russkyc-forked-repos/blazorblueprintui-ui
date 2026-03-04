@@ -7,8 +7,9 @@
         <div class="space-y-3">
             <h1 class="text-4xl font-bold tracking-tight">Sortable</h1>
             <p class="text-xl text-muted-foreground">
-                Drag-and-drop sortable list or grid with keyboard support, animations,
-                and cross-zone transfers via <code class="text-xs bg-muted px-1 py-0.5 rounded">BbDropContainer</code>.
+                Drag-and-drop sortable list or grid with keyboard support, smooth FLIP animations,
+                live reordering, handles, swap mode, clone, and cross-zone transfers via
+                <code class="text-xs bg-muted px-1 py-0.5 rounded">BbDropContainer</code>.
             </p>
         </div>
     </div>
@@ -18,7 +19,7 @@
         <div class="space-y-2">
             <h2 class="text-2xl font-semibold">Basic Reorder</h2>
             <p class="text-sm text-muted-foreground">
-                Standalone sortable list. Drag items to reorder. Focus an item and press
+                Items animate to their new positions as you drag. Focus an item and press
                 <BbKbd>Space</BbKbd> to grab, <BbKbd>↑</BbKbd> / <BbKbd>↓</BbKbd> to move,
                 <BbKbd>Space</BbKbd> again to drop.
             </p>
@@ -40,13 +41,69 @@
         <CodeBlock Source="Components/Sortable/basic.txt" />
     </div>
 
-    @* ── 2. Kanban board ───────────────────────────────────────────────── *@
+    @* ── 2. Drag handle ────────────────────────────────────────────────── *@
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">Drag Handle</h2>
+            <p class="text-sm text-muted-foreground">
+                Set <code class="text-xs bg-muted px-1 py-0.5 rounded">HandleClass</code> to restrict dragging
+                to a specific element inside each item. Clicking anywhere else on the card does nothing.
+            </p>
+        </div>
+
+        <BbSortable T="BasicItem"
+                    Items="_handleItems"
+                    ZoneIdentifier="handle-list"
+                    HandleClass="bb-drag-handle"
+                    AriaLabel="Handle sortable list"
+                    OnItemDropped="@(info => ReorderList(_handleItems, info))">
+            <ItemTemplate Context="item">
+                <div class="flex items-center gap-3 p-3 rounded-lg border bg-card text-card-foreground shadow-sm select-none">
+                    <span class="bb-drag-handle text-muted-foreground text-lg cursor-grab hover:text-foreground transition-colors"
+                          title="Drag handle" aria-hidden="true">⠿</span>
+                    <span class="text-sm font-medium flex-1">@item.Title</span>
+                    <BbBadge Variant="BadgeVariant.Secondary" Class="text-xs">handle only</BbBadge>
+                </div>
+            </ItemTemplate>
+        </BbSortable>
+
+        <CodeBlock Source="Components/Sortable/handle.txt" />
+    </div>
+
+    @* ── 3. Swap mode ─────────────────────────────────────────────────── *@
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">Swap Mode</h2>
+            <p class="text-sm text-muted-foreground">
+                With <code class="text-xs bg-muted px-1 py-0.5 rounded">Swap="true"</code>, dropping
+                on an item swaps both items instead of inserting. The swap target gets a ring highlight.
+            </p>
+        </div>
+
+        <BbSortable T="BasicItem"
+                    Items="_swapItems"
+                    ZoneIdentifier="swap-list"
+                    Swap="true"
+                    AriaLabel="Swap mode sortable list"
+                    OnItemDropped="HandleSwapDrop">
+            <ItemTemplate Context="item">
+                <div class="flex items-center gap-3 p-3 rounded-lg border bg-card text-card-foreground shadow-sm select-none">
+                    <span class="text-muted-foreground text-lg" aria-hidden="true">↕</span>
+                    <span class="text-sm font-medium">@item.Title</span>
+                </div>
+            </ItemTemplate>
+        </BbSortable>
+
+        <CodeBlock Source="Components/Sortable/swap.txt" />
+    </div>
+
+    @* ── 4. Kanban board ───────────────────────────────────────────────── *@
     <div class="space-y-4">
         <div class="space-y-2">
             <h2 class="text-2xl font-semibold">Kanban Board</h2>
             <p class="text-sm text-muted-foreground">
                 Multiple sortables share a <code class="text-xs bg-muted px-1 py-0.5 rounded">BbDropContainer</code>.
-                Drag cards between columns and reorder within each column.
+                Drag cards between columns and reorder within each column. Empty columns remain drop targets.
             </p>
         </div>
 
@@ -65,6 +122,7 @@
                                     Items="col.Cards"
                                     ZoneIdentifier="@col.Id"
                                     AllowReorder="true"
+                                    Class="flex-1"
                                     AriaLabel="@($"{col.Name} column")"
                                     OnItemDropped="HandleKanbanDrop">
                             <ItemTemplate Context="card">
@@ -84,7 +142,69 @@
         <CodeBlock Source="Components/Sortable/kanban.txt" />
     </div>
 
-    @* ── 3. Grid sortable with drag template ──────────────────────────── *@
+    @* ── 5. Clone (duplicate on transfer) ─────────────────────────────── *@
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">Clone Mode</h2>
+            <p class="text-sm text-muted-foreground">
+                With <code class="text-xs bg-muted px-1 py-0.5 rounded">Clone="true"</code> on the container,
+                dragging an item to another zone duplicates it — the original stays in place.
+                Use <code class="text-xs bg-muted px-1 py-0.5 rounded">info.IsClone</code> in your handler
+                to skip removing from the source.
+            </p>
+        </div>
+
+        <BbDropContainer T="BasicItem" Clone="true" ItemDropped="HandleCloneDrop">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <h3 class="text-sm font-semibold text-muted-foreground">Source (items stay)</h3>
+                    <BbSortable T="BasicItem"
+                                Items="_cloneSource"
+                                ZoneIdentifier="clone-src"
+                                AriaLabel="Clone source list"
+                                OnItemDropped="HandleCloneDrop">
+                        <ItemTemplate Context="item">
+                            <div class="flex items-center gap-2 p-3 rounded-lg border bg-card text-sm select-none">
+                                <span aria-hidden="true">📌</span>
+                                <span>@item.Title</span>
+                            </div>
+                        </ItemTemplate>
+                    </BbSortable>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-sm font-semibold text-muted-foreground">Target (receives copies)</h3>
+                    <BbSortable T="BasicItem"
+                                Items="_cloneTarget"
+                                ZoneIdentifier="clone-dst"
+                                AriaLabel="Clone target list"
+                                OnItemDropped="HandleCloneDrop">
+                        <ItemTemplate Context="item">
+                            <div class="flex items-center gap-2 p-3 rounded-lg border bg-card text-sm select-none">
+                                <span aria-hidden="true">📎</span>
+                                <span>@item.Title</span>
+                            </div>
+                        </ItemTemplate>
+                    </BbSortable>
+                    @if (_cloneTarget.Count == 0)
+                    {
+                        <p class="text-xs text-muted-foreground px-1">Drop items here to clone them.</p>
+                    }
+                </div>
+            </div>
+        </BbDropContainer>
+
+        @if (_cloneTarget.Count > 0)
+        {
+            <BbButton Variant="ButtonVariant.Outline" Size="ButtonSize.Small"
+                      OnClick="@(() => _cloneTarget.Clear())">
+                Clear target
+            </BbButton>
+        }
+
+        <CodeBlock Source="Components/Sortable/clone.txt" />
+    </div>
+
+    @* ── 6. Grid layout with drag template ────────────────────────────── *@
     <div class="space-y-4">
         <div class="space-y-2">
             <h2 class="text-2xl font-semibold">Grid Layout</h2>
@@ -118,13 +238,13 @@
         <CodeBlock Source="Components/Sortable/grid.txt" />
     </div>
 
-    @* ── 4. Restricted drop with CanDrop ──────────────────────────────── *@
+    @* ── 7. Restricted drop with CanDrop ──────────────────────────────── *@
     <div class="space-y-4">
         <div class="space-y-2">
             <h2 class="text-2xl font-semibold">Restricted Drop</h2>
             <p class="text-sm text-muted-foreground">
                 Use <code class="text-xs bg-muted px-1 py-0.5 rounded">CanDrop</code> to reject items that
-                don't belong in a zone. Rejected zones show a red ring.
+                don't belong in a zone.
             </p>
         </div>
 
@@ -174,13 +294,14 @@
         <CodeBlock Source="Components/Sortable/can-drop.txt" />
     </div>
 
-    @* ── 5. Disabled items ────────────────────────────────────────────── *@
+    @* ── 8. Disabled items ────────────────────────────────────────────── *@
     <div class="space-y-4">
         <div class="space-y-2">
             <h2 class="text-2xl font-semibold">Disabled Items</h2>
             <p class="text-sm text-muted-foreground">
                 Use <code class="text-xs bg-muted px-1 py-0.5 rounded">ItemDisabled</code> to lock
-                specific items in place.
+                specific items in place. Disable sorting entirely with
+                <code class="text-xs bg-muted px-1 py-0.5 rounded">Sorting="false"</code>.
             </p>
         </div>
 
@@ -217,21 +338,13 @@
         <AriaAttributes>
             <AccessibilityItem>
                 The sortable container has <code class="text-xs bg-muted px-1 py-0.5 rounded">role="list"</code>
-                (or <code class="text-xs bg-muted px-1 py-0.5 rounded">role="grid"</code> for grid layout) and
-                an optional <code class="text-xs bg-muted px-1 py-0.5 rounded">aria-label</code>.
+                (or <code class="text-xs bg-muted px-1 py-0.5 rounded">role="grid"</code>) and an optional
+                <code class="text-xs bg-muted px-1 py-0.5 rounded">aria-label</code>.
             </AccessibilityItem>
             <AccessibilityItem>
                 Each item has <code class="text-xs bg-muted px-1 py-0.5 rounded">role="listitem"</code>,
                 <code class="text-xs bg-muted px-1 py-0.5 rounded">aria-roledescription="draggable item"</code>,
                 and <code class="text-xs bg-muted px-1 py-0.5 rounded">aria-grabbed</code> updated during drag.
-            </AccessibilityItem>
-            <AccessibilityItem>
-                Disabled items carry <code class="text-xs bg-muted px-1 py-0.5 rounded">aria-disabled="true"</code>
-                and <code class="text-xs bg-muted px-1 py-0.5 rounded">tabindex="-1"</code>.
-            </AccessibilityItem>
-            <AccessibilityItem>
-                A visually-hidden <code class="text-xs bg-muted px-1 py-0.5 rounded">aria-live="polite"</code> region
-                announces drag start, position changes, drop, and cancel events.
             </AccessibilityItem>
         </AriaAttributes>
         <KeyboardNavigation>
@@ -249,9 +362,6 @@
             </KeyboardShortcutItem>
             <KeyboardShortcutItem Description="Cancel the drag and return item to its original position">
                 <BbKbd>Esc</BbKbd>
-            </KeyboardShortcutItem>
-            <KeyboardShortcutItem Description="Navigate between items">
-                <BbKbd>Tab</BbKbd>
             </KeyboardShortcutItem>
         </KeyboardNavigation>
     </AccessibilityList>
@@ -280,11 +390,20 @@
                 <ApiParameter Name="Layout" Type="SortableLayout" Default="List">
                     List or Grid layout.
                 </ApiParameter>
+                <ApiParameter Name="Sorting" Type="bool" Default="true">
+                    When <code class="text-xs bg-muted px-1 py-0.5 rounded">false</code>, items cannot be picked up (all dragging disabled).
+                </ApiParameter>
                 <ApiParameter Name="AllowReorder" Type="bool" Default="true">
                     Allow reordering within this zone.
                 </ApiParameter>
                 <ApiParameter Name="AllowExternalDrop" Type="bool" Default="true">
                     Accept items from other zones.
+                </ApiParameter>
+                <ApiParameter Name="HandleClass" Type="string?" Default="null">
+                    CSS class of the handle element. When set, only that element initiates drag.
+                </ApiParameter>
+                <ApiParameter Name="Swap" Type="bool" Default="false">
+                    When <code class="text-xs bg-muted px-1 py-0.5 rounded">true</code>, dropping swaps items instead of inserting.
                 </ApiParameter>
                 <ApiParameter Name="CanDrop" Type="Func&lt;T, bool&gt;?">
                     Per-zone drop validation (overrides container-level CanDrop).
@@ -293,7 +412,7 @@
                     Marks individual items as non-draggable.
                 </ApiParameter>
                 <ApiParameter Name="OnItemDropped" Type="EventCallback&lt;DropItemInfo&lt;T&gt;&gt;">
-                    Fired when an item is dropped. Contains item, source zone, target zone, and target index.
+                    Fired when an item is dropped. Contains item, source/target zone, indices, and clone flag.
                 </ApiParameter>
                 <ApiParameter Name="ContainerClass" Type="string?">
                     CSS classes for the inner container (use for grid columns, padding, etc.).
@@ -310,6 +429,9 @@
             </ApiReference>
 
             <ApiReference ComponentName="BbDropContainer&lt;T&gt;">
+                <ApiParameter Name="Clone" Type="bool" Default="false">
+                    When <code class="text-xs bg-muted px-1 py-0.5 rounded">true</code>, cross-zone drags duplicate the item. <code class="text-xs bg-muted px-1 py-0.5 rounded">DropItemInfo.IsClone</code> will be <code class="text-xs bg-muted px-1 py-0.5 rounded">true</code>.
+                </ApiParameter>
                 <ApiParameter Name="CanDrop" Type="Func&lt;T, string, bool&gt;?">
                     Global drop validation: receives item and target zone identifier.
                 </ApiParameter>
@@ -328,17 +450,18 @@
             </ApiReference>
 
             <ApiReference ComponentName="DropItemInfo&lt;T&gt;">
-                <ApiParameter Name="Item" Type="T?">
-                    The item that was dropped.
-                </ApiParameter>
-                <ApiParameter Name="SourceZone" Type="string">
-                    Zone identifier where the drag started.
-                </ApiParameter>
-                <ApiParameter Name="TargetZone" Type="string">
-                    Zone identifier where the item was dropped.
-                </ApiParameter>
+                <ApiParameter Name="Item" Type="T?">The item that was dropped.</ApiParameter>
+                <ApiParameter Name="SourceZone" Type="string">Zone identifier where the drag started.</ApiParameter>
+                <ApiParameter Name="TargetZone" Type="string">Zone identifier where the item was dropped.</ApiParameter>
                 <ApiParameter Name="TargetIndex" Type="int">
-                    Insertion index in the target zone. Use to reorder your collection.
+                    Insertion index in the target zone. In swap mode this is the swap partner's index.
+                </ApiParameter>
+                <ApiParameter Name="SourceIndex" Type="int">
+                    Original index of the item in the source zone. Useful in swap mode.
+                </ApiParameter>
+                <ApiParameter Name="IsClone" Type="bool">
+                    <code class="text-xs bg-muted px-1 py-0.5 rounded">true</code> when the item was cloned.
+                    Do not remove from source in your handler.
                 </ApiParameter>
             </ApiReference>
         </div>
@@ -357,6 +480,30 @@
         new("Add unit tests"),
         new("Publish to NuGet"),
     ];
+
+    // ── Handle demo ───────────────────────────────────────────────────────
+    private List<BasicItem> _handleItems =
+    [
+        new("Drag the grip icon only"),
+        new("Clicking the text does nothing"),
+        new("Only the ⠿ icon initiates drag"),
+        new("Try clicking the badge vs the handle"),
+    ];
+
+    // ── Swap mode ─────────────────────────────────────────────────────────
+    private List<BasicItem> _swapItems =
+    [
+        new("Alpha"), new("Beta"), new("Gamma"), new("Delta"), new("Epsilon"),
+    ];
+
+    private void HandleSwapDrop(DropItemInfo<BasicItem> info)
+    {
+        if (info.Item is null) return;
+        var srcIdx = info.SourceIndex >= 0 ? info.SourceIndex : _swapItems.IndexOf(info.Item);
+        var dstIdx = info.TargetIndex;
+        if (srcIdx < 0 || dstIdx < 0 || dstIdx >= _swapItems.Count) return;
+        (_swapItems[srcIdx], _swapItems[dstIdx]) = (_swapItems[dstIdx], _swapItems[srcIdx]);
+    }
 
     // ── Kanban board ─────────────────────────────────────────────────────
     private record KanbanCard(string Id, string Title, string Description, string Column);
@@ -396,6 +543,38 @@
         src.Cards.Remove(info.Item);
         var updated = info.Item with { Column = info.TargetZone };
         dst.Cards.Insert(Math.Clamp(info.TargetIndex, 0, dst.Cards.Count), updated);
+    }
+
+    // ── Clone mode ────────────────────────────────────────────────────────
+    private List<BasicItem> _cloneSource =
+    [
+        new("Template A"), new("Template B"), new("Template C"),
+    ];
+
+    private List<BasicItem> _cloneTarget = [];
+
+    private void HandleCloneDrop(DropItemInfo<BasicItem> info)
+    {
+        if (info.Item is null) return;
+
+        if (info.TargetZone == "clone-dst")
+        {
+            // Clone: add to target but do NOT remove from source
+            var idx = Math.Clamp(info.TargetIndex, 0, _cloneTarget.Count);
+            _cloneTarget.Insert(idx, info.Item);
+        }
+        else if (info.TargetZone == "clone-src" && !info.IsClone)
+        {
+            // Reorder within source
+            _cloneSource.Remove(info.Item);
+            _cloneSource.Insert(Math.Clamp(info.TargetIndex, 0, _cloneSource.Count), info.Item);
+        }
+        else if (info.TargetZone == "clone-dst" && !info.IsClone)
+        {
+            // Reorder within target
+            _cloneTarget.Remove(info.Item);
+            _cloneTarget.Insert(Math.Clamp(info.TargetIndex, 0, _cloneTarget.Count), info.Item);
+        }
     }
 
     // ── Grid gallery ─────────────────────────────────────────────────────

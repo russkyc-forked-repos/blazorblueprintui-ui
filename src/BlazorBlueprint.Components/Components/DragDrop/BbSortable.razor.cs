@@ -57,9 +57,15 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
     private string _announcement = string.Empty;
 
     // ── JS interop / animation ────────────────────────────────────────────────────
+    private const int FlipAnimationDurationMs = 220;
     private IJSObjectReference? _jsModule;
     private ElementReference _containerRef;
     private bool _needsFlip;
+    private string? _initializedHandleClass;
+
+    // ── Live reordering ───────────────────────────────────────────────────────────
+    /// <summary>Maintains a live preview ordering of items during same-zone drag.</summary>
+    private List<T>? _livePreviewList;
 
     [Inject]
     private IJSRuntime JSRuntime { get; set; } = default!;
@@ -186,6 +192,34 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
     [Parameter]
     public string? ItemClass { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether items in this sortable can be dragged at all.
+    /// When <c>false</c> all items become non-draggable and cannot be picked up.
+    /// External drops from other zones are still accepted when <see cref="AllowExternalDrop"/> is <c>true</c>.
+    /// Defaults to <c>true</c>.
+    /// </summary>
+    [Parameter]
+    public bool Sorting { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the CSS class name of the element inside each item template that acts as the
+    /// drag handle. When set, only clicking on an element with this class initiates the drag;
+    /// clicking anywhere else on the item does nothing.
+    /// When <c>null</c> (default) the entire item is draggable.
+    /// </summary>
+    [Parameter]
+    public string? HandleClass { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether dropping an item on another item swaps their positions
+    /// instead of inserting before the target.
+    /// When <c>true</c> the <see cref="DropItemInfo{T}.TargetIndex"/> represents the swap partner's index
+    /// and <see cref="DropItemInfo{T}.SourceIndex"/> is the dragged item's original position.
+    /// Defaults to <c>false</c> (insert mode).
+    /// </summary>
+    [Parameter]
+    public bool Swap { get; set; }
+
     // ─────────────────────────────────────────────────────────────────────────────
     // Lifecycle
     // ─────────────────────────────────────────────────────────────────────────────
@@ -211,6 +245,11 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
             {
                 _jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
                     "import", "./_content/BlazorBlueprint.Components/js/drag-drop.js");
+
+                if (HandleClass is not null)
+                {
+                    await InitHandlesAsync();
+                }
             }
             catch (Exception ex) when (ex is JSDisconnectedException or TaskCanceledException or ObjectDisposedException or InvalidOperationException)
             {
@@ -220,13 +259,23 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
             return;
         }
 
+        // Re-initialize handles when HandleClass changes after first render
+        if (HandleClass != _initializedHandleClass && _jsModule is not null)
+        {
+            try
+            {
+                await InitHandlesAsync();
+            }
+            catch (Exception ex) when (ex is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
+        }
+
         if (_needsFlip && _jsModule is not null)
         {
             _needsFlip = false;
 
             try
             {
-                await _jsModule.InvokeVoidAsync("playFlip", _containerRef, 250);
+                await _jsModule.InvokeVoidAsync("playFlip", _containerRef, FlipAnimationDurationMs);
             }
             catch (Exception ex) when (ex is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
         }
@@ -273,7 +322,16 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
     private bool HasActiveTransaction() =>
         Container?.HasTransaction ?? _localDraggedItem is not null;
 
-    private IReadOnlyList<T> GetZoneItems() => Items;
+    private IReadOnlyList<T> GetZoneItems()
+    {
+        // During same-zone drag return live preview list so items animate to new positions
+        if (_livePreviewList is not null && GetSourceZone() == ZoneIdentifier && IsInDragMode)
+        {
+            return _livePreviewList;
+        }
+
+        return Items;
+    }
 
     private bool CanDropCurrentItem()
     {
@@ -305,7 +363,7 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
         return Container?.CanDropItem(ZoneIdentifier) ?? true;
     }
 
-    private bool IsItemDraggable(T item) => !IsItemDisabled(item);
+    private bool IsItemDraggable(T item) => Sorting && !IsItemDisabled(item);
 
     private bool IsItemDisabled(T item)
     {
@@ -323,6 +381,18 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
     private bool ShouldShowDropIndicator(int position)
     {
         if (!IsInDragMode || !CanDropCurrentItem())
+        {
+            return false;
+        }
+
+        // Live reorder (same zone): no indicator — the list itself shows position
+        if (_livePreviewList is not null && GetSourceZone() == ZoneIdentifier && AllowReorder && Sorting)
+        {
+            return false;
+        }
+
+        // Swap mode: no insertion-line indicator — swap target is highlighted on the item
+        if (Swap)
         {
             return false;
         }
@@ -377,12 +447,14 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
 
         var item = _localDraggedItem;
         var sourceZone = _localSourceZone;
+        var sourceIndex = _localSourceIndex;
 #pragma warning disable CS8601
         _localDraggedItem = default;
 #pragma warning restore CS8601
         _localSourceZone = string.Empty;
+        _livePreviewList = null;
         Announce("Dropped.");
-        await OnItemDropped.InvokeAsync(new DropItemInfo<T>(item, sourceZone, ZoneIdentifier, targetIndex));
+        await OnItemDropped.InvokeAsync(new DropItemInfo<T>(item, sourceZone, ZoneIdentifier, targetIndex, sourceIndex));
     }
 
     private void CancelLocalTransaction()
@@ -402,6 +474,7 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
         _localDraggedItem = default;
 #pragma warning restore CS8601
         _localSourceZone = string.Empty;
+        _livePreviewList = null;
         Announce("Drag cancelled.");
     }
 
@@ -418,6 +491,19 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
             try
             {
                 await _jsModule.InvokeVoidAsync("capturePositions", _containerRef);
+            }
+            catch (Exception ex) when (ex is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
+        }
+    }
+
+    private async Task InitHandlesAsync()
+    {
+        _initializedHandleClass = HandleClass;
+        if (_jsModule is not null)
+        {
+            try
+            {
+                await _jsModule.InvokeVoidAsync("initHandles", _containerRef, HandleClass);
             }
             catch (Exception ex) when (ex is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
         }
@@ -454,7 +540,26 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
 
     private async Task HandleZoneDrop(DragEventArgs args)
     {
-        var dropIdx = _mouseDropIndex >= 0 ? _mouseDropIndex : Items.Count;
+        var draggedItem = GetDraggedItem();
+        var sourceZone = GetSourceZone();
+
+        // Determine drop index
+        int dropIdx;
+        if (_livePreviewList is not null && sourceZone == ZoneIdentifier && draggedItem is not null)
+        {
+            // Live reorder: use the item's current position in the preview list
+            dropIdx = _livePreviewList.IndexOf(draggedItem);
+            if (dropIdx < 0)
+            {
+                dropIdx = Items.Count;
+            }
+        }
+        else
+        {
+            dropIdx = _mouseDropIndex >= 0 ? _mouseDropIndex : Items.Count;
+        }
+
+        _livePreviewList = null;
         _dragOverCount = 0;
         _mouseDropIndex = -1;
 
@@ -463,8 +568,7 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
             return;
         }
 
-        var item = GetDraggedItem();
-        var sourceZone = GetSourceZone();
+        var item = draggedItem;
 
         await CaptureFlipPositionsAsync();
         _needsFlip = true;
@@ -474,7 +578,8 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
         // Fire zone-local OnItemDropped (context-level ItemDropped is fired by container)
         if (Container is not null && OnItemDropped.HasDelegate && item is not null)
         {
-            await OnItemDropped.InvokeAsync(new DropItemInfo<T>(item, sourceZone, ZoneIdentifier, dropIdx));
+            var srcIdx = Container.SourceIndex;
+            await OnItemDropped.InvokeAsync(new DropItemInfo<T>(item, sourceZone, ZoneIdentifier, dropIdx, srcIdx, Container.Clone));
         }
     }
 
@@ -484,8 +589,19 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
 
     private void HandleItemDragStart(T item, int index)
     {
+        if (!Sorting)
+        {
+            return;
+        }
+
         _keyboardTargetIndex = -1;
         StartLocalTransaction(item, index);
+
+        // Initialise live-reorder preview for same-zone dragging (not swap mode)
+        if (AllowReorder && !Swap)
+        {
+            _livePreviewList = new List<T>(Items);
+        }
     }
 
     private void HandleItemDragEnd(DragEventArgs args)
@@ -494,9 +610,33 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
         CancelLocalTransaction();
         _mouseDropIndex = -1;
         _dragOverCount = 0;
+        _livePreviewList = null;
     }
 
-    private void HandleItemDragEnter(int index) => _mouseDropIndex = index;
+    private async Task HandleItemDragEnterAsync(int position)
+    {
+        var draggedItem = GetDraggedItem();
+        var sourceZone = GetSourceZone();
+
+        if (_livePreviewList is not null
+            && sourceZone == ZoneIdentifier
+            && draggedItem is not null
+            && AllowReorder
+            && Sorting
+            && !Swap)
+        {
+            // Live reorder: capture first (DOM still at old positions), then reorder
+            await CaptureFlipPositionsAsync();
+            _livePreviewList.Remove(draggedItem);
+            var insertIdx = Math.Clamp(position, 0, _livePreviewList.Count);
+            _livePreviewList.Insert(insertIdx, draggedItem);
+            _needsFlip = true;
+        }
+        else
+        {
+            _mouseDropIndex = position;
+        }
+    }
 
     // ─────────────────────────────────────────────────────────────────────────────
     // Keyboard drag-and-drop
@@ -568,19 +708,32 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
     private string ContainerCssClass => ClassNames.cn(
         Layout == SortableLayout.List ? "flex flex-col" : "grid",
         "gap-2",
+        // Ensure empty zones remain a droppable target area during drag
+        IsInDragMode && CanDropCurrentItem() && Items.Count == 0 ? "min-h-[3rem]" : null,
         ContainerClass
     );
 
-    private string GetItemWrapperClass(T item)
+    private string GetItemWrapperClass(T item, int position)
     {
         var isDragging = IsCurrentDraggedItem(item);
         var isDisabled = IsItemDisabled(item);
+
+        // In swap mode, highlight the item the dragged item would swap with
+        var isSwapTarget = Swap
+            && IsInDragMode
+            && CanDropCurrentItem()
+            && !isDragging
+            && GetActiveDropIndex() == position;
+
+        // In clone mode (container-level), don't dim the dragged item at its source
+        var cloneDimming = Container?.Clone == true;
 
         return ClassNames.cn(
             "outline-none transition-all duration-200",
             IsItemDraggable(item) ? "cursor-grab active:cursor-grabbing" : null,
             isDisabled ? "opacity-50 cursor-not-allowed" : null,
-            isDragging ? "opacity-40 scale-[0.98]" : null,
+            isDragging && !cloneDimming ? "opacity-40 scale-[0.98]" : null,
+            isSwapTarget ? "ring-2 ring-primary ring-offset-2 rounded-sm" : null,
             // Keyboard focus ring consistent with the rest of the library
             "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm",
             ItemClass

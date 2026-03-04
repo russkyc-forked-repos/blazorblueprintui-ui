@@ -40,19 +40,20 @@
                 var isDragging = IsCurrentDraggedItem(item);
                 var isDisabled = IsItemDisabled(item);
 
-                <div class="@GetItemWrapperClass(item)"
+                <div class="@GetItemWrapperClass(item, position)"
                      role="listitem"
                      aria-roledescription="draggable item"
                      aria-grabbed="@(isDragging ? "true" : "false")"
                      aria-disabled="@(isDisabled ? "true" : "false")"
-                     draggable="@(IsItemDraggable(item) ? "true" : "false")"
+                     draggable="@(IsItemDraggable(item) && HandleClass is null ? "true" : "false")"
                      tabindex="@(IsItemDraggable(item) ? "0" : "-1")"
                      data-dragging="@(isDragging ? "true" : "false")"
+                     data-draggable-item="true"
                      @key="item"
                      @ondragstart="@(() => HandleItemDragStart(item, position))"
                      @ondragstart:stopPropagation="true"
                      @ondragend="@HandleItemDragEnd"
-                     @ondragenter="@(() => HandleItemDragEnter(position))"
+                     @ondragenter="@(() => HandleItemDragEnterAsync(position))"
                      @ondragover:preventDefault="true"
                      @onkeydown="@((e) => HandleItemKeyDown(e, item, position))">
 

@@ -931,11 +931,13 @@
   - CanDrop : Func<T, String, Boolean>
   - ChildContent : RenderFragment
   - Class : String
+  - Clone : Boolean
   - ItemDisabled : Func<T, Boolean>
   - ItemDropped : EventCallback<DropItemInfo<T>>
   - ItemPicked : EventCallback<T>
 
 ### BbDropZone`1 (BlazorBlueprint.Components)
+  - AllowDrop : Boolean
   - AriaLabel : String
   - CanDrop : Func<T, Boolean>
   - ChildContent : RenderFragment
@@ -943,6 +945,7 @@
   - DragItemTemplate : RenderFragment<T>
   - DragOverClass : String
   - DragOverNoDropClass : String
+  - HandleClass : String
   - OnItemDropped : EventCallback<DropItemInfo<T>>
   - ZoneIdentifier : String [EditorRequired]
   - Container : BbDropContainer<T> [CascadingParameter]
@@ -2510,12 +2513,15 @@
   - Class : String
   - ContainerClass : String
   - DragItemTemplate : RenderFragment<T>
+  - HandleClass : String
   - ItemClass : String
   - ItemDisabled : Func<T, Boolean>
   - ItemTemplate : RenderFragment<T>
   - Items : IReadOnlyList<T>
   - Layout : SortableLayout
   - OnItemDropped : EventCallback<DropItemInfo<T>>
+  - Sorting : Boolean
+  - Swap : Boolean
   - ZoneIdentifier : String
   - Container : BbDropContainer<T> [CascadingParameter]
 

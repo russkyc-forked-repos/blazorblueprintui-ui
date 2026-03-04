@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using BlazorBlueprint.Primitives.Utilities;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 
 namespace BlazorBlueprint.Components;
 
@@ -19,11 +20,22 @@ namespace BlazorBlueprint.Components;
 /// When no <see cref="ChildContent"/> is provided the zone renders a built-in drop indicator
 /// that reacts to the drag state automatically.
 /// </para>
+/// <para>
+/// <strong>Handle support</strong> — set <see cref="HandleClass"/> to the CSS class of the
+/// grip element inside your <see cref="ChildContent"/> items. Only elements with that class
+/// will initiate drags; clicking elsewhere on the item does nothing.
+/// </para>
 /// </remarks>
 /// <typeparam name="T">The type of item that can be dropped. Must be non-null.</typeparam>
-public partial class BbDropZone<T> : ComponentBase, IDisposable where T : notnull
+public partial class BbDropZone<T> : ComponentBase, IAsyncDisposable where T : notnull
 {
     private int _dragOverCount;
+    private IJSObjectReference? _jsModule;
+    private ElementReference _zoneRef;
+    private string? _initializedHandleClass;
+
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = default!;
 
     [CascadingParameter]
     private BbDropContainer<T>? Container { get; set; }
@@ -86,6 +98,24 @@ public partial class BbDropZone<T> : ComponentBase, IDisposable where T : notnul
     public string? DragOverNoDropClass { get; set; }
 
     /// <summary>
+    /// Gets or sets whether this zone accepts any dropped items.
+    /// When <c>false</c> no items can be dropped regardless of <see cref="CanDrop"/>.
+    /// Defaults to <c>true</c>.
+    /// </summary>
+    [Parameter]
+    public bool AllowDrop { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the CSS class name of the drag-handle element inside
+    /// <see cref="ChildContent"/> items. When set, only elements that carry this class
+    /// (or are descendants of one) can initiate a drag; clicking anywhere else on an
+    /// item wrapper does nothing.
+    /// When <c>null</c> (default) the entire item surface is draggable.
+    /// </summary>
+    [Parameter]
+    public string? HandleClass { get; set; }
+
+    /// <summary>
     /// Gets or sets additional CSS classes applied to the root element.
     /// </summary>
     [Parameter]
@@ -106,7 +136,54 @@ public partial class BbDropZone<T> : ComponentBase, IDisposable where T : notnul
     private void OnTransactionChanged(object? sender, EventArgs e) => StateHasChanged();
 
     /// <inheritdoc />
-    public void Dispose()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
+                    "import", "./_content/BlazorBlueprint.Components/js/drag-drop.js");
+
+                if (HandleClass is not null)
+                {
+                    await InitHandlesAsync();
+                }
+            }
+            catch (Exception ex) when (ex is JSDisconnectedException or TaskCanceledException or ObjectDisposedException or InvalidOperationException)
+            {
+                // JS interop unavailable during prerender or after circuit disconnect
+            }
+
+            return;
+        }
+
+        // Re-initialize handles when HandleClass changes after first render
+        if (HandleClass != _initializedHandleClass && _jsModule is not null)
+        {
+            try
+            {
+                await InitHandlesAsync();
+            }
+            catch (Exception ex) when (ex is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
+        }
+    }
+
+    private async Task InitHandlesAsync()
+    {
+        _initializedHandleClass = HandleClass;
+        if (_jsModule is not null)
+        {
+            try
+            {
+                await _jsModule.InvokeVoidAsync("initHandles", _zoneRef, HandleClass);
+            }
+            catch (Exception ex) when (ex is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
+        }
+    }
+
+    /// <inheritdoc />
+    public async ValueTask DisposeAsync()
     {
         if (Container is not null)
         {
@@ -114,11 +191,25 @@ public partial class BbDropZone<T> : ComponentBase, IDisposable where T : notnul
             Container.TransactionEnded -= OnTransactionChanged;
         }
 
+        if (_jsModule is not null)
+        {
+            try
+            {
+                await _jsModule.DisposeAsync();
+            }
+            catch (Exception ex) when (ex is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
+        }
+
         GC.SuppressFinalize(this);
     }
 
     private bool CanDropCurrentItem()
     {
+        if (!AllowDrop)
+        {
+            return false;
+        }
+
         if (Container is null || !Container.HasTransaction)
         {
             return false;
@@ -159,11 +250,13 @@ public partial class BbDropZone<T> : ComponentBase, IDisposable where T : notnul
 
         var item = Container.DraggedItem;
         var sourceZone = Container.SourceZone;
+        var sourceIndex = Container.SourceIndex;
+        var isClone = Container.Clone;
         await Container.CommitTransactionAsync(ZoneIdentifier, -1);
 
         if (OnItemDropped.HasDelegate && item is not null)
         {
-            await OnItemDropped.InvokeAsync(new DropItemInfo<T>(item, sourceZone, ZoneIdentifier, -1));
+            await OnItemDropped.InvokeAsync(new DropItemInfo<T>(item, sourceZone, ZoneIdentifier, -1, sourceIndex, isClone));
         }
     }
 
@@ -172,7 +265,7 @@ public partial class BbDropZone<T> : ComponentBase, IDisposable where T : notnul
         "min-h-[100px] rounded-lg border-2 border-dashed",
         "transition-all duration-200",
         IsDragOver && CanDropCurrentItem()
-            ? ClassNames.cn("border-primary bg-primary/5 scale-[1.01]", DragOverClass)
+            ? ClassNames.cn("border-primary bg-primary/5", DragOverClass)
             : IsDragOver
                 ? ClassNames.cn("border-destructive bg-destructive/5", DragOverNoDropClass)
                 : Container?.HasTransaction == true && CanDropCurrentItem()

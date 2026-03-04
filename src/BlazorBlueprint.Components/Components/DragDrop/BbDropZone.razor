@@ -2,6 +2,7 @@
 @typeparam T where T : notnull
 
 <div class="@ZoneClass"
+     @ref="_zoneRef"
      role="region"
      aria-label="@(AriaLabel ?? $"Drop zone {ZoneIdentifier}")"
      @ondragover="HandleDragOver"
