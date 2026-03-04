@@ -6,18 +6,20 @@ namespace BlazorBlueprint.Components;
 
 /// <summary>
 /// Provides a shared drag-and-drop context that coordinates drag operations between
-/// <see cref="BbSortable{T}"/> and <see cref="BbDropZone{T}"/> components.
+/// <see cref="BbSortable{T}"/> components.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Wrap any number of <see cref="BbSortable{T}"/> and <see cref="BbDropZone{T}"/> components
-/// inside a <see cref="BbDropContainer{T}"/> to enable cross-component drag and drop.
-/// A standalone <see cref="BbSortable{T}"/> (without a container) automatically handles
-/// reordering within itself without needing a context.
+/// Wrap any number of <see cref="BbSortable{T}"/> components (including ones with
+/// <see cref="BbSortable{T}.DropZone"/> set to <c>true</c> for sink-only targets) inside a
+/// <see cref="BbDropContainer{T}"/> to enable cross-component drag and drop. A standalone
+/// <see cref="BbSortable{T}"/> (without a container) handles reordering within itself
+/// without needing a context.
 /// </para>
 /// <para>
-/// The container uses a cascading value so all descendant sortables and drop zones
-/// automatically receive the shared drag state.
+/// The container uses a cascading value so all descendant sortables automatically receive
+/// the shared drag state. SortableJS uses the container's <see cref="GroupId"/> as the
+/// group name so only zones within the same container can exchange items.
 /// </para>
 /// </remarks>
 /// <typeparam name="T">The type of item being dragged and dropped. Must be non-null.</typeparam>
@@ -32,6 +34,13 @@ public partial class BbDropContainer<T> : ComponentBase where T : notnull
     private int _sourceIndex;
     private string _announcement = string.Empty;
 
+    /// <summary>
+    /// Gets a unique group identifier shared by all child <see cref="BbSortable{T}"/> zones.
+    /// SortableJS uses this as the <c>group.name</c> so only zones within the same container
+    /// can exchange items via cross-zone drag.
+    /// </summary>
+    internal string GroupId { get; } = Guid.NewGuid().ToString("N");
+
     /// <summary>Fires when a drag transaction starts. Descendant components subscribe to trigger re-renders.</summary>
     internal event EventHandler? TransactionStarted;
 
@@ -40,7 +49,7 @@ public partial class BbDropContainer<T> : ComponentBase where T : notnull
 
     /// <summary>
     /// Gets or sets the content within this drag-and-drop context.
-    /// Should contain <see cref="BbSortable{T}"/> and/or <see cref="BbDropZone{T}"/> components.
+    /// Should contain <see cref="BbSortable{T}"/> components.
     /// </summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
