@@ -452,8 +452,8 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
 
         switch (e.Key)
         {
-            // ── Space: grab or drop ─────────────────────────────────────────────
-            case " " when IsCurrentDraggedItem(item) && HasActiveTransaction():
+            // ── Space / Enter: grab or drop ────────────────────────────────────
+            case " " or "Enter" when IsCurrentDraggedItem(item) && HasActiveTransaction():
             {
                 var dropIdx = _keyboardTargetIndex >= 0 ? _keyboardTargetIndex : index;
                 _keyboardTargetIndex = -1;
@@ -461,7 +461,7 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
                 break;
             }
 
-            case " " when !HasActiveTransaction():
+            case " " or "Enter" when !HasActiveTransaction():
             {
                 _keyboardTargetIndex = index;
                 StartLocalTransaction(item, index);
