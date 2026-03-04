@@ -250,13 +250,6 @@ public abstract partial class BbChartBase : ComponentBase, IAsyncDisposable
         }
     }
 
-    private static JsonElement SerializeOption(EChartsOption option)
-    {
-        var json = JsonSerializer.Serialize(option, SerializerOptions);
-        using var document = JsonDocument.Parse(json);
-        return document.RootElement.Clone();
-    }
-
     private string ContainerCssClass => ClassNames.cn("w-full", Class);
 
     private string ContainerStyle => $"height: {Height}; width: {Width};";
