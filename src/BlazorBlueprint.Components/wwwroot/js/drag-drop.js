@@ -2,7 +2,11 @@
  * Drag-and-drop helpers for BbSortable and BbDropZone.
  *
  * FLIP (First, Last, Invert, Play) — smooth reorder animations.
- * initHandles — restrict drag to a designated handle element by CSS class.
+ * initHandles  — restrict drag to a designated handle element by CSS class.
+ * startLiveSort / stopLiveSort — SortableJS-style coordinate-based live reordering:
+ *   tracks cursor position on the container's dragover event (stable, never fires on
+ *   the shifted items themselves) and only notifies Blazor when the insertion index
+ *   actually changes.  One rAF per frame limits Blazor re-renders.
  */
 
 /** @type {Map<Element, Map<Element, DOMRect>>} */
@@ -60,6 +64,95 @@ export function playFlip(containerEl, durationMs) {
             }, { once: true });
         });
     }
+}
+
+/**
+ * Begins tracking live-sort position via container-level dragover.
+ *
+ * Uses a SortableJS-inspired coordinate approach: listens on the stable container
+ * element (not the shifting item elements) and hit-tests cursor coordinates against
+ * item midpoints.  A requestAnimationFrame guard limits Blazor calls to one per frame
+ * and only fires when the computed insertion index actually changes.
+ *
+ * @param {Element}         containerEl  - The sortable inner container element.
+ * @param {DotNetObjectRef} dotNetRef    - Blazor component reference.
+ * @param {boolean}         isGrid       - Whether the container uses grid layout.
+ */
+export function startLiveSort(containerEl, dotNetRef, isGrid) {
+    stopLiveSort(containerEl);
+    if (!containerEl || !dotNetRef) { return; }
+
+    let lastIndex  = -1;
+    let rafPending = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    const onDragOver = (evt) => {
+        lastX = evt.clientX;
+        lastY = evt.clientY;
+        if (rafPending) { return; }
+        rafPending = true;
+        requestAnimationFrame(() => {
+            rafPending = false;
+            const idx = _getInsertionIndex(containerEl, lastX, lastY, isGrid);
+            if (idx !== lastIndex) {
+                lastIndex = idx;
+                dotNetRef.invokeMethodAsync('UpdateLiveIndexAsync', idx).catch(() => {});
+            }
+        });
+    };
+
+    containerEl.addEventListener('dragover', onDragOver);
+    containerEl._bbLiveSort = { handler: onDragOver };
+}
+
+/**
+ * Removes the live-sort dragover listener previously set by startLiveSort.
+ * Safe to call even if startLiveSort was never called.
+ * @param {Element} containerEl
+ */
+export function stopLiveSort(containerEl) {
+    if (!containerEl || !containerEl._bbLiveSort) { return; }
+    containerEl.removeEventListener('dragover', containerEl._bbLiveSort.handler);
+    delete containerEl._bbLiveSort;
+}
+
+/**
+ * Returns the insertion index for the dragged item at (clientX, clientY).
+ *
+ * Only considers children that carry data-draggable-item and are NOT the currently
+ * dragged element (data-dragging="true"), so the result is stable regardless of
+ * where the dragged item sits in the rendered list.
+ *
+ * List layout  — purely vertical midpoint comparison.
+ * Grid layout  — row-aware: within a row uses horizontal midpoint; above a row
+ *                inserts before the first item in that row.
+ *
+ * @param {Element} containerEl
+ * @param {number}  clientX
+ * @param {number}  clientY
+ * @param {boolean} isGrid
+ * @returns {number}
+ */
+function _getInsertionIndex(containerEl, clientX, clientY, isGrid) {
+    /** @type {Element[]} */
+    const items = Array.from(containerEl.children).filter(el =>
+        el.dataset.draggableItem && el.dataset.dragging !== 'true' && !el.dataset.flipIgnore
+    );
+
+    for (let i = 0; i < items.length; i++) {
+        const rect = items[i].getBoundingClientRect();
+        if (!isGrid) {
+            // List: vertical midpoint
+            if (clientY < rect.top + rect.height / 2) { return i; }
+        } else {
+            // Grid: check if cursor is above this item's row
+            if (clientY < rect.top) { return i; }
+            // Within this item's row: use horizontal midpoint
+            if (clientY <= rect.bottom && clientX < rect.left + rect.width / 2) { return i; }
+        }
+    }
+    return items.length;
 }
 
 /**

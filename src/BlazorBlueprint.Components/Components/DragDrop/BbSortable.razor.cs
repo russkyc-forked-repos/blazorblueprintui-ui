@@ -59,6 +59,7 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
     // ── JS interop / animation ────────────────────────────────────────────────────
     private const int FlipAnimationDurationMs = 220;
     private IJSObjectReference? _jsModule;
+    private DotNetObjectReference<BbSortable<T>>? _dotNetRef;
     private ElementReference _containerRef;
     private bool _needsFlip;
     private string? _initializedHandleClass;
@@ -110,6 +111,15 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
     /// </summary>
     [Parameter]
     public RenderFragment<T>? DragItemTemplate { get; set; }
+
+    /// <summary>
+    /// Gets or sets a template rendered when <see cref="Items"/> is empty.
+    /// Use this to display a custom empty-state message or call-to-action.
+    /// The template is hidden automatically while a drag is in progress so the
+    /// zone remains a valid drop target.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? EmptyTemplate { get; set; }
 
     /// <summary>
     /// Gets or sets the layout mode.
@@ -289,6 +299,8 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
             Container.TransactionStarted -= OnContextTransactionChanged;
             Container.TransactionEnded -= OnContextTransactionChanged;
         }
+
+        _dotNetRef?.Dispose();
 
         if (_jsModule is not null)
         {
@@ -541,7 +553,7 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
     private async Task HandleZoneDrop(DragEventArgs args)
     {
         var draggedItem = GetDraggedItem();
-        var sourceZone = GetSourceZone();
+        var sourceZone  = GetSourceZone();
 
         // Determine drop index
         int dropIdx;
@@ -560,34 +572,31 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
         }
 
         _livePreviewList = null;
-        _dragOverCount = 0;
-        _mouseDropIndex = -1;
+        _dragOverCount   = 0;
+        _mouseDropIndex  = -1;
+
+        await StopLiveSortAsync();
 
         if (!HasActiveTransaction() || !CanDropCurrentItem())
         {
             return;
         }
 
-        var item = draggedItem;
-
         await CaptureFlipPositionsAsync();
         _needsFlip = true;
 
         await CommitLocalTransactionAsync(dropIdx);
-
-        // Fire zone-local OnItemDropped (context-level ItemDropped is fired by container)
-        if (Container is not null && OnItemDropped.HasDelegate && item is not null)
-        {
-            var srcIdx = Container.SourceIndex;
-            await OnItemDropped.InvokeAsync(new DropItemInfo<T>(item, sourceZone, ZoneIdentifier, dropIdx, srcIdx, Container.Clone));
-        }
+        // Container.CommitTransactionAsync fires Container.ItemDropped.
+        // Standalone CommitLocalTransactionAsync fires OnItemDropped directly.
+        // No additional firing needed here — doing so would double-invoke the handler
+        // when the caller has wired both Container.ItemDropped and zone.OnItemDropped.
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
     // Item-level drag event handlers
     // ─────────────────────────────────────────────────────────────────────────────
 
-    private void HandleItemDragStart(T item, int index)
+    private async Task HandleItemDragStartAsync(T item, int index)
     {
         if (!Sorting)
         {
@@ -601,41 +610,80 @@ public partial class BbSortable<T> : ComponentBase, IDisposable where T : notnul
         if (AllowReorder && !Swap)
         {
             _livePreviewList = new List<T>(Items);
+            await StartLiveSortAsync();
         }
     }
 
-    private void HandleItemDragEnd(DragEventArgs args)
+    private async Task HandleItemDragEndAsync(DragEventArgs args)
     {
-        // dragend fires even after a successful drop — cancel is a no-op when committed
+        // dragend fires even after a successful drop — cancel is a no-op when already committed
         CancelLocalTransaction();
         _mouseDropIndex = -1;
         _dragOverCount = 0;
         _livePreviewList = null;
+        await StopLiveSortAsync();
     }
 
-    private async Task HandleItemDragEnterAsync(int position)
+    // Track static drop position for swap mode and external drops.
+    // Live same-zone reordering is now handled by JS coordinate tracking
+    // (startLiveSort → UpdateLiveIndexAsync), which avoids the cascading
+    // dragenter events that fire when items shift position during re-render.
+    private void HandleItemDragEnter(int position) => _mouseDropIndex = position;
+
+    /// <summary>
+    /// Called from JavaScript (via <c>startLiveSort</c>) when the cursor crosses an item
+    /// midpoint, with the new insertion index computed from pointer coordinates.
+    /// This is the SortableJS-style approach: position is derived from stable container-
+    /// level dragover geometry, not per-item dragenter events that cascade when items shift.
+    /// </summary>
+    [JSInvokable]
+    public async Task UpdateLiveIndexAsync(int newIndex)
     {
         var draggedItem = GetDraggedItem();
-        var sourceZone = GetSourceZone();
+        var sourceZone  = GetSourceZone();
 
-        if (_livePreviewList is not null
-            && sourceZone == ZoneIdentifier
-            && draggedItem is not null
-            && AllowReorder
-            && Sorting
-            && !Swap)
+        if (_livePreviewList is null || draggedItem is null || sourceZone != ZoneIdentifier
+            || !AllowReorder || !Sorting || Swap)
         {
-            // Live reorder: capture first (DOM still at old positions), then reorder
-            await CaptureFlipPositionsAsync();
-            _livePreviewList.Remove(draggedItem);
-            var insertIdx = Math.Clamp(position, 0, _livePreviewList.Count);
-            _livePreviewList.Insert(insertIdx, draggedItem);
-            _needsFlip = true;
+            return;
         }
-        else
+
+        // Snapshot current DOM positions BEFORE mutating the list (for FLIP)
+        await CaptureFlipPositionsAsync();
+
+        _livePreviewList.Remove(draggedItem);
+        var insertIdx = Math.Clamp(newIndex, 0, _livePreviewList.Count);
+        _livePreviewList.Insert(insertIdx, draggedItem);
+        _needsFlip = true;
+
+        // InvokeAsync marshals the state change onto the Blazor synchronisation context
+        await InvokeAsync(StateHasChanged);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Live-sort JS helpers
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    private async Task StartLiveSortAsync()
+    {
+        if (_jsModule is null) { return; }
+        _dotNetRef ??= DotNetObjectReference.Create(this);
+        var isGrid = Layout == SortableLayout.Grid;
+        try
         {
-            _mouseDropIndex = position;
+            await _jsModule.InvokeVoidAsync("startLiveSort", _containerRef, _dotNetRef, isGrid);
         }
+        catch (Exception ex) when (ex is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
+    }
+
+    private async Task StopLiveSortAsync()
+    {
+        if (_jsModule is null) { return; }
+        try
+        {
+            await _jsModule.InvokeVoidAsync("stopLiveSort", _containerRef);
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
     }
 
     // ─────────────────────────────────────────────────────────────────────────────

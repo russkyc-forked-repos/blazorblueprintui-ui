@@ -124,7 +124,7 @@
                                     AllowReorder="true"
                                     Class="flex-1"
                                     AriaLabel="@($"{col.Name} column")"
-                                    OnItemDropped="HandleKanbanDrop">
+                                    EmptyTemplate="@(() => @<p class="text-xs text-muted-foreground/60 text-center py-2">Drop cards here</p>)">
                             <ItemTemplate Context="card">
                                 <BbCard Class="cursor-grab active:cursor-grabbing shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <BbCardContent Class="p-3 space-y-1">
@@ -161,8 +161,7 @@
                     <BbSortable T="BasicItem"
                                 Items="_cloneSource"
                                 ZoneIdentifier="clone-src"
-                                AriaLabel="Clone source list"
-                                OnItemDropped="HandleCloneDrop">
+                                AriaLabel="Clone source list">
                         <ItemTemplate Context="item">
                             <div class="flex items-center gap-2 p-3 rounded-lg border bg-card text-sm select-none">
                                 <span aria-hidden="true">📌</span>
@@ -177,7 +176,7 @@
                                 Items="_cloneTarget"
                                 ZoneIdentifier="clone-dst"
                                 AriaLabel="Clone target list"
-                                OnItemDropped="HandleCloneDrop">
+                                EmptyTemplate="@(() => @<p class="text-xs text-muted-foreground px-1">Drop items here to clone them.</p>)">
                         <ItemTemplate Context="item">
                             <div class="flex items-center gap-2 p-3 rounded-lg border bg-card text-sm select-none">
                                 <span aria-hidden="true">📎</span>
@@ -185,10 +184,6 @@
                             </div>
                         </ItemTemplate>
                     </BbSortable>
-                    @if (_cloneTarget.Count == 0)
-                    {
-                        <p class="text-xs text-muted-foreground px-1">Drop items here to clone them.</p>
-                    }
                 </div>
             </div>
         </BbDropContainer>
@@ -259,8 +254,7 @@
                                 Items="_highPriority"
                                 ZoneIdentifier="high"
                                 CanDrop="@(item => item.Priority == "high")"
-                                AriaLabel="High priority zone"
-                                OnItemDropped="HandlePriorityDrop">
+                                AriaLabel="High priority zone">
                         <ItemTemplate Context="item">
                             <div class="flex items-center gap-2 p-3 rounded-lg border border-destructive/30 bg-destructive/5 text-sm select-none">
                                 <span>🔴</span>
@@ -278,8 +272,7 @@
                                 Items="_lowPriority"
                                 ZoneIdentifier="low"
                                 CanDrop="@(item => item.Priority == "low")"
-                                AriaLabel="Low priority zone"
-                                OnItemDropped="HandlePriorityDrop">
+                                AriaLabel="Low priority zone">
                         <ItemTemplate Context="item">
                             <div class="flex items-center gap-2 p-3 rounded-lg border bg-muted/30 text-sm select-none">
                                 <span>🔵</span>
@@ -387,6 +380,10 @@
                 <ApiParameter Name="DragItemTemplate" Type="RenderFragment&lt;T&gt;?">
                     Alternate template shown in the item's original position while being dragged.
                 </ApiParameter>
+                <ApiParameter Name="EmptyTemplate" Type="RenderFragment?">
+                    Content rendered when <code class="text-xs bg-muted px-1 py-0.5 rounded">Items</code> is empty and no drag is active.
+                    Hidden automatically during drag so the zone remains a drop target.
+                </ApiParameter>
                 <ApiParameter Name="Layout" Type="SortableLayout" Default="List">
                     List or Grid layout.
                 </ApiParameter>
@@ -412,7 +409,8 @@
                     Marks individual items as non-draggable.
                 </ApiParameter>
                 <ApiParameter Name="OnItemDropped" Type="EventCallback&lt;DropItemInfo&lt;T&gt;&gt;">
-                    Fired when an item is dropped. Contains item, source/target zone, indices, and clone flag.
+                    Fired on drop for standalone sortables (no <code class="text-xs bg-muted px-1 py-0.5 rounded">BbDropContainer</code>).
+                    When inside a container, handle <code class="text-xs bg-muted px-1 py-0.5 rounded">BbDropContainer.ItemDropped</code> instead.
                 </ApiParameter>
                 <ApiParameter Name="ContainerClass" Type="string?">
                     CSS classes for the inner container (use for grid columns, padding, etc.).
@@ -557,21 +555,20 @@
     {
         if (info.Item is null) return;
 
-        if (info.TargetZone == "clone-dst")
+        if (info.TargetZone == "clone-dst" && info.IsClone)
         {
-            // Clone: add to target but do NOT remove from source
-            var idx = Math.Clamp(info.TargetIndex, 0, _cloneTarget.Count);
-            _cloneTarget.Insert(idx, info.Item);
+            // Cross-zone clone: add to target but do NOT remove from source
+            _cloneTarget.Insert(Math.Clamp(info.TargetIndex, 0, _cloneTarget.Count), info.Item);
         }
-        else if (info.TargetZone == "clone-src" && !info.IsClone)
+        else if (info.TargetZone == "clone-src")
         {
-            // Reorder within source
+            // Same-zone reorder within source
             _cloneSource.Remove(info.Item);
             _cloneSource.Insert(Math.Clamp(info.TargetIndex, 0, _cloneSource.Count), info.Item);
         }
-        else if (info.TargetZone == "clone-dst" && !info.IsClone)
+        else if (info.TargetZone == "clone-dst")
         {
-            // Reorder within target
+            // Same-zone reorder within target
             _cloneTarget.Remove(info.Item);
             _cloneTarget.Insert(Math.Clamp(info.TargetIndex, 0, _cloneTarget.Count), info.Item);
         }

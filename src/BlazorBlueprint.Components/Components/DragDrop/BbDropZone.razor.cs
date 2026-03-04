@@ -64,6 +64,14 @@ public partial class BbDropZone<T> : ComponentBase, IAsyncDisposable where T : n
     public RenderFragment<T>? DragItemTemplate { get; set; }
 
     /// <summary>
+    /// Gets or sets a template rendered in the zone's idle state (no drag active, no
+    /// <see cref="ChildContent"/> set).  Replaces the built-in "Drag items here" icon.
+    /// Use this to add custom empty-state content such as an illustration or instructions.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? EmptyTemplate { get; set; }
+
+    /// <summary>
     /// Gets or sets a per-zone function that overrides the container-level
     /// <see cref="BbDropContainer{T}.CanDrop"/> check.
     /// Return <c>true</c> to allow a drop, <c>false</c> to reject it.

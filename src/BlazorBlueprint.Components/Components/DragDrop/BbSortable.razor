@@ -50,10 +50,10 @@
                      data-dragging="@(isDragging ? "true" : "false")"
                      data-draggable-item="true"
                      @key="item"
-                     @ondragstart="@(() => HandleItemDragStart(item, position))"
+                     @ondragstart="@(async () => await HandleItemDragStartAsync(item, position))"
                      @ondragstart:stopPropagation="true"
-                     @ondragend="@HandleItemDragEnd"
-                     @ondragenter="@(() => HandleItemDragEnterAsync(position))"
+                     @ondragend="@HandleItemDragEndAsync"
+                     @ondragenter="@(() => HandleItemDragEnter(position))"
                      @ondragover:preventDefault="true"
                      @onkeydown="@((e) => HandleItemKeyDown(e, item, position))">
 
@@ -74,6 +74,12 @@
         @if (ChildContent is not null)
         {
             @ChildContent
+        }
+
+        @* Empty-state template — shown when Items is empty and no drag is active *@
+        @if (zoneItems.Count == 0 && EmptyTemplate is not null && !IsInDragMode)
+        {
+            <div class="pointer-events-none">@EmptyTemplate</div>
         }
     </div>
 

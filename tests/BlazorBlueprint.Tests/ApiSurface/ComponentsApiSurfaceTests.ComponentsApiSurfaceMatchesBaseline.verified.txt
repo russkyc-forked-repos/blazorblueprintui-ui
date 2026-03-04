@@ -945,6 +945,7 @@
   - DragItemTemplate : RenderFragment<T>
   - DragOverClass : String
   - DragOverNoDropClass : String
+  - EmptyTemplate : RenderFragment
   - HandleClass : String
   - OnItemDropped : EventCallback<DropItemInfo<T>>
   - ZoneIdentifier : String [EditorRequired]
@@ -2513,6 +2514,7 @@
   - Class : String
   - ContainerClass : String
   - DragItemTemplate : RenderFragment<T>
+  - EmptyTemplate : RenderFragment
   - HandleClass : String
   - ItemClass : String
   - ItemDisabled : Func<T, Boolean>
