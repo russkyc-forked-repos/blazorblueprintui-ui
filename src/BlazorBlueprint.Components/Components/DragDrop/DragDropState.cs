@@ -40,6 +40,14 @@ public sealed class DragDropState
     /// <summary>The index at which the item was inserted in the target list.</summary>
     public int DropTargetIndex { get; private set; }
 
+    // ── change notification ───────────────────────────────────────────────
+
+    /// <summary>
+    /// Raised when drag state changes (begin or clear).
+    /// Subscribe to re-render group-compatible lists for empty-zone hints.
+    /// </summary>
+    public event Action? StateChanged;
+
     // ── internal API (called only by BbDragDrop<TItem>) ──────────────────
 
     internal void Begin(object item, string? group, bool isClone, int oldIndex)
@@ -50,6 +58,7 @@ public sealed class DragDropState
         OldIndex        = oldIndex;
         DropOccurred    = false;
         DropTargetIndex = -1;
+        StateChanged?.Invoke();
     }
 
     internal void RecordDrop(int targetIndex)
@@ -66,5 +75,6 @@ public sealed class DragDropState
         OldIndex        = -1;
         DropOccurred    = false;
         DropTargetIndex = -1;
+        StateChanged?.Invoke();
     }
 }
