@@ -1,0 +1,14 @@
+@namespace BlazorBlueprint.Components
+@typeparam TItem where TItem : notnull
+
+<div id="@Id" class="@CssClass" @ref="_element">
+    @foreach (var item in Items)
+    {
+        <div @key="item">
+            @if (ItemTemplate is not null)
+            {
+                @ItemTemplate(item)
+            }
+        </div>
+    }
+</div>

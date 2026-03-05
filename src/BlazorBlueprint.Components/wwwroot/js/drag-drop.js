@@ -1,22 +1,14 @@
 /**
- * Drag-and-drop helpers for BbSortable — powered by SortableJS.
+ * Drag-and-drop helpers for BbDragDrop — a thin BlazorSortable-style wrapper around SortableJS.
  *
  * API:
- *   initSortable(containerEl, dotNetRef, options)  — create/update a Sortable instance
- *   destroySortable(containerEl)                   — destroy a Sortable instance
+ *   init(element, dotNetRef, options)  — create/update a SortableJS instance
+ *   destroy(element)                   — destroy a SortableJS instance
  *
- * options:
- *   zoneId       string         data-zone-id attribute placed on the container
- *   group        string | null  shared group name enabling cross-zone drag
- *   sort         boolean        allow reordering (default true)
- *   disabled     boolean        disable all drag (default false)
- *   handleClass  string | null  CSS class of the drag-handle element
- *   swap         boolean        swap mode (default false)
- *   clone        boolean        clone on cross-zone drop, pull:'clone' (default false)
- *   allowDrop    boolean        accept items from other zones (default true)
- *
- * Each sortable item must have data-sortable-item="true" so SortableJS only manages
- * real items and ignores ChildContent / EmptyTemplate wrappers (data-sortable-ignore).
+ * Callbacks invoked on dotNetRef:
+ *   JsOnUpdate(oldIndex, newIndex)  — item reordered within the same list
+ *   JsOnAdd(oldIndex, newIndex)     — item added to this list from another group list
+ *   JsOnRemove(oldIndex, newIndex)  — item removed from this list to another group list
  */
 import Sortable from './_content/BlazorBlueprint.Components/js/sortable.esm.js';
 
@@ -24,78 +16,53 @@ import Sortable from './_content/BlazorBlueprint.Components/js/sortable.esm.js';
 const instances = new Map();
 
 /**
- * Initialises (or re-initialises) a SortableJS instance on the container element.
- * @param {Element}  containerEl
- * @param {object}   dotNetRef    Blazor DotNetObjectReference for the BbSortable component.
- * @param {object}   options
+ * Initialises (or re-initialises) a SortableJS instance on the element.
+ * @param {Element} element
+ * @param {object}  dotNetRef  Blazor DotNetObjectReference
+ * @param {object}  options
  */
-export function initSortable(containerEl, dotNetRef, options) {
-    destroySortable(containerEl);
-    if (!containerEl || !dotNetRef) { return; }
+export function init(element, dotNetRef, options) {
+    destroy(element);
+    if (!element || !dotNetRef) { return; }
 
-    if (options.zoneId) {
-        containerEl.dataset.zoneId = options.zoneId;
-    }
+    const group = options.group
+        ? { name: options.group, pull: options.pull || true, put: options.put !== false }
+        : null;
 
-    const groupName = options.group || null;
-    const allowDrop = options.allowDrop !== false;
-    const clone     = options.clone === true;
+    const sortable = Sortable.create(element, {
+        group:         group,
+        sort:          options.sort !== false,
+        handle:        options.handle  ? '.' + options.handle  : undefined,
+        filter:        options.filter  ? '.' + options.filter  : undefined,
+        animation:     options.animation ?? 150,
+        forceFallback: options.forceFallback === true,
+        ghostClass:    'bb-drag-ghost',
+        chosenClass:   'bb-drag-chosen',
+        dragClass:     'bb-drag-dragging',
 
-    const sortable = Sortable.create(containerEl, {
-        // Only treat elements marked as sortable items; ignore ChildContent wrappers
-        draggable: '[data-sortable-item]',
-        filter:    '[data-disabled="true"], [data-sortable-ignore]',
-        preventOnFilter: false,
-
-        group: groupName ? {
-            name: groupName,
-            pull: clone ? 'clone' : true,
-            put:  allowDrop,
-        } : undefined,
-
-        sort:      options.sort !== false,
-        disabled:  options.disabled === true,
-        handle:    options.handleClass ? '.' + options.handleClass : undefined,
-        animation: 150,
-
-        ghostClass:  'bb-sortable-ghost',
-        chosenClass: 'bb-sortable-chosen',
-        dragClass:   'bb-sortable-drag',
-        swap:        options.swap === true,
-        swapClass:   'bb-sortable-swap',
-
-        onStart(evt) {
-            dotNetRef.invokeMethodAsync('OnSortableDragStart', evt.oldDraggableIndex ?? evt.oldIndex ?? 0)
-                     .catch(() => {});
+        onUpdate(evt) {
+            dotNetRef.invokeMethodAsync('JsOnUpdate', evt.oldIndex, evt.newIndex).catch(() => {});
         },
-
-        onEnd(evt) {
-            const fromZone = evt.from.dataset.zoneId ?? '';
-            const toZone   = evt.to.dataset.zoneId   ?? '';
-            const isClone  = evt.pullMode === 'clone';
-
-            dotNetRef.invokeMethodAsync('OnSortableDragEnd', {
-                oldIndex: evt.oldDraggableIndex ?? evt.oldIndex  ?? 0,
-                newIndex: evt.newDraggableIndex ?? evt.newIndex  ?? 0,
-                fromZone,
-                toZone,
-                isClone,
-            }).catch(() => {});
+        onAdd(evt) {
+            dotNetRef.invokeMethodAsync('JsOnAdd', evt.oldIndex, evt.newIndex).catch(() => {});
+        },
+        onRemove(evt) {
+            dotNetRef.invokeMethodAsync('JsOnRemove', evt.oldIndex, evt.newIndex).catch(() => {});
         },
     });
 
-    instances.set(containerEl, sortable);
+    instances.set(element, sortable);
 }
 
 /**
- * Destroys the SortableJS instance on the container. Safe to call multiple times.
- * @param {Element} containerEl
+ * Destroys the SortableJS instance on the element. Safe to call multiple times.
+ * @param {Element} element
  */
-export function destroySortable(containerEl) {
-    if (!containerEl) { return; }
-    const inst = instances.get(containerEl);
+export function destroy(element) {
+    if (!element) { return; }
+    const inst = instances.get(element);
     if (inst) {
         inst.destroy();
-        instances.delete(containerEl);
+        instances.delete(element);
     }
 }

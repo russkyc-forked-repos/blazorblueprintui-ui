@@ -875,6 +875,23 @@
   - AsChild : Boolean
   - ChildContent : RenderFragment
 
+### BbDragDrop`1 (BlazorBlueprint.Components)
+  - Animation : Int32
+  - Class : String
+  - Filter : String
+  - ForceFallback : Boolean
+  - Group : String
+  - Handle : String
+  - Id : String
+  - ItemTemplate : RenderFragment<TItem>
+  - Items : IList<TItem>
+  - OnAdd : EventCallback<ValueTuple<Int32, Int32>>
+  - OnRemove : EventCallback<ValueTuple<Int32, Int32>>
+  - OnUpdate : EventCallback<ValueTuple<Int32, Int32>>
+  - Pull : String
+  - Put : Boolean
+  - Sort : Boolean
+
 ### BbDrawer (BlazorBlueprint.Components)
   - ChildContent : RenderFragment
   - DefaultOpen : Boolean
@@ -926,30 +943,6 @@
   - ChildContent : RenderFragment
   - Class : String
   - Context : BbDrawer [CascadingParameter]
-
-### BbDropContainer`1 (BlazorBlueprint.Components)
-  - CanDrop : Func<T, String, Boolean>
-  - ChildContent : RenderFragment
-  - Class : String
-  - Clone : Boolean
-  - ItemDisabled : Func<T, Boolean>
-  - ItemDropped : EventCallback<DropItemInfo<T>>
-  - ItemPicked : EventCallback<T>
-
-### BbDropZone`1 (BlazorBlueprint.Components)
-  - AllowDrop : Boolean
-  - AriaLabel : String
-  - CanDrop : Func<T, Boolean>
-  - ChildContent : RenderFragment
-  - Class : String
-  - DragItemTemplate : RenderFragment<T>
-  - DragOverClass : String
-  - DragOverNoDropClass : String
-  - EmptyTemplate : RenderFragment
-  - HandleClass : String
-  - OnItemDropped : EventCallback<DropItemInfo<T>>
-  - ZoneIdentifier : String [EditorRequired]
-  - Container : BbDropContainer<T> [CascadingParameter]
 
 ### BbDropdownMenu (BlazorBlueprint.Components)
   - ChildContent : RenderFragment
@@ -2505,28 +2498,6 @@
   - Value : Double
   - ValueChanged : EventCallback<Double>
 
-### BbSortable`1 (BlazorBlueprint.Components)
-  - AllowExternalDrop : Boolean
-  - AllowReorder : Boolean
-  - AriaLabel : String
-  - CanDrop : Func<T, Boolean>
-  - ChildContent : RenderFragment
-  - Class : String
-  - ContainerClass : String
-  - DragItemTemplate : RenderFragment<T>
-  - EmptyTemplate : RenderFragment
-  - HandleClass : String
-  - ItemClass : String
-  - ItemDisabled : Func<T, Boolean>
-  - ItemTemplate : RenderFragment<T>
-  - Items : IReadOnlyList<T>
-  - Layout : SortableLayout
-  - OnItemDropped : EventCallback<DropItemInfo<T>>
-  - Sorting : Boolean
-  - Swap : Boolean
-  - ZoneIdentifier : String
-  - Container : BbDropContainer<T> [CascadingParameter]
-
 ### BbSpinner (BlazorBlueprint.Components)
   - AdditionalAttributes : Dictionary<String, Object> [CaptureUnmatchedValues]
   - AriaLabel : String
@@ -3379,10 +3350,6 @@
 ### SliderOrientation (BlazorBlueprint.Components)
   - Horizontal = 0
   - Vertical = 1
-
-### SortableLayout (BlazorBlueprint.Components)
-  - List = 0
-  - Grid = 1
 
 ### SpinnerSize (BlazorBlueprint.Components)
   - Small = 0
