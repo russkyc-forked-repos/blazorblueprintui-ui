@@ -1,4 +1,4 @@
-﻿export function init(id, group, pull, put, sort, handle, filter, component, forceFallback) {
+export function init(id, group, pull, put, sort, handle, filter, component, forceFallback) {
   var sortable = new Sortable(document.getElementById(id), {
     animation: 200,
     group: {
@@ -29,6 +29,11 @@
 
       // Notify .NET to update its model and re-render
       component.invokeMethodAsync('OnRemoveJS', event.oldDraggableIndex, event.newDraggableIndex);
+    },
+    onAdd: (event) => {
+      // The source list's onRemove handler already reverted the DOM.
+      // Notify the target list so its .NET model can be updated.
+      component.invokeMethodAsync('OnAddJS', event.oldDraggableIndex, event.newDraggableIndex);
     }
   });
 }
