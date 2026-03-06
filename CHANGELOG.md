@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## 2026-03-06
+
+### Fixed
+
+- **BbDashboardGrid** — Ensure proper widget position updates during compact mode.
+- **BbDashboardGrid** — Grid layout fixes and fixed cell size support.
+- **Container Components** — Allow parent re-renders to cascade through container components.
+
+---
+
 ## 2026-03-05
 
 ### Added
