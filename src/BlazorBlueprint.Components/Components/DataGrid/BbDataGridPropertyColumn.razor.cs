@@ -130,6 +130,20 @@ public partial class BbDataGridPropertyColumn<TData, TProp> : ComponentBase, IDa
     public IEnumerable<SelectOption<string>>? FilterOptions { get; set; }
 
     /// <summary>
+    /// The aggregate function to compute for this column when grouping is active.
+    /// Default is <see cref="AggregateFunction.None"/>.
+    /// </summary>
+    [Parameter]
+    public AggregateFunction Aggregate { get; set; } = AggregateFunction.None;
+
+    /// <summary>
+    /// Format string for displaying aggregate values (e.g., "N0", "C2").
+    /// When null, falls back to <see cref="Format"/> if set, otherwise uses default formatting.
+    /// </summary>
+    [Parameter]
+    public string? AggregateFormat { get; set; }
+
+    /// <summary>
     /// Custom cell template. If provided, overrides the default value rendering.
     /// </summary>
     [Parameter]
@@ -176,6 +190,10 @@ public partial class BbDataGridPropertyColumn<TData, TProp> : ComponentBase, IDa
 
     bool IDataGridColumn<TData>.NoWrap => NoWrap;
 
+    AggregateFunction IDataGridColumn<TData>.Aggregate => Aggregate;
+
+    string? IDataGridColumn<TData>.AggregateFormat => AggregateFormat ?? Format;
+
     public object? GetValue(TData item)
     {
         compiledProperty ??= Property.Compile();
@@ -194,6 +212,12 @@ public partial class BbDataGridPropertyColumn<TData, TProp> : ComponentBase, IDa
         return value;
     }
 
+    public object? GetRawValue(TData item)
+    {
+        compiledProperty ??= Property.Compile();
+        return compiledProperty(item);
+    }
+
     public int Compare(TData x, TData y)
     {
         compiledProperty ??= Property.Compile();
@@ -210,7 +234,7 @@ public partial class BbDataGridPropertyColumn<TData, TProp> : ComponentBase, IDa
 
     FilterFieldType IFilterableColumn.GetFilterFieldType() => FilterType ?? InferFilterFieldType();
 
-    IEnumerable<SelectOption<string>>? IFilterableColumn.GetFilterOptions() => FilterOptions;
+    IEnumerable<SelectOption<string>>? IFilterableColumn.GetFilterOptions() => FilterOptions ?? InferEnumOptions();
 
     string IFilterableColumn.GetFilterFieldName()
     {
@@ -233,7 +257,7 @@ public partial class BbDataGridPropertyColumn<TData, TProp> : ComponentBase, IDa
         {
             return FilterFieldType.Boolean;
         }
-        if (propType == typeof(DateTime))
+        if (propType == typeof(DateTime) || propType == typeof(DateTimeOffset))
         {
             return FilterFieldType.DateTime;
         }
@@ -252,6 +276,21 @@ public partial class BbDataGridPropertyColumn<TData, TProp> : ComponentBase, IDa
 
         return FilterFieldType.Text;
     }
+
+    private static IEnumerable<SelectOption<string>>? InferEnumOptions()
+    {
+        var enumType = Nullable.GetUnderlyingType(typeof(TProp)) ?? typeof(TProp);
+        if (!enumType.IsEnum)
+        {
+            return null;
+        }
+
+        return Enum.GetNames(enumType)
+            .Select(name => new SelectOption<string>(name, FormatEnumName(name)));
+    }
+
+    private static string FormatEnumName(string name) =>
+        Regex.Replace(name, "(?<=[a-z])([A-Z])", " $1");
 
     private static bool IsNumericType(Type type) =>
         type == typeof(int) || type == typeof(long) || type == typeof(float) ||

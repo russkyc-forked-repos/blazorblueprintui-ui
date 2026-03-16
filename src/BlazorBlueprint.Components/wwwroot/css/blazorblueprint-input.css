@@ -159,8 +159,18 @@
 
 /* DataGrid keyboard navigation — focus ring drawn per-cell.
    Each cell renders its own top/bottom ring segment via inset box-shadow so
-   the ring is consistent across pinned (sticky) and non-pinned cells alike. */
+   the ring is consistent across pinned (sticky) and non-pinned cells alike.
+
+   The focused row uses position: relative + z-index ONLY on :focus so the ring
+   paints above adjacent rows. We must NOT set position: relative permanently
+   because Chromium has a bug where position: relative on <tr> hides cell borders
+   under border-collapse: collapse. */
 @layer utilities {
+  [role="row"][tabindex="0"]:focus {
+    position: relative;
+    z-index: 10;
+  }
+
   [role="row"][tabindex="0"]:focus > [role="gridcell"] {
     box-shadow: inset 0 2px 0 0 var(--ring), inset 0 -2px 0 0 var(--ring);
   }
@@ -392,6 +402,14 @@
   }
 }
 
+/* NativeSelect chevron — inline SVG that Tailwind v4 cannot extract from arbitrary-value classes */
+[data-bb-native-select] {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  background-position: right 0.5rem center;
+}
+
 /* DateRangePicker responsive layout — desktop (≥640px)
    Doubled data-attribute selectors give specificity 0,2,0 which beats single-class Tailwind
    utilities (0,1,0) regardless of source order, keeping these rules inside the layer system. */
@@ -406,12 +424,30 @@
     }
 
     [data-drp-presets][data-drp-presets] {
-      flex-direction: column;
+      /* Position context for the absolute inner scroller */
+      position: relative;
       overflow-x: visible;
       border-bottom-width: 0;
       border-right-style: var(--tw-border-style);
       border-right-width: 1px;
       min-width: 140px;
+      padding: 0;
+    }
+
+    /* Hide the mobile select on desktop */
+    [data-drp-presets][data-drp-presets] > [data-drp-presets-select] {
+      display: none;
+    }
+
+    /* Inner scroller fills the sidebar and scrolls independently of the calendar */
+    [data-drp-presets][data-drp-presets] > [data-drp-presets-inner] {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      gap: calc(var(--spacing) * 1);
+      padding: calc(var(--spacing) * 3);
     }
 
     [data-drp-presets-label][data-drp-presets-label] {
@@ -440,7 +476,7 @@
     }
 
     [data-drp-preset-btn][data-drp-preset-btn] {
-      flex-shrink: 1;
+      flex-shrink: 0;
       white-space: normal;
     }
 
@@ -487,6 +523,50 @@
 
   .sortable-fallback {
     opacity: 1 !important;
+  }
+}
+
+/* DashboardGrid - Guide background rendered via ::before pseudo-element.
+   JS reads the browser's actual computed column width to build a perfectly
+   aligned SVG mask. Row height is fixed so no rounding issues. */
+@layer components {
+  .bb-guide-background-grid::before {
+    content: '';
+    position: absolute;
+    top: var(--bb-grid-pad-top, 0px);
+    right: var(--bb-grid-pad-right, 0px);
+    bottom: var(--bb-grid-pad-bottom, 0px);
+    left: var(--bb-grid-pad-left, 0px);
+    pointer-events: none;
+    z-index: 0;
+    background-color: color-mix(in oklch, var(--foreground) 8%, transparent);
+    -webkit-mask-image: var(--bb-dashboard-guide-svg);
+    mask-image: var(--bb-dashboard-guide-svg);
+    -webkit-mask-size: var(--bb-dashboard-cell-w) var(--bb-dashboard-cell-h);
+    mask-size: var(--bb-dashboard-cell-w) var(--bb-dashboard-cell-h);
+    -webkit-mask-repeat: repeat;
+    mask-repeat: repeat;
+  }
+
+  /* Hide widgets until JS has compacted the initial layout */
+  [data-positioned="false"] > [data-widget-id] {
+    visibility: hidden;
+  }
+
+  /* Focus ring on the active widget in editable grids.
+     Sets Tailwind's ring variables so the ring composes with the
+     existing shadow-sm utility instead of replacing it. */
+  [data-editable="true"] [data-widget-id]:focus {
+    --tw-ring-offset-shadow: 0 0 0 2px var(--background);
+    --tw-ring-shadow: 0 0 0 4px var(--ring);
+    z-index: 10;
+  }
+
+  /* Active ring on widgets during drag/resize */
+  [data-dragging="true"],
+  [data-resizing="true"] {
+    outline: 2px dashed var(--ring);
+    outline-offset: 2px;
   }
 }
 

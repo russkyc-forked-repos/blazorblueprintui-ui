@@ -6,6 +6,113 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## 2026-03-12
+
+### Added
+
+- **BbDateRangePicker: Customizable Presets** — New `Presets` parameter accepts `IReadOnlyList<DateRangeQuickPick>` to override the default quick-pick list. Supports built-in presets (with automatic localization via implicit conversion from `DateRangePreset`) and fully custom entries via `DateRangeQuickPick.Custom(label, rangeFactory)`. Desktop sidebar scrolls when many presets are provided. Mobile view uses a native select dropdown instead of a horizontal scroll strip.
+
+### Fixed
+
+- **BbNativeSelect** — Fix placeholder not displaying for value types and chevron icon not rendering. Moved SVG chevron from Tailwind arbitrary-value classes to CSS for Tailwind v4 compatibility. Fixed `Convert.ChangeType` failing silently for nullable `TValue` types.
+- **BbSidebarProvider** — Add missing `bg-sidebar` background class to the provider wrapper when using the `Inset` variant, so the inset content area renders with proper visual contrast. (#239)
+
+---
+
+## 2026-03-11
+
+### Added
+
+- **Localization: IBbLocalizer Interface** — New `IBbLocalizer` interface and `DefaultBbLocalizer` with English defaults for all 189 component chrome strings. Components use string-key lookup (e.g., `Localizer["DataGrid.Loading"]`) with `string.Format` for parameterized strings. Consumers can subclass `DefaultBbLocalizer` to integrate with `IStringLocalizer<T>` and `.resx` resource files. Calendar, DatePicker, DateRangePicker, and NumericInput automatically adapt to `CultureInfo.CurrentCulture`.
+- **BbDateRangePicker** — Changed visibility of the `Clear` method to public. (#216)
+
+### Fixed
+
+- **DataGrid** — Fix column filtering for nullable types and empty result visibility. (#204)
+- **Textarea** — Correct `UpdateTiming.OnChange` documentation to not mention Enter key. (#231)
+- **InputOtp** — Prevent invalid characters based on `InputMode`. (#223)
+
+---
+
+## 2026-03-10
+
+### Added
+
+- **DataGrid: Hierarchical Tree Data** — Support for hierarchical/tree data rendering in the DataGrid with cascading hierarchy selection and file explorer demo. (#221, #224)
+- **Filtering: InLast/InNext Date Filters** — Added Hours, Minutes, and Seconds period options to InLast/InNext date filters. (#227)
+
+### Fixed
+
+- **DataGrid** — Yield keyboard navigation to interactive children inside grid cells. (#226)
+- **Components** — Allow parent re-renders to cascade through remaining optimized components. (#225)
+
+---
+
+## 2026-03-09
+
+### Fixed
+
+- **TailwindMerge** — Comprehensive rewrite of class conflict resolution. Adds variant-scoped conflicts (e.g., `md:p-4` and `lg:p-4` no longer conflict), shorthand-to-longhand resolution (`p-4` removed when `px-2 py-2` follow), semantic color support (`text-muted-foreground`, `bg-primary/90`), important modifier (`!`) priority, negative values, arbitrary values (`p-[14px]`), 40+ new utility groups, O(1) color prefix lookups, data-driven non-color value disambiguation, bounded cache with eviction, and dictionary-based ungrouped class deduplication.
+
+---
+
+## 2026-03-08
+
+### Added
+
+- **DialogService: Alert, Prompt & Custom Component Dialogs** — New dialog types via `DialogService` with `AlertAsync()`, `PromptAsync()`, and `OpenAsync<T>()` methods. Includes `DialogData<TResult>` base class for strongly-typed results, `DialogOptions`/`DialogOpenOptions` for sizing and behavior, escape key handling, focus trapping, scroll lock, and proper ARIA roles (`alertdialog`/`dialog`). (#207)
+- **7 New Headless Primitives** — Added Separator, Toggle, ToggleGroup, Progress, AlertDialog, Slider, and ContextMenu primitives with full accessibility, keyboard navigation, and ARIA support. Refactored 18 component files to delegate behavior to the new primitives layer. (#217)
+
+### Fixed
+
+- **Primitives** — Checkbox spacebar toggle regression, context menu re-open positioning, context menu keyboard nav on re-open, toggle group focus visibility, select displaying value instead of text on initial load. (#217)
+- **Primitives** — Popover role changed to `dialog`, HoverCard trigger keyboard focusability, DropdownMenu aria-labelledby, Switch Enter key removed per WAI-ARIA, Checkbox/RadioGroup Required parameter added. (#217)
+
+---
+
+## 2026-03-07
+
+### Fixed
+
+- **BbDataGrid** — Respect initial `Visible` property on columns during initialization. (#205)
+
+---
+
+## 2026-03-06
+
+### Fixed
+
+- **BbDashboardGrid** — Ensure proper widget position updates during compact mode.
+- **BbDashboardGrid** — Grid layout fixes and fixed cell size support.
+- **Container Components** — Allow parent re-renders to cascade through container components.
+
+---
+
+## 2026-03-05
+
+### Added
+
+- **BbDataGrid: Row Grouping** — Collapsible row groups with aggregate functions (Count, Sum, Average, Min, Max) and custom group header templates. Groups by column via `GroupBy` parameter with `GroupHeaderTemplate` for full customization.
+- **BbDashboardGrid** — Drag-and-drop, resizable widget layout for composing dashboards. Built on CSS Grid with responsive breakpoints, state persistence, and full keyboard accessibility.
+  - Drag widgets to reorder with collision detection and local displacement.
+  - Resize from all corners and edges with configurable min/max span constraints.
+  - Responsive breakpoints at `MediumBreakpoint` (1024px) and `SmallBreakpoint` (768px) with independent column counts.
+  - CSS mask-based `Squares` background pattern that auto-hides when `Editable` is `false`.
+  - State persistence via `@bind-State` with `Save()`/`Restore()` and `GetConfig()` for full layout serialization.
+  - Loading state with `BbSkeleton`, empty state with `BbEmpty` and optional `OnAddWidget` callback.
+  - Remove widget button (trash icon) visible on hover in edit mode via `OnRemove` callback.
+  - `BbDashboardWidgetHeader`, `BbDashboardWidgetContent` sub-components for custom widget styling.
+  - Keyboard navigation: arrow keys to move, Shift+arrows to resize, Escape to cancel.
+  - Comprehensive demo page with 14 interactive examples and View Code sections.
+
+### Fixed
+
+- **BbDataGrid: Cell border rendering** — Fixed two issues preventing user-applied borders (e.g. `CellClass="border-r border-border"`) from rendering:
+  - `TailwindMerge` incorrectly classified bare border-side utilities like `border-r` as border-color, dropping them during class merging.
+  - `position: relative` permanently set on body `<tr>` rows triggered a Chromium bug that hides cell borders under `border-collapse: collapse`. Moved to `:focus`-only.
+
+---
+
 ## 2026-03-04
 
 ### Added

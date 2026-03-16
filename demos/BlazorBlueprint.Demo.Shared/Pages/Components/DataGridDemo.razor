@@ -80,7 +80,9 @@
                 Add <code class="bg-muted px-1 py-0.5 rounded">Filterable="true"</code> to property columns to enable
                 per-column filtering. A filter icon appears in the column header — hover to reveal it, or it stays
                 visible when a filter is active. Click the icon to open a popover with operator and value inputs.
-                Filter types are auto-inferred from the property type (text, number, date, boolean, enum).
+                Filter types are auto-inferred from the property type (text, number, date/datetime, boolean, enum).
+                Enum columns auto-generate dropdown options from the type. Nullable types (<code class="bg-muted px-1 py-0.5 rounded">DateTimeOffset?</code>,
+                <code class="bg-muted px-1 py-0.5 rounded">SeniorityLevel?</code>) include an "is empty" operator to find null values.
             </p>
         </div>
         @if (_gridState.Filtering.HasFilters)
@@ -106,6 +108,11 @@
                     FilterType="FilterFieldType.Enum"
                     FilterOptions="@(new[] { "Active", "Inactive", "Pending", "Suspended" }.Select(s => new SelectOption<string>(s, s)))"
                     Width="120px" />
+                <BbDataGridPropertyColumn TData="Person" TProp="PersonStatus" Property="@(p => p.StatusEnum)" Title="Status (Enum)" Sortable Filterable Width="140px" />
+                <BbDataGridPropertyColumn TData="Person" TProp="SeniorityLevel?" Property="@(p => p.Seniority)" Title="Seniority" Sortable Filterable Width="130px" />
+                <BbDataGridPropertyColumn TData="Person" TProp="DateTimeOffset?" Property="@(p => p.LastPromotionDate)" Title="Last Promotion" Format="d" Sortable Filterable Width="160px" />
+                <BbDataGridPropertyColumn TData="Person" TProp="DateTime" Property="@(p => p.JoinDate)" Title="Join Date" Sortable Filterable Format="d" Width="130px" />
+                <BbDataGridPropertyColumn TData="Person" TProp="DateTime" Property="@(p => p.LastActivity)" Title="Last Activity" Sortable Filterable Format="g" Width="170px" />
                 <BbDataGridPropertyColumn TData="Person" TProp="bool" Property="@(p => p.IsActive)" Title="Active" Sortable Filterable Width="100px" />
             </Columns>
         </BbDataGrid>
@@ -554,337 +561,117 @@
         <CodeBlock Source="Components/DataGrid/state-persistence.txt" />
     </div>
 
-    <!-- ── All Features Combined ──────────────────────────────────── -->
+    <!-- ── Row Grouping ─────────────────────────────────────────── -->
     <div class="space-y-4">
         <div class="space-y-2">
-            <h2 class="text-2xl font-semibold">All Features Combined</h2>
+            <h2 class="text-2xl font-semibold">Row Grouping</h2>
             <p class="text-sm text-muted-foreground">
-                Every DataGrid feature working together: sorting, column filtering, row selection, expandable rows,
-                column visibility, resize, reorder, pinned columns, row click, and context menu.
-                Right-click a row to copy data — hidden columns are excluded automatically.
-                Select multiple rows and use "Copy Selected Rows" from the context menu.
-                Scroll horizontally to see pinned columns stick in place.
+                Group rows by a column value using <code class="bg-muted px-1 py-0.5 rounded">GroupBy</code>.
+                Groups are collapsible and show item counts. Click the chevron to expand or collapse a group.
             </p>
         </div>
-        @if (!string.IsNullOrEmpty(allFeaturesMessage))
-        {
-            <BbAlert Variant="AlertVariant.Default" Class="transition-all">
-                <BbAlertDescription>@allFeaturesMessage</BbAlertDescription>
-            </BbAlert>
-        }
-        <div style="max-width: 900px; overflow: auto;">
-            <BbDataGrid TData="Person" Items="@people" InitialPageSize="5"
-                       Resizable="true" Reorderable="true"
-                       SelectionMode="DataTableSelectionMode.Multiple"
-                       OnRowClick="HandleAllFeaturesRowClick">
-                <RowContextMenu Context="menu">
-                    <BbContextMenuItem OnClick="@(async () => await CopyAllFeatures(menu, menu.Item.Name))">
-                        Copy Name
-                    </BbContextMenuItem>
-                    <BbContextMenuItem OnClick="@(async () => await CopyAllFeatures(menu, menu.Item.Email))">
-                        Copy Email
-                    </BbContextMenuItem>
-                    <BbContextMenuSeparator />
-                    <BbContextMenuItem OnClick="@(async () => await CopyAllFeatures(menu, menu.FormatRow(menu.Item)))">
-                        Copy Row
-                    </BbContextMenuItem>
-                    @if (menu.SelectedItems.Count > 1)
-                    {
-                        <BbContextMenuItem OnClick="@(async () => await CopyAllFeatures(menu, menu.FormatRows(menu.SelectedItems)))">
-                            Copy @menu.SelectedItems.Count Selected Rows
-                        </BbContextMenuItem>
-                    }
-                </RowContextMenu>
-                <Toolbar>
-                    <div class="flex items-center gap-2">
-                        <BbDataGridColumnVisibility TData="Person" />
-                    </div>
-                </Toolbar>
-                <Columns>
-                    <BbDataGridSelectColumn TData="Person" Pinned="BlazorBlueprint.Primitives.DataGrid.ColumnPinning.Left" />
-                    <BbDataGridExpandColumn TData="Person" />
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Name)" Sortable Filterable Hideable="false" Width="200px"
-                        Pinned="BlazorBlueprint.Primitives.DataGrid.ColumnPinning.Left" />
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Email)" Sortable Filterable Width="250px" />
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Department)" Sortable Filterable
-                        FilterType="FilterFieldType.Enum"
-                        FilterOptions="@(new[] { "Engineering", "Sales", "Marketing", "Support", "HR", "Finance", "Operations", "Product" }.Select(d => new SelectOption<string>(d, d)))"
-                        Width="150px" />
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Role)" Width="150px" />
-                    <BbDataGridPropertyColumn TData="Person" TProp="int" Property="@(p => p.Salary)" Format="C0" Sortable Filterable Width="120px" />
-                    <BbDataGridTemplateColumn TData="Person" Title="Actions" Width="120px"
-                        Pinned="BlazorBlueprint.Primitives.DataGrid.ColumnPinning.Right"
-                        Hideable="false" Resizable="false" Reorderable="false">
-                        <ChildContent Context="person">
-                            <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Small">Edit</BbButton>
-                        </ChildContent>
-                    </BbDataGridTemplateColumn>
-                </Columns>
-                <DetailTemplate>
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <span class="font-medium text-muted-foreground">Age:</span>
-                            <span class="ml-2">@context.Age</span>
-                        </div>
-                        <div>
-                            <span class="font-medium text-muted-foreground">Status:</span>
-                            <span class="ml-2">@context.Status</span>
-                        </div>
-                        <div>
-                            <span class="font-medium text-muted-foreground">Active:</span>
-                            <span class="ml-2">@(context.IsActive ? "Yes" : "No")</span>
-                        </div>
-                        <div>
-                            <span class="font-medium text-muted-foreground">Join Date:</span>
-                            <span class="ml-2">@context.JoinDate.ToShortDateString()</span>
-                        </div>
-                    </div>
-                </DetailTemplate>
-            </BbDataGrid>
-        </div>
-        <CodeBlock Source="Components/DataGrid/all-column-features.txt" />
-    </div>
-
-    <!-- ── Custom Cell Templates ───────────────────────────────────── -->
-    <div class="space-y-4">
-        <div class="space-y-2">
-            <h2 class="text-2xl font-semibold">Custom Cell Templates</h2>
-            <p class="text-sm text-muted-foreground">
-                Use <code class="bg-muted px-1 py-0.5 rounded">BbDataGridTemplateColumn</code> for fully custom cell content,
-                or add <code class="bg-muted px-1 py-0.5 rounded">CellTemplate</code> to a PropertyColumn.
-            </p>
-        </div>
-        <BbDataGrid TData="Person" Items="@people" InitialPageSize="5">
-            <Columns>
-                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Name)" Sortable>
-                    <CellTemplate Context="person">
-                        <div class="flex items-center gap-2">
-                            <BbAvatar Class="h-8 w-8">
-                                <BbAvatarFallback Class="text-xs">@GetInitials(person.Name)</BbAvatarFallback>
-                            </BbAvatar>
-                            <span class="font-medium">@person.Name</span>
-                        </div>
-                    </CellTemplate>
-                </BbDataGridPropertyColumn>
-                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Email)" Sortable />
-                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Status)" Sortable>
-                    <CellTemplate Context="person">
-                        <BbBadge Variant="@(person.Status == "Active" ? BadgeVariant.Default : person.Status == "Pending" ? BadgeVariant.Secondary : BadgeVariant.Outline)">
-                            @person.Status
-                        </BbBadge>
-                    </CellTemplate>
-                </BbDataGridPropertyColumn>
-                <BbDataGridTemplateColumn TData="Person" Title="Actions">
-                    <ChildContent Context="person">
-                        <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Small">Edit</BbButton>
-                    </ChildContent>
-                </BbDataGridTemplateColumn>
-            </Columns>
-        </BbDataGrid>
-        <CodeBlock Source="Components/DataGrid/custom-cell-templates.txt" />
-    </div>
-
-    <!-- ── Custom Header Template ──────────────────────────────────── -->
-    <div class="space-y-4">
-        <div class="space-y-2">
-            <h2 class="text-2xl font-semibold">Custom Header Template</h2>
-            <p class="text-sm text-muted-foreground">
-                Use <code class="bg-muted px-1 py-0.5 rounded">HeaderTemplate</code> on a
-                <code class="bg-muted px-1 py-0.5 rounded">BbDataGridTemplateColumn</code> to replace
-                the default header text with custom content. Sort icons and resize handles are preserved.
-            </p>
-        </div>
-        <BbDataGrid TData="Person" Items="@people" InitialPageSize="5">
+        <BbDataGrid @ref="groupingGrid" TData="Person" Items="@people" GroupBy="@(p => (object)p.Department)" InitialPageSize="50">
+            <Toolbar>
+                <div class="flex items-center gap-2">
+                    <BbButton Variant="ButtonVariant.Outline" Size="ButtonSize.Small"
+                              OnClick="@(() => groupingGrid!.ExpandAllGroups())">
+                        <LucideIcon Name="chevrons-down" Class="w-4 h-4 mr-1" /> Expand All
+                    </BbButton>
+                    <BbButton Variant="ButtonVariant.Outline" Size="ButtonSize.Small"
+                              OnClick="@(() => groupingGrid!.CollapseAllGroups())">
+                        <LucideIcon Name="chevrons-up" Class="w-4 h-4 mr-1" /> Collapse All
+                    </BbButton>
+                </div>
+            </Toolbar>
             <Columns>
                 <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Name)" Sortable />
-                <BbDataGridTemplateColumn TData="Person" Title="Contact" Sortable
-                    SortBy="@(p => (object)p.Email)">
-                    <HeaderTemplate>
-                        <div class="flex items-center gap-1.5">
-                            <LucideIcon Name="mail" Class="h-4 w-4" />
-                            <span>Contact</span>
-                        </div>
-                    </HeaderTemplate>
-                    <ChildContent Context="person">
-                        @person.Email
-                    </ChildContent>
-                </BbDataGridTemplateColumn>
-                <BbDataGridTemplateColumn TData="Person" Title="Status" Sortable
-                    SortBy="@(p => (object)p.Status)">
-                    <HeaderTemplate>
-                        <div class="flex items-center gap-1.5">
-                            <LucideIcon Name="activity" Class="h-4 w-4" />
-                            <span>Status</span>
-                        </div>
-                    </HeaderTemplate>
-                    <ChildContent Context="person">
-                        <BbBadge Variant="@(person.Status == "Active" ? BadgeVariant.Default : BadgeVariant.Secondary)">
-                            @person.Status
-                        </BbBadge>
-                    </ChildContent>
-                </BbDataGridTemplateColumn>
+                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Department)" Sortable />
+                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Role)" />
                 <BbDataGridPropertyColumn TData="Person" TProp="int" Property="@(p => p.Salary)" Format="C0" Sortable />
             </Columns>
         </BbDataGrid>
-        <CodeBlock Source="Components/DataGrid/header-template.txt" />
+        <CodeBlock Source="Components/DataGrid/row-grouping.txt" />
     </div>
 
-    <!-- ── Row & Column Styling ──────────────────────────────────── -->
+    <!-- ── Row Grouping with Aggregates ─────────────────────────── -->
     <div class="space-y-4">
         <div class="space-y-2">
-            <h2 class="text-2xl font-semibold">Row & Column Styling</h2>
+            <h2 class="text-2xl font-semibold">Row Grouping with Aggregates</h2>
             <p class="text-sm text-muted-foreground">
-                Use <code class="bg-muted px-1 py-0.5 rounded">RowClass</code> to apply CSS classes
-                per row based on data, <code class="bg-muted px-1 py-0.5 rounded">CellClass</code> for
-                column cell styling, and <code class="bg-muted px-1 py-0.5 rounded">HeaderClass</code> for
-                column header styling.
+                Add <code class="bg-muted px-1 py-0.5 rounded">Aggregate</code> to property columns to show
+                computed values (Sum, Average, Min, Max, Count) in the group header.
             </p>
         </div>
-        <BbDataGrid TData="Person" Items="@people" InitialPageSize="5"
-                   RowClass="@(p => p.Status == "Inactive" ? "opacity-50" : null)">
+        <BbDataGrid TData="Person" Items="@people" GroupBy="@(p => (object)p.Department)" ShowPagination InitialPageSize="10">
             <Columns>
-                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Name)" Sortable
-                    HeaderClass="text-primary" />
+                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Name)" Sortable />
                 <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Department)" Sortable />
                 <BbDataGridPropertyColumn TData="Person" TProp="int" Property="@(p => p.Salary)" Format="C0" Sortable
-                    CellClass="font-mono tabular-nums" HeaderClass="text-right"  />
-                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Status)" />
+                    Aggregate="BlazorBlueprint.Primitives.DataGrid.AggregateFunction.Average" />
+                <BbDataGridPropertyColumn TData="Person" TProp="int" Property="@(p => p.Age)" Sortable
+                    Aggregate="BlazorBlueprint.Primitives.DataGrid.AggregateFunction.Min" />
             </Columns>
         </BbDataGrid>
-        <CodeBlock Source="Components/DataGrid/row-column-styling.txt" />
+        <CodeBlock Source="Components/DataGrid/row-grouping-aggregates.txt" />
     </div>
 
-    <!-- ── Custom Styling Showcase ────────────────────────────────── -->
-    <div class="space-y-8">
-        <div class="space-y-2">
-            <h2 class="text-2xl font-semibold">Custom Styling Showcase</h2>
-            <p class="text-sm text-muted-foreground">
-                Combine <code class="bg-muted px-1 py-0.5 rounded">Class</code>,
-                <code class="bg-muted px-1 py-0.5 rounded">RowClass</code>,
-                <code class="bg-muted px-1 py-0.5 rounded">CellClass</code>, and
-                <code class="bg-muted px-1 py-0.5 rounded">HeaderClass</code> with Tailwind CSS
-                utilities for full visual customization of the grid.
-            </p>
-        </div>
-
-        <!-- Grid Lines -->
-        <div class="space-y-4">
-            <div class="space-y-1">
-                <h3 class="text-lg font-medium">Grid Lines</h3>
-                <p class="text-sm text-muted-foreground">
-                    Add visible row and column borders. Apply <code class="bg-muted px-1 py-0.5 rounded">border-r</code>
-                    via <code class="bg-muted px-1 py-0.5 rounded">CellClass</code> and
-                    <code class="bg-muted px-1 py-0.5 rounded">HeaderClass</code> on each column,
-                    and wrap the grid in an outer border with <code class="bg-muted px-1 py-0.5 rounded">Class</code>.
-                </p>
-            </div>
-            <BbDataGrid TData="Person" Items="@people" InitialPageSize="5"
-                       Class="border border-border rounded-lg overflow-hidden">
-                <Columns>
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Name)" Sortable
-                        CellClass="border-r border-border/40" HeaderClass="border-r border-border/40" />
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Department)" Sortable
-                        CellClass="border-r border-border/40" HeaderClass="border-r border-border/40" />
-                    <BbDataGridPropertyColumn TData="Person" TProp="int" Property="@(p => p.Salary)" Format="C0" Sortable
-                        CellClass="border-r border-border/40" HeaderClass="border-r border-border/40" />
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Status)" />
-                </Columns>
-            </BbDataGrid>
-            <CodeBlock Source="Components/DataGrid/custom-grid-lines.txt" />
-        </div>
-
-        <!-- Striped Rows -->
-        <div class="space-y-4">
-            <div class="space-y-1">
-                <h3 class="text-lg font-medium">Striped Rows</h3>
-                <p class="text-sm text-muted-foreground">
-                    Use <code class="bg-muted px-1 py-0.5 rounded">RowClass</code> with Tailwind's
-                    <code class="bg-muted px-1 py-0.5 rounded">even:</code> variant to alternate
-                    row background colours. The hover effect remains visible on all rows.
-                </p>
-            </div>
-            <BbDataGrid TData="Person" Items="@people" InitialPageSize="5"
-                       RowClass="@(_ => "even:bg-muted/40")">
-                <Columns>
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Name)" Sortable />
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Department)" Sortable />
-                    <BbDataGridPropertyColumn TData="Person" TProp="int" Property="@(p => p.Salary)" Format="C0" Sortable />
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Status)" />
-                </Columns>
-            </BbDataGrid>
-            <CodeBlock Source="Components/DataGrid/custom-striped-rows.txt" />
-        </div>
-
-        <!-- Striped Columns -->
-        <div class="space-y-4">
-            <div class="space-y-1">
-                <h3 class="text-lg font-medium">Striped Columns</h3>
-                <p class="text-sm text-muted-foreground">
-                    Apply <code class="bg-muted px-1 py-0.5 rounded">CellClass</code> and
-                    <code class="bg-muted px-1 py-0.5 rounded">HeaderClass</code> to alternating
-                    columns for a vertical stripe effect.
-                </p>
-            </div>
-            <BbDataGrid TData="Person" Items="@people" InitialPageSize="5">
-                <Columns>
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Name)" Sortable
-                        CellClass="bg-muted" HeaderClass="bg-muted" />
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Department)" Sortable />
-                    <BbDataGridPropertyColumn TData="Person" TProp="int" Property="@(p => p.Salary)" Format="C0" Sortable
-                        CellClass="bg-muted" HeaderClass="bg-muted" />
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Status)" />
-                </Columns>
-            </BbDataGrid>
-            <CodeBlock Source="Components/DataGrid/custom-striped-columns.txt" />
-        </div>
-
-        <!-- Colored Header -->
-        <div class="space-y-4">
-            <div class="space-y-1">
-                <h3 class="text-lg font-medium">Colored Header</h3>
-                <p class="text-sm text-muted-foreground">
-                    Apply a distinct background colour to the header row using
-                    <code class="bg-muted px-1 py-0.5 rounded">HeaderClass</code> on each column.
-                    TailwindMerge automatically resolves conflicting classes with the base header styles.
-                </p>
-            </div>
-            <BbDataGrid TData="Person" Items="@people" InitialPageSize="5">
-                <Columns>
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Name)" Sortable
-                        HeaderClass="bg-primary text-primary-foreground" />
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Department)" Sortable
-                        HeaderClass="bg-primary text-primary-foreground" />
-                    <BbDataGridPropertyColumn TData="Person" TProp="int" Property="@(p => p.Salary)" Format="C0" Sortable
-                        HeaderClass="bg-primary text-primary-foreground" />
-                    <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Status)"
-                        HeaderClass="bg-primary text-primary-foreground" />
-                </Columns>
-            </BbDataGrid>
-            <CodeBlock Source="Components/DataGrid/custom-colored-header.txt" />
-        </div>
-    </div>
-
-    <!-- ── Empty & Loading States ──────────────────────────────────── -->
+    <!-- ── Row Grouping with Custom Header ──────────────────────── -->
     <div class="space-y-4">
         <div class="space-y-2">
-            <h2 class="text-2xl font-semibold">Empty & Loading States</h2>
+            <h2 class="text-2xl font-semibold">Row Grouping with Custom Header</h2>
             <p class="text-sm text-muted-foreground">
-                The grid shows an empty state when there is no data, and a loading state when
-                <code class="bg-muted px-1 py-0.5 rounded">IsLoading</code> is true.
+                Use <code class="bg-muted px-1 py-0.5 rounded">BbDataGridGroupColumn</code> for declarative
+                grouping with a custom header template. The template receives a <code class="bg-muted px-1 py-0.5 rounded">DataGridGroupContext</code>
+                with group data and a toggle callback.
             </p>
         </div>
-        <div class="flex gap-4">
-            <BbButton OnClick="ToggleLoading" Variant="ButtonVariant.Outline" Size="ButtonSize.Small">
-                Toggle Loading
-            </BbButton>
-        </div>
-        <BbDataGrid TData="Person" Items="@(Array.Empty<Person>())" IsLoading="@_isLoading">
+        <BbDataGrid TData="Person" Items="@people" InitialPageSize="50">
             <Columns>
-                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Name)" />
-                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Email)" />
+                <BbDataGridGroupColumn TData="Person" TProperty="string" Property="@(p => p.Status)">
+                    <HeaderTemplate>
+                        <div class="flex items-center gap-3">
+                            <button type="button"
+                                    class="inline-flex items-center justify-center rounded-md w-6 h-6 hover:bg-muted transition-colors"
+                                    @onclick="context.ToggleCollapse"
+                                    @onclick:stopPropagation="true">
+                                <BlazorBlueprint.Icons.Lucide.Components.LucideIcon
+                                    Name="@(context.IsCollapsed ? "chevron-right" : "chevron-down")" Class="w-4 h-4" />
+                            </button>
+                            <BbBadge Variant="@(context.Group.Key?.ToString() == "Active" ? BadgeVariant.Default : BadgeVariant.Secondary)">
+                                @context.Group.Key
+                            </BbBadge>
+                            <span class="text-muted-foreground text-sm">@context.Group.ItemCount employees</span>
+                        </div>
+                    </HeaderTemplate>
+                </BbDataGridGroupColumn>
+                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Name)" Sortable />
+                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Department)" />
+                <BbDataGridPropertyColumn TData="Person" TProp="int" Property="@(p => p.Salary)" Format="C0" Sortable
+                    Aggregate="BlazorBlueprint.Primitives.DataGrid.AggregateFunction.Sum" />
             </Columns>
         </BbDataGrid>
-        <CodeBlock Source="Components/DataGrid/empty-loading.txt" />
+        <CodeBlock Source="Components/DataGrid/row-grouping-custom-header.txt" />
+    </div>
+
+    <!-- ── Grouping + Filtering + Sorting ───────────────────────── -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">Grouping + Filtering + Sorting</h2>
+            <p class="text-sm text-muted-foreground">
+                Grouping works with filtering and sorting. Filters are applied before grouping (filtered-out
+                items excluded from groups). Sort applies within each group.
+            </p>
+        </div>
+        <BbDataGrid TData="Person" Items="@people" GroupBy="@(p => (object)p.Department)" InitialPageSize="50">
+            <Columns>
+                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Name)" Sortable Filterable />
+                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Department)" Sortable Filterable />
+                <BbDataGridPropertyColumn TData="Person" TProp="string" Property="@(p => p.Status)" Sortable Filterable />
+                <BbDataGridPropertyColumn TData="Person" TProp="int" Property="@(p => p.Salary)" Format="C0" Sortable
+                    Aggregate="BlazorBlueprint.Primitives.DataGrid.AggregateFunction.Sum" />
+            </Columns>
+        </BbDataGrid>
+        <CodeBlock Source="Components/DataGrid/row-grouping-filtering.txt" />
     </div>
 
     <AccessibilityList>
@@ -1027,6 +814,30 @@
                 <ApiParameter Name="ItemKey" Type="Func&lt;TData, object&gt;?">
                     Key selector for row identity. Used by Blazor's diffing algorithm for efficient rendering. When not set, falls back to the item reference.
                 </ApiParameter>
+                <ApiParameter Name="GroupBy" Type="Expression&lt;Func&lt;TData, object&gt;&gt;?">
+                    Expression to group rows by. When set, rows are grouped by the value of this expression and collapsible group headers are rendered.
+                </ApiParameter>
+                <ApiParameter Name="GroupHeaderTemplate" Type="RenderFragment&lt;DataGridGroupContext&lt;TData&gt;&gt;?">
+                    Custom template for group header rows. Receives a DataGridGroupContext with group data, collapse state, and a toggle callback.
+                </ApiParameter>
+                <ApiParameter Name="GroupsCollapsedByDefault" Type="bool" Default="false">
+                    Whether groups should be collapsed by default when grouping is first applied.
+                </ApiParameter>
+                <ApiParameter Name="OnGroupExpand" Type="EventCallback&lt;DataGridGroupRow&lt;TData&gt;&gt;">
+                    Event callback invoked when a group is expanded. Receives the group row data.
+                </ApiParameter>
+                <ApiParameter Name="OnGroupCollapse" Type="EventCallback&lt;DataGridGroupRow&lt;TData&gt;&gt;">
+                    Event callback invoked when a group is collapsed. Receives the group row data.
+                </ApiParameter>
+                <ApiParameter Name="GroupedItemsProvider" Type="DataGridGroupedItemsProvider&lt;TData&gt;?">
+                    Async delegate for server-side grouped data fetching. When set and grouping is active, called instead of ItemsProvider.
+                </ApiParameter>
+                <ApiParameter Name="ExpandAllGroups()" Type="Task">
+                    Public method. Expands all groups, showing their data rows. Call via a component reference (<code>@@ref</code>).
+                </ApiParameter>
+                <ApiParameter Name="CollapseAllGroups()" Type="Task">
+                    Public method. Collapses all groups, hiding their data rows. Call via a component reference (<code>@@ref</code>).
+                </ApiParameter>
             </ApiReference>
 
             <ApiReference ComponentName="DataGridPropertyColumn">
@@ -1079,10 +890,16 @@
                     Override the auto-inferred filter field type. Use when the default inference is not correct (e.g., use FilterFieldType.Enum for string properties with known values).
                 </ApiParameter>
                 <ApiParameter Name="FilterOptions" Type="IEnumerable&lt;SelectOption&lt;string&gt;&gt;?" Default="null">
-                    Predefined options for Enum filter fields. Required when FilterType is FilterFieldType.Enum.
+                    Predefined options for Enum filter fields. When the property type is a C# enum, options are auto-generated from the enum values. Use this to override or provide options for string-based enum columns.
                 </ApiParameter>
                 <ApiParameter Name="NoWrap" Type="bool" Default="false">
                     Whether text in this column should not wrap. When true, cell content uses white-space: nowrap and truncates with an ellipsis on overflow.
+                </ApiParameter>
+                <ApiParameter Name="Aggregate" Type="AggregateFunction" Default="None">
+                    Aggregate function to compute in group headers when grouping is active. Options: None, Count, Sum, Average, Min, Max.
+                </ApiParameter>
+                <ApiParameter Name="AggregateFormat" Type="string?" Default="null">
+                    Format string for displaying aggregate values (e.g., "N0", "C2"). When null, falls back to Format if set, otherwise uses default formatting.
                 </ApiParameter>
             </ApiReference>
 
@@ -1144,6 +961,12 @@
                 <ApiParameter Name="NoWrap" Type="bool" Default="false">
                     Whether text in this column should not wrap. When true, cell content uses white-space: nowrap and truncates with an ellipsis on overflow.
                 </ApiParameter>
+                <ApiParameter Name="Aggregate" Type="AggregateFunction" Default="None">
+                    Aggregate function to compute in group headers when grouping is active. Requires SortBy to provide a value accessor for numeric aggregates.
+                </ApiParameter>
+                <ApiParameter Name="AggregateFormat" Type="string?" Default="null">
+                    Format string for displaying aggregate values (e.g., "N0", "C2"). When null, uses default formatting.
+                </ApiParameter>
             </ApiReference>
 
             <ApiReference ComponentName="DataGridSelectColumn">
@@ -1164,6 +987,24 @@
                 </ApiParameter>
             </ApiReference>
 
+            <ApiReference ComponentName="DataGridGroupColumn">
+                <ApiParameter Name="Property" Type="Expression&lt;Func&lt;TData, TProperty&gt;&gt;">
+                    The property expression to group rows by.
+                </ApiParameter>
+                <ApiParameter Name="Title" Type="string?" Default="null">
+                    Override the display name for the group column. When null, inferred from the property name.
+                </ApiParameter>
+                <ApiParameter Name="GroupSortDirection" Type="SortDirection" Default="Ascending">
+                    The sort direction for group ordering.
+                </ApiParameter>
+                <ApiParameter Name="CollapsedByDefault" Type="bool" Default="false">
+                    Whether groups should be collapsed by default.
+                </ApiParameter>
+                <ApiParameter Name="HeaderTemplate" Type="RenderFragment&lt;DataGridGroupContext&lt;TData&gt;&gt;?" Default="null">
+                    Custom template for group header row content.
+                </ApiParameter>
+            </ApiReference>
+
             <ApiReference ComponentName="DataGridColumnVisibility">
                 <ApiParameter Name="TriggerContent" Type="RenderFragment?">
                     Custom trigger content. If not provided, renders a default "Columns" button.
@@ -1177,16 +1018,42 @@
             </ApiReference>
         </div>
     </section>
+
+    <LocalizationSection
+        Description="DataGrid has extensive localization support for loading states, selection, filtering, grouping, and pagination labels."
+        Labels="@(new LocalizationSection.LabelInfo[]
+        {
+            new("Loading", "Loading...", "Shown while data is loading"),
+            new("NoResultsFound", "No results found", "Shown when there are no rows"),
+            new("NoResultsFilterDescription", "Try adjusting or clearing your filters.", "Description for the empty filtered state"),
+            new("PreviousPage / NextPage", "Previous page / Next page", "Pagination aria labels"),
+            new("ExpandAll / CollapseAll", "Expand all / Collapse all", "Hierarchy toggle labels"),
+            new("SelectAllOnPage", "Select all on this page ({count} items)", "Bulk selection label (Func<int, string>)"),
+            new("SelectAllItems", "Select all {count} items", "Full selection label (Func<int, string>)"),
+            new("ClearSelection", "Clear selection", "Label for clearing selection"),
+            new("FilterPlaceholder", "Filter {columnTitle}", "Column filter placeholder (Func<string, string>)"),
+            new("ActiveFilters", "{count} active filter(s)", "Active filter count badge (Func<int, string>)"),
+            new("ShowingRange", "Showing {start}–{end} of {total}", "Range display (Func<int, int, int, string>)"),
+            new("RowsSelected", "{selected} of {total} row(s) selected", "Selection count display"),
+            new("CountLabel / SumLabel / ...", "Count, Sum, Avg, Min, Max", "Aggregate function labels"),
+        })"
+        CodeExample="@(@"services.AddBlazorBlueprintComponents(opts =>
+{
+    opts.DataGrid.Loading = ""Laden..."";
+    opts.DataGrid.NoResultsFound = ""Keine Ergebnisse gefunden"";
+    opts.DataGrid.ClearSelection = ""Auswahl aufheben"";
+    opts.DataGrid.SelectAllOnPage = count => $""Alle auf dieser Seite auswählen ({count})"";
+});")" />
 </div>
 
 @code {
+    private BbDataGrid<Person>? groupingGrid;
     private List<Person> people = new();
     private List<Person> manyPeople = new();
     private List<Person> stressTestPeople = new();
     private List<Person> asyncPeople = new();
     private IReadOnlyCollection<Person> _selectedPeople = Array.Empty<Person>();
     private string? clickedRowMessage;
-    private bool _isLoading;
     private bool stressTestLoaded;
     private bool stressTestLoading;
 
@@ -1338,16 +1205,6 @@
         };
     }
 
-    private void ToggleLoading() => _isLoading = !_isLoading;
-
-    private static string GetInitials(string name)
-    {
-        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return parts.Length >= 2
-            ? $"{parts[0][0]}{parts[1][0]}"
-            : parts.Length == 1 ? $"{parts[0][0]}" : "?";
-    }
-
     // --- State Persistence ---
 
     private BlazorBlueprint.Primitives.DataGrid.DataGridState<Person> persistenceState = new();
@@ -1407,21 +1264,6 @@
     {
         await menu.CopyToClipboardAsync(text);
         clickedRowMessage = $"Copied to clipboard: {text}";
-    }
-
-    // --- All Features ---
-
-    private string? allFeaturesMessage;
-
-    private void HandleAllFeaturesRowClick(Person person)
-    {
-        allFeaturesMessage = $"Clicked: {person.Name} ({person.Email})";
-    }
-
-    private async Task CopyAllFeatures(DataGridRowMenuContext<Person> menu, string text)
-    {
-        await menu.CopyToClipboardAsync(text);
-        allFeaturesMessage = $"Copied to clipboard: {text}";
     }
 
 }

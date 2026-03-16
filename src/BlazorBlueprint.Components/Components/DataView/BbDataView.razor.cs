@@ -38,6 +38,8 @@ namespace BlazorBlueprint.Components;
 /// </example>
 public partial class BbDataView<TItem> : ComponentBase, IAsyncDisposable where TItem : class
 {
+    [Inject] private IBbLocalizer Localizer { get; set; } = default!;
+
     /// <summary>
     /// Internal class for storing field metadata without component parameters.
     /// This avoids BL0005 warnings when creating field instances programmatically.
@@ -74,6 +76,7 @@ public partial class BbDataView<TItem> : ComponentBase, IAsyncDisposable where T
     private int _sortingVersion;
 
     // ShouldRender tracking fields
+    private bool _parametersChanged;
     private IEnumerable<TItem>? _lastData;
     private DataViewLayout _lastLayout;
     private bool _lastIsLoading;
@@ -344,6 +347,8 @@ public partial class BbDataView<TItem> : ComponentBase, IAsyncDisposable where T
 
     protected override async Task OnParametersSetAsync()
     {
+        _parametersChanged = true;
+
         // Sync the backing field when the Layout parameter changes externally.
         currentLayout = Layout;
 
@@ -643,17 +648,32 @@ public partial class BbDataView<TItem> : ComponentBase, IAsyncDisposable where T
     {
         if (string.IsNullOrEmpty(_sortingState.SortedColumn))
         {
-            return "Sort";
+            return Localizer["DataView.Sort"];
         }
 
         var field = _fields.FirstOrDefault(f => f.Id == _sortingState.SortedColumn);
-        return field?.Header ?? "Sort";
+        return field?.Header ?? Localizer["DataView.Sort"];
     }
 
     // ── ShouldRender ─────────────────────────────────────────────────────────
 
     protected override bool ShouldRender()
     {
+        if (_parametersChanged)
+        {
+            _parametersChanged = false;
+            _lastData = Data;
+            _lastLayout = currentLayout;
+            _lastIsLoading = IsLoading;
+            _lastFieldsVersion = _fieldsVersion;
+            _lastSearchValue = _searchValue;
+            _lastPaginationVersion = _paginationVersion;
+            _lastSlotVersion = _slotVersion;
+            _lastInfiniteScrollVersion = _infiniteScrollVersion;
+            _lastSortingVersion = _sortingVersion;
+            return true;
+        }
+
         var dataChanged = !ReferenceEquals(_lastData, Data);
         var layoutChanged = _lastLayout != currentLayout;
         var loadingChanged = _lastIsLoading != IsLoading;

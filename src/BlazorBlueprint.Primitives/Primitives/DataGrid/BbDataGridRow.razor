@@ -63,7 +63,7 @@
 
     private bool IsKeyboardNavigable => IsDataRow && Context != null && Context.EnableKeyboardNavigation;
 
-    private const string FocusRingClasses = "relative focus:outline-none focus:z-10";
+    private const string FocusRingClasses = "focus:outline-none";
 
     private string ComputedClass => IsKeyboardNavigable ? $"{FocusRingClasses} {Class}" : Class ?? "";
 
@@ -138,6 +138,11 @@
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
+        // Interactive child interception is handled entirely in JS.
+        // The bubble-phase handler in preventSpaceKeyScroll calls
+        // stopPropagation() for interactive targets, so this method
+        // is only invoked for row-level keyboard events.
+
         if (IsKeyboardNavigable)
         {
             switch (e.Key)
