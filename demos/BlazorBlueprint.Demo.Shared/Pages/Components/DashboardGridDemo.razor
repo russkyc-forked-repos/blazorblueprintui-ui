@@ -232,6 +232,35 @@
         <CodeBlock Source="Components/DashboardGrid/freeform.txt" />
     </div>
 
+    <!-- ── Fixed Cell Size ────────────────────────────────────────── -->
+    <div class="space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-2xl font-semibold">Fixed Cell Size</h2>
+            <p class="text-sm text-muted-foreground">
+                Set <code class="bg-muted px-1 py-0.5 rounded">CellWidth</code> to create a strict grid with fixed-size
+                square cells. Use <code class="bg-muted px-1 py-0.5 rounded">MaxWidth</code> to constrain the container
+                and enable horizontal scrolling when the grid exceeds it.
+            </p>
+        </div>
+        <BbDashboardGrid @bind-State="fixedCellState" Columns="24" RowHeight="40" CellWidth="40" Gap="8" MaxWidth="800" Border="true">
+            <BbDashboardWidget Id="fixed-1" Column="1" Row="1" ColumnSpan="8" RowSpan="6" Title="Widget A">
+                <div class="flex items-center justify-center h-full text-muted-foreground text-sm">
+                    8 × 6 cells
+                </div>
+            </BbDashboardWidget>
+            <BbDashboardWidget Id="fixed-2" Column="9" Row="1" ColumnSpan="8" RowSpan="6" Title="Widget B">
+                <div class="flex items-center justify-center h-full text-muted-foreground text-sm">
+                    8 × 6 cells
+                </div>
+            </BbDashboardWidget>
+            <BbDashboardWidget Id="fixed-3" Column="17" Row="1" ColumnSpan="8" RowSpan="6" Title="Widget C">
+                <div class="flex items-center justify-center h-full text-muted-foreground text-sm">
+                    8 × 6 cells
+                </div>
+            </BbDashboardWidget>
+        </BbDashboardGrid>
+    </div>
+
     <!-- ── State Persistence ───────────────────────────────────────── -->
     <div class="space-y-4">
         <div class="space-y-2">
@@ -367,7 +396,7 @@
                 Add a container border with <code class="bg-muted px-1 py-0.5 rounded">Border="true"</code> and
                 choose a background pattern with <code class="bg-muted px-1 py-0.5 rounded">Background</code>:
                 <code class="bg-muted px-1 py-0.5 rounded">None</code> or
-                <code class="bg-muted px-1 py-0.5 rounded">Squares</code>.
+                <code class="bg-muted px-1 py-0.5 rounded">Grid</code>.
                 Drag and resize the widgets to see the background pattern behind them.
             </p>
         </div>
@@ -396,11 +425,11 @@
                 </BbDashboardGrid>
             </div>
             <div class="space-y-2">
-                <p class="text-sm font-medium">Squares background (with border)</p>
-                <BbDashboardGrid Border="true" Background="DashboardBackground.Squares">
+                <p class="text-sm font-medium">Grid background (with border)</p>
+                <BbDashboardGrid Border="true" Background="DashboardBackground.Grid">
                     <BbDashboardWidget Id="bg-squares-1" Column="1" Row="1" ColumnSpan="12" RowSpan="6" Title="Sales Chart">
                         <div class="flex items-center justify-center h-full text-muted-foreground">
-                            Drag me around — the squares show exact widget positions
+                            Drag me around — Grid cells show widget snap positions
                         </div>
                     </BbDashboardWidget>
                     <BbDashboardWidget Id="bg-squares-2" Column="13" Row="1" ColumnSpan="12" RowSpan="6" Title="User Growth">
@@ -424,7 +453,7 @@
                 Drag the widget around the container or resize it to fill more space.
             </p>
         </div>
-        <BbDashboardGrid MaxRows="8" Border="true" Background="DashboardBackground.Squares">
+        <BbDashboardGrid MaxRows="8" Border="true" Background="DashboardBackground.Grid">
             <BbDashboardWidget Id="fixed-1" Column="1" Row="1" ColumnSpan="12" RowSpan="4" Title="Top-Left Quarter">
                 <div class="flex items-center justify-center h-full text-muted-foreground">
                     1/4 of the container — drag or resize me
@@ -448,7 +477,7 @@
             <BbButton OnClick="AddWidget" Variant="ButtonVariant.Outline" Size="ButtonSize.Small">Add Widget</BbButton>
             <BbButton OnClick="RemoveLastWidget" Variant="ButtonVariant.Destructive" Size="ButtonSize.Small" Disabled="@(dynamicWidgets.Count == 0)">Remove Last</BbButton>
         </div>
-        <BbDashboardGrid Border="true" Background="DashboardBackground.Squares" OnAddWidget="AddWidget">
+        <BbDashboardGrid Border="true" Background="DashboardBackground.Grid" OnAddWidget="AddWidget">
             @foreach (var widget in dynamicWidgets)
             {
                 <BbDashboardWidget @key="widget.Id" Id="@widget.Id" Column="@widget.Column" Row="@widget.Row"
@@ -506,7 +535,7 @@
             @(customStyleEditable ? "Lock Dashboard" : "Edit Dashboard")
         </BbButton>
         <BbDashboardGrid @bind-State="customStyleState" Editable="@customStyleEditable" Border="true"
-                         Background="DashboardBackground.Squares">
+                         Background="DashboardBackground.Grid">
             @* Dark widget with gradient header *@
             <BbDashboardWidget Id="styled-1" Column="1" Row="1" ColumnSpan="4" RowSpan="8"
                                Class="styled-widget-dark">
@@ -612,7 +641,7 @@
         </div>
 
         <BbDashboardGrid @ref="dataDrivenGridRef" @bind-State="dataDrivenGridState"
-                         Loading="@dataDrivenLoading" Background="DashboardBackground.Squares" Border="true">
+                         Loading="@dataDrivenLoading" Background="DashboardBackground.Grid" Border="true">
             @foreach (var widget in dataDrivenWidgets)
             {
                 <BbDashboardWidget @key="widget.Id" Id="@widget.Id"
@@ -718,8 +747,8 @@
                 <ApiParameter Name="Border" Type="bool" Default="false">
                     Add a rounded border around the grid container.
                 </ApiParameter>
-                <ApiParameter Name="Background" Type="DashboardBackground" Default="Squares">
-                    Background pattern shown when the grid is in edit mode: <code>None</code> or <code>Squares</code>. Automatically hidden when <code>Editable</code> is <code>false</code>.
+                <ApiParameter Name="Background" Type="DashboardBackground" Default="Grid">
+                    Background pattern shown when the grid is in edit mode: <code>None</code> or <code>Grid</code>. Automatically hidden when <code>Editable</code> is <code>false</code>.
                 </ApiParameter>
                 <ApiParameter Name="Loading" Type="bool" Default="false">
                     When <code>true</code>, displays a skeleton loading state instead of the grid.
@@ -850,6 +879,23 @@
             </ApiReference>
         </div>
     </section>
+
+    <LocalizationSection
+        Description="Dashboard grid loading, empty state, and widget action labels are configurable."
+        Labels="@(new LocalizationSection.LabelInfo[]
+        {
+            new("Loading", "Loading dashboard", "Shown while the dashboard is loading"),
+            new("NoWidgets", "No widgets to display", "Shown when there are no widgets"),
+            new("NoWidgetsDescription", "Get started by adding your first widget.", "Description text for the empty state"),
+            new("AddWidget", "Add Widget", "Label for the add widget button"),
+            new("RemoveWidget", "Remove widget", "Aria label for the remove widget button"),
+            new("ResizeWidget", "Resize widget", "Aria label for the resize handle"),
+        })"
+        CodeExample="@(@"services.AddBlazorBlueprintComponents(opts =>
+{
+    opts.DashboardGrid.Loading = ""Dashboard wird geladen"";
+    opts.DashboardGrid.NoWidgets = ""Keine Widgets vorhanden"";
+});")" />
 </div>
 
 @code {
@@ -870,6 +916,9 @@
 
     // Freeform layout
     private bool isFreeformCompact = true;
+
+    // Fixed cell size
+    private BlazorBlueprint.Primitives.DashboardGrid.DashboardGridState fixedCellState = new();
 
     // Responsive breakpoint
     private BlazorBlueprint.Primitives.DashboardGrid.DashboardBreakpoint? currentBreakpoint;

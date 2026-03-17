@@ -1,6 +1,9 @@
 @namespace BlazorBlueprint.Components
 @using BlazorBlueprint.Icons.Lucide.Components
 @using BlazorBlueprint.Primitives.DashboardGrid
+@inject IBbLocalizer Localizer
+
+@if (_removed) { return; }
 
 <BlazorBlueprint.Primitives.DashboardGrid.BbDashboardWidget
     Id="@Id"
@@ -32,7 +35,7 @@
     {
         <button type="button"
                 class="absolute top-2 right-2 z-20 p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                aria-label="Remove widget"
+                aria-label="@Localizer["DashboardGrid.RemoveWidget"]"
                 @onclick="HandleRemove"
                 @onclick:stopPropagation="true">
             <LucideIcon Name="trash" Class="h-4 w-4" />
@@ -85,7 +88,7 @@
              data-widget-id="@Id"
              role="separator"
              tabindex="0"
-             aria-label="Resize widget">
+             aria-label="@Localizer["DashboardGrid.ResizeWidget"]">
             <svg class="w-4 h-4 text-muted-foreground" viewBox="0 0 16 16" fill="currentColor">
                 <circle cx="11" cy="11" r="1.5" />
                 <circle cx="7" cy="11" r="1.5" />
@@ -132,6 +135,32 @@
     [Parameter] public EventCallback<string> OnRemove { get; set; }
     [Parameter] public string? Class { get; set; }
 
+    private bool _removed;
+    private DashboardGridContext? _subscribedContext;
+
+    protected override void OnInitialized()
+    {
+        TrackContext();
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Context != _subscribedContext)
+        {
+            TrackContext();
+
+            if (_removed && Context?.GetWidgetPosition(Id) == null)
+            {
+                _removed = false;
+            }
+        }
+    }
+
+    private void TrackContext()
+    {
+        _subscribedContext = Context;
+    }
+
     private bool _isEditable =>
         !Static && (Context?.Editable ?? false);
 
@@ -150,6 +179,7 @@
 
     private async Task HandleRemove()
     {
+        _removed = true;
         await OnRemove.InvokeAsync(Id);
     }
 }
