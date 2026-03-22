@@ -1,5 +1,5 @@
-## What's New in v3.7.2
+## What's New in v3.7.3
 
 ### Bug Fixes
 
-- **DataGrid**: Fix `OnToggleExpand` not being wired to the primitives context when the expand column registers after initial render, which prevented space/enter keyboard expansion from working.
+- **Filtering** — Date and DateTime filter comparisons now use whole-day semantics. Operators (Equals, NotEquals, GreaterThan, LessThan, Between) treat the selected date as representing the entire day rather than an exact midnight timestamp, fixing incorrect results when data contains non-midnight time components.
